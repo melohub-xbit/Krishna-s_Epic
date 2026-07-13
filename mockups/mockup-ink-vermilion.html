@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Velidanda Krishna Sai — Manga Portfolio (Ink & vermilion, kumkum seal)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Serif+Telugu:wght@400;600;700&family=Zilla+Slab:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+/*PAL-START*/
+:root{
+  --bg:#f4f1ea; --bg2:#eae6db; --panel:#fbf9f3;
+  --line:#141210; --fg:#141210; --fg-soft:#8a8378;
+  --accent:#c1272d; --accent2:#c1272d; --secondary:#141210;
+  --shadow:#141210; --dot:rgba(20,18,16,.07);
+  --emblem-bg:#141210; --art-line:#f4f1ea; --art-gold:#c1272d;
+  --ram:#c1272d; --mbh:#c1272d;
+  --gw-ram:linear-gradient(160deg,#3a3a3a,#111);
+  --gw-mbh:linear-gradient(160deg,#2b2b2b,#0c0c0c);
+  --leaf:#2a2724; --marigold:#c1272d;
+  --hero-fg:#f4f1ea; --ribbon-fg:#f4f1ea;
+}
+/*PAL-END*/
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Zilla Slab',serif;color:var(--fg);background:var(--bg);
+    background-image:radial-gradient(circle, var(--dot) 0.7px, transparent 1px);
+    background-size:6px 6px;-webkit-font-smoothing:antialiased}
+  .telugu{font-family:'Noto Serif Telugu',serif}
+  .impact{font-family:'Anton',sans-serif;letter-spacing:.02em}
+  .gloss{font-style:italic;font-size:13px;color:var(--fg-soft);margin-top:3px}
+  .speedlines{background:repeating-conic-gradient(from 0deg at 50% 50%,var(--line) 0deg 0.5deg, transparent 0.5deg 3deg)}
+
+  section.screen{min-height:100vh;padding:clamp(24px,5vw,72px);
+    display:flex;flex-direction:column;justify-content:center;position:relative;
+    border-bottom:6px solid var(--line);overflow:hidden}
+  .panel{background:var(--panel);border:4px solid var(--line);box-shadow:8px 8px 0 var(--shadow);position:relative}
+  .ribbon{position:absolute;top:0;left:clamp(24px,5vw,72px);transform:translateY(-50%);
+    background:var(--accent);color:var(--ribbon-fg);font-family:'Anton',sans-serif;
+    letter-spacing:.06em;font-size:13px;padding:7px 16px;border:3px solid var(--line);
+    box-shadow:4px 4px 0 var(--shadow);z-index:4}
+
+  /* COVER */
+  .cover-burst{position:absolute;inset:0;
+    -webkit-mask-image:radial-gradient(circle at 62% 42%, #000 0%, transparent 46%);
+    mask-image:radial-gradient(circle at 62% 42%, #000 0%, transparent 46%);opacity:.10;pointer-events:none}
+  .cover-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:22px;align-items:stretch;
+    position:relative;z-index:2;max-width:1180px;margin:0 auto;width:100%}
+  .cover-left{display:flex;flex-direction:column;gap:18px}
+  .title-panel{padding:30px 30px 26px;flex:1;display:flex;flex-direction:column;justify-content:center;
+    background:radial-gradient(circle, var(--dot) 1px, transparent 1.3px) 0 0/8px 8px, var(--panel)}
+  .vol{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.35em;color:var(--accent);margin-bottom:6px}
+  .name-te{font-family:'Noto Serif Telugu',serif;font-weight:700;font-size:clamp(30px,5.2vw,58px);line-height:1.05;color:var(--secondary)}
+  .name-en{font-family:'Anton',sans-serif;font-size:clamp(38px,7vw,88px);line-height:.9;margin-top:6px;color:var(--fg);text-shadow:3px 3px 0 var(--accent2)}
+  .rule-ink{height:5px;background:var(--line);margin:16px 0 12px;clip-path:polygon(0 40%,4% 0,7% 60%,12% 10%,100% 30%,100% 70%,0 100%)}
+  .tagline{font-size:clamp(15px,1.6vw,19px);font-weight:600;max-width:34ch}
+  .shloka{font-family:'Noto Serif Telugu',serif;font-size:15px;color:var(--accent);margin-top:14px}
+  .seal{position:absolute;right:24px;bottom:20px;width:92px;height:92px;transform:rotate(-8deg);opacity:.92;z-index:3}
+  .cover-right{display:flex;flex-direction:column;gap:22px}
+  .emblem-panel{flex:1;display:flex;align-items:center;justify-content:center;background:var(--emblem-bg);overflow:hidden;position:relative}
+  .emblem-panel .halftone-ov{position:absolute;inset:0;opacity:.14;background-image:radial-gradient(circle, var(--art-line) 1px, transparent 1.3px);background-size:9px 9px}
+  .bubble{background:var(--panel);border:4px solid var(--line);border-radius:26px;padding:16px 20px;position:relative;box-shadow:5px 5px 0 var(--shadow)}
+  .bubble:after{content:"";position:absolute;left:40px;bottom:-22px;border-width:22px 18px 0 0;border-style:solid;border-color:var(--line) transparent transparent transparent}
+  .bubble:before{content:"";position:absolute;left:44px;bottom:-14px;z-index:1;border-width:16px 12px 0 0;border-style:solid;border-color:var(--panel) transparent transparent transparent}
+  .scroll-cue{text-align:center;margin-top:26px;font-family:'Anton',sans-serif;letter-spacing:.25em;font-size:14px;color:var(--fg);position:relative;z-index:2}
+  .scroll-cue span{color:var(--accent)}
+  .kolam{position:absolute;width:120px;height:120px;opacity:.5;z-index:1}
+  .kolam.tl{top:16px;left:16px}
+  .kolam.br{bottom:16px;right:16px;transform:rotate(180deg)}
+
+  /* INDEX / FORK */
+  #index{background:var(--bg2)}
+  .watermark{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;z-index:0;pointer-events:none}
+  .watermark span{font-family:'Noto Serif Telugu',serif;font-weight:700;font-size:clamp(64px,17vw,220px);color:var(--secondary);opacity:.05;white-space:nowrap;transform:rotate(-4deg)}
+  .toranam{width:100%;max-width:1120px;margin:0 auto 4px;display:block;position:relative;z-index:2}
+  .index-head{text-align:center;margin-bottom:26px;position:relative;z-index:2}
+  .index-head .en{font-family:'Anton',sans-serif;font-size:clamp(22px,3vw,38px);letter-spacing:.16em;color:var(--fg)}
+  .index-head .en b{color:var(--accent);font-weight:400}
+  .fork{display:grid;grid-template-columns:1fr 1fr;gap:26px;max-width:1120px;margin:0 auto;width:100%;position:relative;z-index:2}
+  .gateway{padding:0;overflow:hidden;cursor:pointer;transition:transform .18s ease;display:flex;flex-direction:column;min-height:340px}
+  .gateway:hover{transform:translateY(-4px)}
+  .gw-art{height:180px;position:relative;display:flex;align-items:center;justify-content:center}
+  .gw-ram .gw-art{background:var(--gw-ram)}
+  .gw-mbh .gw-art{background:var(--gw-mbh)}
+  .gw-art .ov{position:absolute;inset:0;opacity:.16;background-image:radial-gradient(circle,var(--art-line) 1px,transparent 1.3px);background-size:8px 8px}
+  .gw-body{padding:20px 24px 24px;flex:1;display:flex;flex-direction:column}
+  .gw-body .te{font-family:'Noto Serif Telugu',serif;font-weight:700;font-size:30px;color:var(--secondary)}
+  .gw-body .en{font-family:'Anton',sans-serif;letter-spacing:.1em;font-size:14px;margin-top:2px}
+  .gw-ram .en{color:var(--ram)} .gw-mbh .en{color:var(--mbh)}
+  .gw-body .desc{margin-top:10px;font-size:15px;font-weight:400;color:var(--fg);flex:1}
+  .gw-meta{display:flex;justify-content:space-between;align-items:center;margin-top:14px;border-top:3px solid var(--line);padding-top:12px}
+  .gw-count{font-family:'Anton',sans-serif;font-size:15px}
+  .gw-ram .gw-count b{color:var(--ram);font-size:22px} .gw-mbh .gw-count b{color:var(--mbh);font-size:22px}
+  .gw-enter{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.12em;color:var(--accent2)}
+  .parva-rail{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-top:28px;position:relative;z-index:2}
+  .parva-chip{background:var(--panel);border:3px solid var(--line);padding:9px 18px;box-shadow:4px 4px 0 var(--shadow);
+    font-family:'Anton',sans-serif;letter-spacing:.08em;font-size:14px;display:flex;gap:8px;align-items:center}
+  .parva-chip i{width:8px;height:8px;background:var(--marigold);border:1.5px solid var(--line);border-radius:50%;display:inline-block}
+
+  /* PROJECT PANELS */
+  .maha-head{margin-bottom:26px;position:relative;z-index:2}
+  .maha-head .te{font-family:'Noto Serif Telugu',serif;font-weight:700;font-size:clamp(28px,4.4vw,50px);color:var(--mbh);line-height:1}
+  .maha-head .en{font-family:'Anton',sans-serif;letter-spacing:.14em;font-size:clamp(14px,1.8vw,20px);color:var(--fg);margin-top:4px}
+  .book-grid{display:grid;grid-template-columns:1.35fr 1fr 1fr;grid-template-rows:auto auto;gap:18px;max-width:1180px;margin:0 auto;width:100%}
+  .proj{padding:20px 20px 18px;display:flex;flex-direction:column;min-height:170px;
+    background:radial-gradient(circle, var(--dot) 1px, transparent 1.3px) 0 0/9px 9px, var(--panel)}
+  .proj.hero{grid-row:span 2;background:var(--emblem-bg);color:var(--hero-fg);box-shadow:10px 10px 0 var(--shadow)}
+  .proj.hero .p-feat,.proj.hero .p-title{color:var(--hero-fg)}
+  .proj.hero .astra{border-color:var(--hero-fg);color:var(--hero-fg)}
+  .proj .idx{font-family:'Anton',sans-serif;font-size:12px;letter-spacing:.2em;color:var(--accent)}
+  .proj.hero .idx{color:var(--accent2)}
+  .p-title{font-family:'Anton',sans-serif;font-size:clamp(19px,2.2vw,30px);line-height:.95;margin-top:3px}
+  .p-title .sfx{color:var(--accent)}
+  .p-feat{font-size:14px;font-weight:400;margin-top:9px;flex:1}
+  .astras{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px}
+  .astra{font-size:11px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 8px;border:2px solid var(--line);border-radius:2px}
+  .p-links{display:flex;gap:12px;margin-top:11px;font-family:'Anton',sans-serif;font-size:12px;letter-spacing:.08em}
+  .p-links a{color:inherit;text-decoration:none;border-bottom:2px solid var(--accent);padding-bottom:1px}
+  .hero-emblem{position:absolute;right:14px;top:14px;opacity:.9}
+  .note{max-width:1180px;margin:26px auto 0;font-size:13px;color:var(--fg-soft);font-style:italic;text-align:center}
+
+  @media(max-width:860px){
+    .cover-grid,.fork,.book-grid{grid-template-columns:1fr}
+    .proj.hero{grid-row:auto}
+  }
+</style>
+</head>
+<body>
+
+<!-- COVER -->
+<section class="screen" id="cover">
+  <div class="ribbon">CHRONICLE / VOL. 01</div>
+  <div class="cover-burst speedlines"></div>
+
+  <svg class="kolam tl" viewBox="0 0 100 100">
+    <g style="stroke:var(--accent);fill:none" stroke-width="1.6" stroke-linecap="round">
+      <circle cx="18" cy="18" r="2" style="fill:var(--accent);stroke:none"/><circle cx="42" cy="18" r="2" style="fill:var(--accent);stroke:none"/>
+      <circle cx="66" cy="18" r="2" style="fill:var(--accent);stroke:none"/><circle cx="18" cy="42" r="2" style="fill:var(--accent);stroke:none"/>
+      <circle cx="42" cy="42" r="2" style="fill:var(--accent);stroke:none"/><circle cx="18" cy="66" r="2" style="fill:var(--accent);stroke:none"/>
+      <path d="M18 30 Q30 30 30 18 Q30 6 18 6 Q6 6 6 18 Q6 30 18 30 Z"/>
+      <path d="M42 30 Q54 30 54 18 M42 42 Q54 42 54 30"/><path d="M30 42 Q30 54 18 54 Q6 54 6 42"/><path d="M18 42 Q30 42 30 30"/>
+    </g>
+  </svg>
+  <svg class="kolam br" viewBox="0 0 100 100">
+    <g style="stroke:var(--accent);fill:none" stroke-width="1.6" stroke-linecap="round">
+      <circle cx="18" cy="18" r="2" style="fill:var(--accent);stroke:none"/><circle cx="42" cy="18" r="2" style="fill:var(--accent);stroke:none"/>
+      <circle cx="66" cy="18" r="2" style="fill:var(--accent);stroke:none"/><circle cx="18" cy="42" r="2" style="fill:var(--accent);stroke:none"/>
+      <circle cx="42" cy="42" r="2" style="fill:var(--accent);stroke:none"/>
+      <path d="M18 30 Q30 30 30 18 Q30 6 18 6 Q6 6 6 18 Q6 30 18 30 Z"/>
+      <path d="M42 30 Q54 30 54 18 M42 42 Q54 42 54 30"/><path d="M30 42 Q30 54 18 54 Q6 54 6 42"/>
+    </g>
+  </svg>
+
+  <div class="cover-grid">
+    <div class="cover-left">
+      <div class="panel title-panel">
+        <div class="vol">A PORTFOLIO IN PANELS</div>
+        <div class="name-te telugu">వెలిదండ కృష్ణ సాయి</div>
+        <div class="name-en impact">KRISHNA SAI</div>
+        <div class="gloss">Velidanda Krishna Sai</div>
+        <div class="rule-ink"></div>
+        <div class="tagline">Machine-learning researcher &amp; relentless builder. Read my work the way you'd read a manga — panel by panel.</div>
+        <div class="shloka telugu">॥ కర్మణ్యేవాధికారస్తే మా ఫలేషు కదాచన ॥</div>
+        <div class="gloss">"Your right is to the work alone, never to its fruits." — Bhagavad Gita 2.47</div>
+
+        <svg class="seal" viewBox="0 0 100 100">
+          <circle cx="50" cy="50" r="45" style="fill:none;stroke:var(--accent)" stroke-width="2.5" stroke-dasharray="1.5 3"/>
+          <circle cx="50" cy="50" r="37" style="fill:none;stroke:var(--accent)" stroke-width="2"/>
+          <text x="50" y="66" text-anchor="middle" class="telugu" style="fill:var(--accent);font-weight:700" font-size="44">కృ</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="cover-right">
+      <div class="panel emblem-panel">
+        <div class="halftone-ov"></div>
+        <svg width="220" height="220" viewBox="0 0 200 200">
+          <circle cx="100" cy="100" r="70" style="fill:none;stroke:var(--art-line)" stroke-width="4"/>
+          <circle cx="100" cy="100" r="52" style="fill:none;stroke:var(--art-gold)" stroke-width="3"/>
+          <circle cx="100" cy="100" r="20" style="fill:var(--art-gold);stroke:var(--art-line)" stroke-width="3"/>
+          <circle cx="100" cy="100" r="8" style="fill:var(--accent);stroke:none"/>
+          <g style="fill:none;stroke:var(--art-gold)" stroke-width="6" stroke-linecap="round">
+            <line x1="100" y1="30" x2="100" y2="70"/><line x1="100" y1="130" x2="100" y2="170"/>
+            <line x1="30" y1="100" x2="70" y2="100"/><line x1="130" y1="100" x2="170" y2="100"/>
+            <line x1="50" y1="50" x2="78" y2="78"/><line x1="122" y1="122" x2="150" y2="150"/>
+            <line x1="150" y1="50" x2="122" y2="78"/><line x1="50" y1="150" x2="78" y2="122"/></g>
+          <g style="fill:var(--art-line);stroke:none">
+            <polygon points="100,18 106,32 94,32"/><polygon points="182,100 168,106 168,94"/>
+            <polygon points="100,182 94,168 106,168"/><polygon points="18,100 32,94 32,106"/></g>
+        </svg>
+      </div>
+      <div class="bubble">
+        <div style="font-family:'Anton',sans-serif;letter-spacing:.06em;font-size:14px;color:var(--accent)">MY STORY BEGINS HERE</div>
+        <div style="font-weight:600;font-size:14px;margin-top:5px">Two epics, two bodies of work — scroll to choose your path.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="scroll-cue">READ ONWARD &nbsp;<span>▼</span></div>
+</section>
+
+<!-- INDEX / FORK -->
+<section class="screen" id="index">
+  <div class="ribbon">CHAPTER INDEX</div>
+  <div class="watermark"><span class="telugu">రెండు మార్గాలు</span></div>
+
+  <!-- Mango-leaf toranam: green leaves, folded-leaf parrots, marigold clusters -->
+  <svg class="toranam" viewBox="0 0 1000 100" preserveAspectRatio="xMidYMid meet">
+    <path d="M40,26 Q500,70 960,26" style="fill:none;stroke:var(--line)" stroke-width="2"/>
+    <!-- hanging mango leaves -->
+    <g style="fill:var(--leaf)">
+      <g transform="translate(150,40) rotate(-5)"><path d="M0,0 C-8,12 -6,34 0,47 C6,34 8,12 0,0 Z"/><path d="M0,4 V43" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(255,49) rotate(3)"><path d="M0,0 C-8,12 -6,34 0,47 C6,34 8,12 0,0 Z"/><path d="M0,4 V43" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(360,56) rotate(-3)"><path d="M0,0 C-9,13 -7,37 0,51 C7,37 9,13 0,0 Z"/><path d="M0,4 V47" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(470,60)"><path d="M0,0 C-9,13 -7,37 0,51 C7,37 9,13 0,0 Z"/><path d="M0,4 V47" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(530,60)"><path d="M0,0 C-9,13 -7,37 0,51 C7,37 9,13 0,0 Z"/><path d="M0,4 V47" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(640,56) rotate(3)"><path d="M0,0 C-9,13 -7,37 0,51 C7,37 9,13 0,0 Z"/><path d="M0,4 V47" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(745,49) rotate(-3)"><path d="M0,0 C-8,12 -6,34 0,47 C6,34 8,12 0,0 Z"/><path d="M0,4 V43" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+      <g transform="translate(850,40) rotate(5)"><path d="M0,0 C-8,12 -6,34 0,47 C6,34 8,12 0,0 Z"/><path d="M0,4 V43" style="fill:none;stroke:var(--line)" stroke-width="1"/></g>
+    </g>
+    <!-- marigold clusters -->
+    <g>
+      <g transform="translate(205,45)"><circle r="8" style="fill:var(--marigold)"/><circle cx="7" r="4" style="fill:var(--marigold)"/><circle cx="-7" r="4" style="fill:var(--marigold)"/><circle cy="7" r="4" style="fill:var(--marigold)"/><circle cy="-7" r="4" style="fill:var(--marigold)"/><circle r="3.4" style="fill:var(--accent)"/></g>
+      <g transform="translate(500,59)"><circle r="9" style="fill:var(--marigold)"/><circle cx="8" r="4.5" style="fill:var(--marigold)"/><circle cx="-8" r="4.5" style="fill:var(--marigold)"/><circle cy="8" r="4.5" style="fill:var(--marigold)"/><circle cy="-8" r="4.5" style="fill:var(--marigold)"/><circle r="3.8" style="fill:var(--accent)"/></g>
+      <g transform="translate(795,45)"><circle r="8" style="fill:var(--marigold)"/><circle cx="7" r="4" style="fill:var(--marigold)"/><circle cx="-7" r="4" style="fill:var(--marigold)"/><circle cy="7" r="4" style="fill:var(--marigold)"/><circle cy="-7" r="4" style="fill:var(--marigold)"/><circle r="3.4" style="fill:var(--accent)"/></g>
+    </g>
+    <!-- folded-leaf parrots perched at the ends, beaks toward centre -->
+    <g transform="translate(55,24)">
+      <g style="fill:var(--leaf)"><path d="M0,0 C12,-9 34,-7 47,0 C34,7 12,9 0,0 Z"/></g>
+      <path d="M4,0 H40" style="fill:none;stroke:var(--line)" stroke-width="1"/>
+      <polygon points="47,-3 56,0 47,3" style="fill:var(--marigold)"/>
+      <circle cx="38" cy="-2" r="1.7" style="fill:var(--line)"/>
+    </g>
+    <g transform="translate(945,24) scale(-1,1)">
+      <g style="fill:var(--leaf)"><path d="M0,0 C12,-9 34,-7 47,0 C34,7 12,9 0,0 Z"/></g>
+      <path d="M4,0 H40" style="fill:none;stroke:var(--line)" stroke-width="1"/>
+      <polygon points="47,-3 56,0 47,3" style="fill:var(--marigold)"/>
+      <circle cx="38" cy="-2" r="1.7" style="fill:var(--line)"/>
+    </g>
+  </svg>
+
+  <div class="index-head">
+    <div class="en impact">CHOOSE YOUR <b>EPIC</b></div>
+  </div>
+
+  <div class="fork">
+    <div class="panel gateway gw-ram">
+      <div class="gw-art">
+        <div class="ov"></div>
+        <svg width="150" height="150" viewBox="0 0 150 150" stroke-linecap="round">
+          <path d="M45 20 Q118 75 45 130" style="fill:none;stroke:var(--art-gold)" stroke-width="6"/>
+          <line x1="45" y1="20" x2="45" y2="130" style="stroke:var(--art-line)" stroke-width="2.5"/>
+          <line x1="45" y1="75" x2="120" y2="75" style="stroke:var(--art-line)" stroke-width="3"/>
+          <polygon points="120,75 108,69 108,81" style="fill:var(--art-line);stroke:none"/>
+          <line x1="30" y1="75" x2="45" y2="75" style="stroke:var(--art-line)" stroke-width="3"/>
+        </svg>
+      </div>
+      <div class="gw-body">
+        <div class="te telugu">రామాయణం</div>
+        <div class="en impact">RAMAYANAM · THE RESEARCH PATH</div>
+        <div class="desc">The disciplined journey — dharma, rigor, one focused pursuit at a time. Deep work in ML, systems, and signal.</div>
+        <div class="gw-meta"><div class="gw-count"><b>15</b> chapters</div><div class="gw-enter impact">ENTER ▶</div></div>
+      </div>
+    </div>
+
+    <div class="panel gateway gw-mbh">
+      <div class="gw-art">
+        <div class="ov"></div>
+        <svg width="150" height="150" viewBox="0 0 150 150" stroke-linecap="round">
+          <path d="M95 30 Q60 40 52 70 Q46 100 70 118 Q95 132 112 110 Q92 108 86 92 Q104 96 108 82 Q88 82 84 68 Q100 70 100 56 Q84 58 82 46 Q98 44 95 30 Z"
+                style="fill:var(--art-gold);stroke:var(--art-line)" stroke-width="2.5"/>
+          <circle cx="105" cy="112" r="16" style="fill:none;stroke:var(--art-line)" stroke-width="2.5"/>
+          <g style="fill:none;stroke:var

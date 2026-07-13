@@ -1,0 +1,220 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============ FONT FAMILIES (loaded via <link> in layout head) ============ */
+:root {
+  --font-anton: "Anton", sans-serif;
+  --font-telugu: "Noto Serif Telugu", serif;
+  --font-zilla: "Zilla Slab", serif;
+}
+
+/* ============ THEME TOKENS ============ */
+:root,
+:root[data-daynight="day"] {
+  --bg: #efe4cb;
+  --bg2: #e7d9b8;
+  --panel: #efe4cb;
+  --line: #1a1712;
+  --fg: #1a1712;
+  --fg-soft: #6b6152;
+  --accent: #a5262a;
+  --accent2: #e0a83c;
+  --secondary: #26314f;
+  --shadow: #0d0b08;
+  --dot: rgba(26, 23, 18, 0.06);
+  --emblem-bg: #26314f;
+  --art-line: #efe4cb;
+  --art-gold: #e0a83c;
+  --ram: #c85a1a;
+  --mbh: #2a5ca6;
+  --gw-ram: linear-gradient(160deg, #e0872e, #a8511a);
+  --gw-mbh: linear-gradient(160deg, #2f5aa8, #152f5c);
+  --leaf: #4e7d3a;
+  --marigold: #e6a52c;
+  --hero-fg: #efe4cb;
+  --ribbon-fg: #efe4cb;
+  --wipe: #16130f;
+}
+
+:root[data-daynight="night"] {
+  --bg: #141a2e;
+  --bg2: #1b2138;
+  --panel: #232a45;
+  --line: #c9a24b;
+  --fg: #efe4cb;
+  --fg-soft: #9a94b0;
+  --accent: #e08a3c;
+  --accent2: #e6b34c;
+  --secondary: #f0d9a0;
+  --shadow: #05060c;
+  --dot: rgba(240, 230, 200, 0.06);
+  --emblem-bg: #0f1424;
+  --art-line: #f0e6c8;
+  --art-gold: #e6b34c;
+  --ram: #e8963c;
+  --mbh: #5a8fd6;
+  --gw-ram: linear-gradient(160deg, #c9752a, #6e3a12);
+  --gw-mbh: linear-gradient(160deg, #264f8f, #0f2344);
+  --leaf: #5f9e46;
+  --marigold: #e6b34c;
+  --hero-fg: #efe4cb;
+  --ribbon-fg: #141a2e;
+  --wipe: #090b14;
+}
+
+/* ============ BASE ============ */
+* {
+  box-sizing: border-box;
+}
+html {
+  scroll-behavior: smooth;
+}
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-zilla), serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+  transition: background 0.6s ease, color 0.6s ease;
+}
+a {
+  color: inherit;
+}
+
+.telugu {
+  font-family: var(--font-telugu), serif;
+}
+.impact {
+  font-family: var(--font-anton), sans-serif;
+  letter-spacing: 0.02em;
+}
+
+/* paper + halftone background helpers */
+.paper-dots {
+  background-image: radial-gradient(circle, var(--dot) 0.7px, transparent 1px);
+  background-size: 6px 6px;
+}
+.panel-dots {
+  background-image: radial-gradient(circle, var(--dot) 1px, transparent 1.3px);
+  background-position: 0 0;
+  background-size: 8px 8px;
+}
+
+/* generic panel */
+.panel {
+  background: var(--panel);
+  border: 4px solid var(--line);
+  box-shadow: 8px 8px 0 var(--shadow);
+  position: relative;
+}
+
+/* scroll ink-in: start hidden, JS reveals */
+.reveal {
+  opacity: 0;
+  transform: translateY(26px);
+  will-change: transform, opacity;
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ink-draw for SVG strokes */
+.ink-draw path,
+.ink-draw line,
+.ink-draw circle,
+.ink-draw polygon {
+  stroke-dasharray: var(--len, 1400);
+  stroke-dashoffset: var(--len, 1400);
+}
+.ink-draw.is-in path,
+.ink-draw.is-in line,
+.ink-draw.is-in circle,
+.ink-draw.is-in polygon {
+  animation: inkDraw 1.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes inkDraw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ambient keyframes */
+@keyframes spinSlow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+@keyframes sfxPop {
+  0% {
+    transform: scale(0.4) rotate(var(--rot, -6deg));
+    opacity: 0;
+  }
+  18% {
+    transform: scale(1.14) rotate(var(--rot, -6deg));
+    opacity: 1;
+  }
+  30% {
+    transform: scale(1) rotate(var(--rot, -6deg));
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1) rotate(var(--rot, -6deg));
+    opacity: 0;
+  }
+}
+@keyframes flicker {
+  0%,
+  100% {
+    opacity: 0.85;
+  }
+  50% {
+    opacity: 0.4;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .reveal {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+  .ink-draw path,
+  .ink-draw line,
+  .ink-draw circle,
+  .ink-draw polygon {
+    stroke-dashoffset: 0 !important;
+  }
+}
+
+/* theme tokens + motion system loaded above */
+
