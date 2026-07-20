@@ -1,0 +1,250 @@
+/* Shippori Mincho: a Japanese print serif -- carries the manga/woodblock read
+   without being a novelty face. Noto Sans Telugu for all Telugu. */
+@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Noto+Sans+Telugu:wght@400;600;700&family=Inter:wght@400;500;600&display=swap");
+
+* { margin: 0; box-sizing: border-box; }
+
+:root {
+  --gold: #e0aa4a;
+  --gold-pale: #f3d089;
+  --gold-deep: #8f6318;
+  --saffron: #e8a33d;
+  --kumkum: #8f1f2e;
+  --kumkum-lit: #c01a44;
+  --ink: #180a0c;
+  --paper: #f0e0c4;
+  --muted: #b0917a;
+  --ground: #25090e;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  min-height: 100%;
+  background: var(--ground);
+  color: var(--paper);
+  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* The canvas is FIXED and fills the viewport; the document scrolls over it.
+   That's what makes the chakra persist across sections. */
+/* Explicit three-layer stack. This must NOT be done with a ::before on .doc:
+   .doc carries a z-index, which makes it a stacking context, so a z-index:-1
+   pseudo-element stays trapped inside that layer and paints OVER the canvas --
+   which hid the chakra completely. Separate sibling elements instead. */
+.wrap  { position: fixed; inset: 0; z-index: 0; }   /* 3D canvas */
+.scrim { position: fixed; inset: 0; z-index: 1; pointer-events: none; } /* legibility wash */
+.doc   { position: relative; z-index: 2; }          /* content */
+
+/* Biased hard to the left, transparent on the right, because the chakra sits
+   right and must stay fully visible there. */
+.scrim {
+  background:
+    linear-gradient(90deg, rgba(18,5,8,.92) 0%, rgba(18,5,8,.78) 26%, rgba(18,5,8,.34) 48%, rgba(18,5,8,0) 66%);
+}
+@media (max-width: 900px) {
+  /* chakra recentres on narrow screens, so the wash goes vertical instead */
+  .scrim { background: linear-gradient(180deg, rgba(18,5,8,.55) 0%, rgba(18,5,8,.86) 45%, rgba(18,5,8,.94) 100%); }
+}
+
+::selection { background: var(--kumkum-lit); color: #fff; }
+
+/* ============================================================ typography */
+.te { font-family: "Noto Sans Telugu", sans-serif; }
+
+h1, h2, h3 { font-family: "Shippori Mincho", serif; font-weight: 800; }
+
+a { color: inherit; }
+
+/* ============================================================ nav */
+.topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 18px clamp(20px, 3.2vw, 44px);
+  backdrop-filter: blur(3px);
+}
+
+.mark { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+.mark-txt { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: 13px; letter-spacing: 0.24em; color: var(--gold); }
+.mark-txt span { display: block; font-family: "Noto Sans Telugu", sans-serif; font-size: 11px; letter-spacing: 0.04em; color: var(--muted); font-weight: 600; margin-top: 2px; }
+.hanko { color: var(--kumkum-lit); filter: drop-shadow(0 2px 8px rgba(0,0,0,.5)); }
+
+.nav { display: flex; gap: clamp(12px, 1.8vw, 26px); align-items: baseline; }
+.nav a {
+  font-size: 11.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--muted); text-decoration: none;
+  padding-bottom: 4px; border-bottom: 1px solid transparent;
+  transition: color .18s, border-color .18s;
+}
+.nav a:hover, .nav a[data-on="1"] { color: var(--gold-pale); border-bottom-color: var(--gold); }
+.nav a i { display: block; font-family: "Noto Sans Telugu", sans-serif; font-style: normal; font-size: 10.5px; letter-spacing: 0; text-transform: none; opacity: .6; margin-top: 2px; }
+
+/* parva counter — the manuscript page number, replaces a guide character */
+.parva {
+  position: fixed; right: clamp(14px, 2vw, 26px); top: 50%;
+  transform: translateY(-50%); z-index: 20;
+  display: flex; flex-direction: column; gap: 12px; align-items: center;
+}
+.parva b {
+  width: 9px; height: 9px; border-radius: 50%;
+  border: 1px solid var(--gold); opacity: .35; transition: all .25s;
+}
+.parva b[data-on="1"] { opacity: 1; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
+
+/* ============================================================ sections */
+.sec {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  padding: clamp(90px, 11vh, 150px) clamp(20px, 5vw, 90px);
+  /* clears the fixed topbar when jumping to an anchor */
+  scroll-margin-top: 76px;
+}
+.cover { scroll-margin-top: 0; }
+.sec-in { width: 100%; max-width: 1180px; margin: 0 auto; }
+
+/* the left column the chakra leaves free */
+.col { max-width: min(60ch, 52vw); }
+@media (max-width: 900px) { .col { max-width: 100%; } }
+
+.eyebrow {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--gold); margin-bottom: 14px;
+}
+.eyebrow .te { letter-spacing: 0; text-transform: none; font-size: 12px; color: var(--muted); }
+
+.h-sec { font-size: clamp(30px, 4.4vw, 58px); line-height: 1.02; color: var(--paper); }
+.h-sec .te { display: block; font-size: clamp(14px, 1.5vw, 20px); color: var(--saffron); font-weight: 600; margin-bottom: 8px; }
+
+.lede { font-size: clamp(14px, 1.2vw, 16px); line-height: 1.68; color: #d8c3a4; margin-top: 16px; max-width: 52ch; }
+
+/* Aligned left with the text column, not centred across the full width --
+   a torana heads a doorway, so it should sit over what it introduces. */
+.torana { color: var(--gold); opacity: .62; margin: 0 0 4px -14px; display: block; }
+.brush { color: var(--gold); opacity: .55; margin: 18px 0; }
+
+/* ============================================================ cover */
+.cover { min-height: 100vh; display: flex; align-items: center; padding: 0 clamp(20px, 5vw, 90px); }
+.hero-te { font-family: "Noto Sans Telugu", sans-serif; font-weight: 600; font-size: clamp(15px, 1.5vw, 21px); color: var(--saffron); margin-bottom: 12px; }
+.hero-en { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: clamp(42px, 7vw, 96px); line-height: .94; color: var(--paper); text-shadow: 0 2px 30px rgba(0,0,0,.6); }
+.hero-rule { width: 78px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); margin: 22px 0 16px; }
+.hero-role { font-size: clamp(13px, 1.15vw, 15.5px); line-height: 1.64; color: #d8c3a4; max-width: 46ch; }
+.hero-shloka { margin-top: 24px; font-family: "Noto Sans Telugu", sans-serif; font-size: 13.5px; color: var(--gold); opacity: .8; }
+.hero-shloka em { display: block; font-family: Inter, sans-serif; font-style: normal; font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+
+.scroll-cue { display: flex; align-items: center; gap: 10px; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--muted); margin-top: 46px; }
+.scroll-cue i { display: block; width: 1px; height: 26px; background: linear-gradient(180deg, var(--gold), transparent); animation: cue 2.1s ease-in-out infinite; }
+@keyframes cue { 0%,100% { opacity:.35; transform:translateY(0);} 50% { opacity:1; transform:translateY(5px);} }
+
+/* ============================================================ PANEL */
+/* The primary layout unit. Border rules stretch; corner ornaments never do. */
+/* Nearly opaque on purpose. A manga panel is ink on paper -- it sits ON the
+   page, it doesn't dissolve into it. At 80% these washed out badly wherever
+   they crossed the bright chakra and the copy became unreadable. */
+.panel {
+  position: relative;
+  padding: clamp(18px, 2vw, 26px);
+  background: linear-gradient(160deg, rgba(31,11,12,.965), rgba(17,6,8,.985));
+  border: 1px solid currentColor;
+  box-shadow: 0 14px 40px -14px rgba(0,0,0,.85);
+  isolation: isolate;
+  backdrop-filter: blur(2px);
+}
+.panel--gold { color: rgba(224,170,74,.42); }
+.panel--kumkum { color: rgba(192,26,68,.42); }
+.panel--ink { color: rgba(240,224,196,.18); }
+
+.panel::after {
+  content: ""; position: absolute; inset: 4px;
+  border: 1px solid currentColor; opacity: .34; pointer-events: none;
+}
+.panel--notch { clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px)); }
+
+.panel-body { position: relative; z-index: 2; color: var(--paper); }
+
+.panel-wash {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  opacity: .085; pointer-events: none; z-index: 0;
+  -webkit-mask-image: radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 72%);
+  mask-image: radial-gradient(120% 100% at 50% 0%, #000 0%, transparent 72%);
+}
+
+.panel-c { position: absolute; line-height: 0; z-index: 1; pointer-events: none; }
+.panel-c--tl { top: -1px; left: -1px; }
+.panel-c--tr { top: -1px; right: -1px; transform: scaleX(-1); }
+.panel-c--br { bottom: -1px; right: -1px; transform: scale(-1); }
+.panel-c--bl { bottom: -1px; left: -1px; transform: scaleY(-1); }
+
+/* ============================================================ project grid */
+/* Irregular manga grid: hero panels span two columns, the rest fall in. */
+.grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: clamp(12px, 1.4vw, 20px); margin-top: 30px; }
+.g-hero { grid-column: span 6; }
+.g-wide { grid-column: span 4; }
+.g-half { grid-column: span 3; }
+.g-third { grid-column: span 2; }
+@media (max-width: 900px) {
+  .grid { grid-template-columns: 1fr; }
+  .g-hero, .g-wide, .g-half, .g-third { grid-column: 1 / -1; }
+}
+
+.p-title { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: clamp(19px, 2.1vw, 28px); line-height: 1.06; letter-spacing: .01em; }
+.p-title s { text-decoration: none; color: var(--saffron); }
+.p-sub { font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); margin-top: 7px; }
+.p-feat { font-size: 13.4px; line-height: 1.62; color: #cfb99b; margin-top: 12px; }
+.p-badge {
+  display: inline-block; font-size: 10px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-pale); border: 1px solid rgba(224,170,74,.4);
+  padding: 3px 9px; border-radius: 2px; margin-bottom: 10px;
+}
+.astras { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.astras span { font-size: 10.5px; letter-spacing: .07em; color: var(--muted); border: 1px solid rgba(240,224,196,.16); padding: 3px 8px; border-radius: 2px; }
+.p-links { display: flex; gap: 14px; margin-top: 14px; }
+.p-links a { font-size: 10.5px; letter-spacing: .16em; color: var(--gold); text-decoration: none; border-bottom: 1px solid rgba(224,170,74,.35); padding-bottom: 2px; transition: color .18s; }
+.p-links a:hover { color: var(--gold-pale); }
+
+/* ============================================================ epic fork */
+.fork { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(14px, 2vw, 26px); margin-top: 34px; }
+@media (max-width: 820px) { .fork { grid-template-columns: 1fr; } }
+.gate { text-decoration: none; display: block; transition: transform .3s ease; }
+.gate:hover { transform: translateY(-4px); }
+/* The sigil is the gateway's whole identity, so it gets real presence.
+   At 72px / .82 opacity the conch's spiral and the bow's recurve were both
+   too fine to read as anything but a smudge. */
+.gate-sig { color: var(--gold-pale); opacity: 1; margin-bottom: 16px; filter: drop-shadow(0 3px 14px rgba(224,170,74,.28)); }
+.gate-te { font-family: "Noto Sans Telugu", sans-serif; font-size: 15px; color: var(--saffron); }
+.gate-en { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: clamp(22px, 2.6vw, 34px); margin-top: 3px; }
+.gate-role { font-size: 11px; letter-spacing: .17em; text-transform: uppercase; color: var(--gold); margin-top: 8px; }
+.gate-blurb { font-size: 13px; line-height: 1.6; color: #cfb99b; margin-top: 11px; }
+
+/* ============================================================ skills */
+.astra-rack { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; margin-top: 28px; }
+.rack-h { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--gold); margin-bottom: 12px; }
+
+/* ============================================================ contact */
+.contact-links { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 26px; }
+.contact-links a {
+  font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--paper); text-decoration: none;
+  border: 1px solid rgba(224,170,74,.4); padding: 11px 20px;
+  transition: all .2s;
+}
+.contact-links a:hover { background: rgba(224,170,74,.14); border-color: var(--gold); color: var(--gold-pale); }
+
+.colophon { margin-top: 54px; font-size: 11px; letter-spacing: .1em; color: var(--muted); opacity: .7; }
+
+/* ============================================================ reveal */
+.rv { opacity: 0; transform: translateY(22px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.3,1); }
+.rv[data-in="1"] { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .rv { opacity: 1; transform: none; transition: none; }
+  .scroll-cue i { animation: none; }
+  html { scroll-behavior: auto; }
+}
