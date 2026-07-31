@@ -853,7 +853,9 @@ a { color: inherit; }
 .fk-body { display: grid; grid-template-rows: 1fr 1fr; gap: 1.2cqh; min-height: 0; }
 .fk-gate {
   position: relative; min-height: 0; overflow: hidden;
-  display: grid; grid-template-columns: auto 1fr; align-items: center;
+  display: grid; grid-template-columns: 34cqw 1fr;
+  grid-template-rows: auto auto 1fr;
+  align-items: center; align-content: center;
   gap: 0 2.4cqw;
   padding: 2cqh 2.4cqw;
   text-decoration: none; color: inherit;
@@ -865,16 +867,14 @@ a { color: inherit; }
 .fk-gate[data-side="r"] { clip-path: polygon(0 18%, 100% 0, 100% 100%, 0 100%); }
 .fk-gate[data-tone="kumkum"] { border-color: rgba(192, 26, 68, .36); background: #fbf3ee; }
 .fk-gate:hover { background: #fff9ef; }
-.fk-sigil { grid-row: 1 / span 4; color: var(--kumkum); opacity: .8; }
-.fk-sigil svg { width: 9cqh; height: auto; display: block; }
-.fk-te {
-  font-family: "Noto Sans Telugu", sans-serif; font-weight: 600;
-  font-size: 2cqh; color: var(--kumkum-lit);
-}
-.fk-en {
-  font-family: "Shippori Mincho", serif; font-weight: 800;
-  font-size: 3.4cqh; line-height: 1.05; color: #33200f;
-}
+/* The gate occupies the left column of its half and spans every text row, so the
+   arch frames the words rather than sitting above them — which is what a gate does.
+   Width in cqw so it scales with the page like everything else. */
+.fk-arch { grid-row: 1 / span 4; width: 34cqw; align-self: center; }
+/* The epic's name is set on the gate's GAKUZUKA — the tablet a real torii carries
+   its shrine's name on (see Gate.tsx) — so the `.fk-te` / `.fk-en` lines that used to
+   sit beside it are gone. Repeating it would have been the same word twice, and the
+   tablet is the more interesting place for it to live. */
 .fk-role {
   font-size: 1.5cqh; letter-spacing: .14em; text-transform: uppercase;
   color: var(--gold-deep);
@@ -890,18 +890,18 @@ a { color: inherit; }
 }
 
 /* ---- astras: a weapons rack, not a tag cloud. Each group is a rung with its
-        items laid along it, on a kikkō (tortoiseshell) ground drawn here because
-        Patterns.tsx has no kikkō yet — that is Phase 4. */
-.pg--astras::before {
-  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
-  background-image:
-    linear-gradient(30deg, rgba(120,84,40,.10) 1px, transparent 1px),
-    linear-gradient(-30deg, rgba(120,84,40,.10) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(120,84,40,.10) 1px, transparent 1px);
-  background-size: 22px 38px;
-  mask-image: linear-gradient(200deg, #000, rgba(0,0,0,.25) 75%);
+        items laid along it, on a REAL kikkō ground — `Patterns.tsx` now generates
+        the tortoiseshell plating (Phase 4), so the CSS gradient fake that stood in
+        for it is gone. Kikkō was literal samurai armour, which is the entire reason
+        it belongs on this page and on no other (02 §2.6). */
+.pg-wash {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  width: 100%; height: 100%;
 }
-.pg--astras > * { position: relative; z-index: 1; }
+.pg--astras .pg-wash { color: rgba(120, 84, 40, .5); }
+.pg--colophon .pg-wash { color: rgba(143, 99, 24, .42); }
+.pg--astras > *:not(.pg-wash),
+.pg--colophon > *:not(.pg-wash) { position: relative; z-index: 1; }
 .as-rack { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 1.4cqh; min-height: 0; }
 .as-rung {
   min-height: 0; overflow: hidden;
@@ -961,6 +961,173 @@ a { color: inherit; }
 .cl-foot .te {
   font-family: "Noto Sans Telugu", sans-serif; text-transform: none;
   letter-spacing: 0; font-size: 1.9cqh; color: var(--kumkum);
+}
+
+/* ============================================ PHASE 4 — the Japanese layer ==
+   Gate, sakura, cut, noren, endpapers. Each element's authentic form and its
+   source are documented in its own component file; this is only how they paint. */
+
+/* ---- the fused torii-torana gate (components/ornament/Gate.tsx) ------------
+   Colour follows the real thing and it happens to fit the locked palette exactly:
+   a painted torii is VERMILION, and black is limited to the kasagi and the nemaki.
+   Vermilion is kumkum here. Nothing had to be bent. */
+.fk-arch { display: block; color: var(--kumkum); }
+.fk-arch svg { width: 100%; height: auto; display: block; }
+.fk-arch svg path,
+.fk-arch svg rect { fill: rgba(192, 26, 68, .13); }
+/* The two members a painted torii may render black. */
+.fk-arch .gate-kasagi { fill: rgba(38, 16, 12, .88); stroke: rgba(38, 16, 12, .95); }
+.fk-arch .gate-nemaki { fill: rgba(38, 16, 12, .8); stroke: none; }
+.fk-arch .fk-arch .gate-ridge { stroke: rgba(240, 224, 196, .5); fill: none; }
+/* The tablet's text must not inherit the gate's stroke, or the glyphs get outlined. */
+.fk-arch .gate-tablet { stroke: none; }
+/* The garland: string and leaves are the torana half of the fusion. */
+.fk-arch .gate-string { fill: none; stroke: var(--gold-deep); stroke-width: 1.6; }
+.fk-arch .gate-leaf path { fill: rgba(99, 122, 34, .34); stroke: rgba(72, 92, 20, .8); stroke-width: 1.1; }
+.fk-arch .gate-marigold { fill: rgba(232, 163, 61, .85); stroke: var(--gold-deep); stroke-width: 1; }
+.fk-arch .gate-te,
+.fk-arch .gate-en { fill: #f3ede0; stroke: none; }
+.fk-arch .gate-te { font-family: "Noto Sans Telugu", sans-serif; font-size: 11px; font-weight: 600; }
+.fk-arch .gate-en {
+  font-family: "Shippori Mincho", serif; font-size: 10px; font-weight: 800;
+  letter-spacing: .16em; text-transform: uppercase;
+}
+
+/* ---- sakura (components/ornament/Sakura.tsx) -------------------------------
+   Palette-locked: cherry-pink was explicitly rejected, so a petal is aged-paper
+   white with a kumkum blush at the notch, ink-outlined. A PRINTED petal. */
+.sakura {
+  position: fixed; left: 50%; top: 52%;
+  width: min(80vw, 720px); height: min(80vh, 720px);
+  transform: translate(-50%, -50%);
+  z-index: 12; pointer-events: none;
+  /* The rock is a rotation about the petal's own long axis, so the subtree needs a
+     perspective to rotate within. Without this, rotationY is a flat squash. */
+  perspective: 700px;
+}
+.sk-petal { transform-style: preserve-3d; }
+.sk-body { fill: #f6f0e2; stroke: #4a3323; stroke-width: 1.1; }
+/* The blush sits at the NOTCH, which is the part of a petal that keeps its colour
+   longest, and is masked to the tip so it never becomes a pink petal. */
+.sk-blush {
+  fill: rgba(192, 26, 68, .3); stroke: none;
+  mask-image: linear-gradient(to bottom, #000 0 22%, transparent 62%);
+}
+.sk-rib { stroke: rgba(74, 51, 35, .45); stroke-width: 0.8; fill: none; }
+
+/* ---- the iaijutsu cut (components/ornament/Cut.tsx) ------------------------ */
+.cut { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
+.cut-flash { position: absolute; inset: 0; background: #fff; }
+.cut-svg { position: absolute; inset: 0; width: 100%; height: 100%; color: #18100c; }
+
+/* ---- noren (components/ornament/Noren.tsx) --------------------------------- */
+.menu-btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  background: transparent; border: 0; cursor: pointer;
+  color: var(--muted); font: inherit; padding: 4px 2px;
+}
+.menu-bars { display: grid; gap: 3px; }
+.menu-bars i { display: block; width: 20px; height: 1.5px; background: var(--gold); opacity: .85; }
+.menu-bars i:nth-child(2) { width: 14px; }
+.menu-txt {
+  font-family: "Noto Sans Telugu", sans-serif; font-size: 11px; color: var(--gold-pale);
+  line-height: 1.15; text-align: left;
+}
+.menu-txt i {
+  display: block; font-family: Inter, sans-serif; font-style: normal;
+  font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); margin-top: 2px;
+}
+.menu-btn:hover .menu-bars i { background: var(--gold-pale); }
+
+.noren { position: fixed; inset: 0; z-index: 70; }
+.nr-scrim { position: absolute; inset: 0; border: 0; padding: 0; cursor: pointer;
+  background: rgba(10, 4, 6, .62); backdrop-filter: blur(2px); }
+/* Two panels hanging from the top, parting at the centre. `transform-origin` is the
+   ROD, not the panel's middle — cloth pivots where it is hung. */
+.nr-panel {
+  position: absolute; top: 0; height: 62%;
+  width: 50.4%;                        /* slight overlap so the parting is a seam */
+  transform-origin: 50% 0;
+  /* Indigo (ai-zome) is the traditional noren dye. It enters as the deepest value
+     of the ground rather than as a blue accent, so the one-palette lock holds. */
+  color: #16212e;
+}
+.nr-panel[data-side="l"] { left: 0; }
+.nr-panel[data-side="r"] { right: 0; }
+.nr-hem { fill: currentColor; }
+.nr-rod { fill: #2a1a12; }
+.nr-seam { stroke: rgba(240, 224, 196, .10); stroke-width: 0.6; }
+.nr-mon {
+  position: absolute; left: 50%; top: 16%;
+  transform: translateX(-50%);
+  color: var(--kumkum-lit); z-index: 2;
+  filter: drop-shadow(0 2px 10px rgba(0, 0, 0, .6));
+}
+.nr-menu {
+  position: absolute; left: 50%; top: 34%;
+  transform: translateX(-50%);
+  z-index: 2; text-align: center; width: min(92vw, 460px);
+}
+.nr-label {
+  display: block; font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 15px; color: var(--gold-pale);
+}
+.nr-label i {
+  display: block; font-family: Inter, sans-serif; font-style: normal;
+  font-size: 10px; letter-spacing: .2em; text-transform: uppercase;
+  color: var(--muted); margin-top: 4px;
+}
+.nr-menu ul { list-style: none; margin: 22px 0 0; padding: 0; display: grid; gap: 2px; }
+.nr-menu a {
+  display: flex; align-items: baseline; justify-content: center; gap: 12px;
+  padding: 10px 14px; text-decoration: none;
+  border-top: 1px solid rgba(224, 170, 74, .14);
+}
+.nr-menu li:last-child a { border-bottom: 1px solid rgba(224, 170, 74, .14); }
+.nr-menu a b {
+  font-family: "Shippori Mincho", serif; font-weight: 800; font-size: 17px;
+  letter-spacing: .1em; color: var(--paper);
+}
+.nr-menu a i {
+  font-style: normal; font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 13px; color: var(--muted);
+}
+.nr-menu a:hover b, .nr-menu a[data-on="1"] b { color: var(--gold-pale); }
+.nr-menu a[data-on="1"] { border-color: var(--gold); }
+
+/* ---- endpapers (§03.2) ----------------------------------------------------- */
+.pg--endpaper { grid-template-rows: 1fr; place-items: center; padding: 0; }
+.ep-bands {
+  position: absolute; inset: 0; display: grid;
+  grid-template-rows: repeat(6, 1fr);
+}
+.ep-band { width: 100%; height: 100%; display: block; }
+/* The two traditions meet ONLY here (02 §2.6), so they are given equal weight and
+   the same ink — the point is that they rhyme, not that one decorates the other. */
+.ep-band[data-kind="asanoha"] { color: rgba(143, 99, 24, .5); }
+.ep-band[data-kind="kolam"] { color: rgba(143, 31, 46, .45); }
+.ep-mark {
+  position: relative; z-index: 1; text-align: center;
+  background: rgba(243, 237, 224, .93);
+  border-top: 1px solid rgba(120, 84, 40, .3);
+  border-bottom: 1px solid rgba(120, 84, 40, .3);
+  padding: 3cqh 6cqw; width: 100%;
+  color: var(--kumkum);
+}
+.ep-mark svg { width: 3cqh; height: auto; display: block; margin: 0 auto 1.4cqh; }
+.ep-mark .te {
+  display: block; font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 2.2cqh; line-height: 1.5; color: var(--kumkum);
+}
+.ep-mark em {
+  display: block; font-style: normal; font-size: 1.6cqh; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--gold-deep); margin-top: 1cqh;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* §8.7: content identical, no motion. The petals ARE the motion, so they go. */
+  .sakura { display: none; }
 }
 
 /* ================================================ a project book (Phase 5) ==

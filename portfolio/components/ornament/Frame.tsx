@@ -22,7 +22,19 @@ import { ReactNode } from "react";
  */
 
 export type PanelTone = "gold" | "kumkum" | "ink";
-export type PanelWash = "none" | "asanoha" | "seigaiha" | "sayagata" | "kolam" | "screentone";
+export type PanelWash =
+  | "none"
+  | "asanoha"
+  | "seigaiha"
+  | "sayagata"
+  | "kolam"
+  | "screentone"
+  // Added 2026-07-30 with Phase 4. Each has ONE assigned use (02 §2.6): kikkō is
+  // armour plating, so the astras page only; shippō is endless connection, so the
+  // colophon only. A wagara with no assigned meaning is decoration, which §2.6
+  // explicitly forbids.
+  | "kikko"
+  | "shippo";
 
 /**
  * One corner ornament, drawn for the top-left; the other three are rotations.

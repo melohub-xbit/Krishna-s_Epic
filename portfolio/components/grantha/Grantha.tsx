@@ -64,6 +64,9 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import CurlVolume from "@/components/grantha/CurlVolume";
+import Sakura, { type SakuraHandle } from "@/components/ornament/Sakura";
+import Cut, { type CutHandle } from "@/components/ornament/Cut";
+import Noren from "@/components/ornament/Noren";
 import Patterns from "@/components/ornament/Patterns";
 import { Hanko } from "@/components/ornament/Motifs";
 import { SPREADS } from "@/data/spreads";
@@ -115,6 +118,9 @@ export default function Grantha({
 }: GranthaProps) {
   const [page, setPage] = useState(initialPage);
   const rootRef = useRef<HTMLDivElement>(null);
+  const sakuraRef = useRef<SakuraHandle>(null);
+  const cutRef = useRef<CutHandle>(null);
+  const [menu, setMenu] = useState(false);
   const last = SPREADS.length - 1;
 
   /* ----------------------------------------------------------------- URLs */
@@ -159,10 +165,17 @@ export default function Grantha({
   // Non-adjacent nav (the top bar, the browser): no riffle, just adopt — a deep
   // jump has no single leaf to curl. The iaijutsu cut (§02.7) is the intended
   // treatment and is not built; until then a jump is instant.
+  // A JUMP IS A CUT, not a turn. Adjacent motion is a curl; a jump of several pages
+  // has no single leaf to curl and riffling six of them costs more patience than the
+  // reader has. This used to swap the page with no transition at all, which read as
+  // a bug — the iaijutsu cut (02 §2.7) is the intended treatment and the page swaps
+  // while the blade covers it.
   const jumpTo = useCallback(
     (i: number) => {
       if (paused || i < 0 || i > last || i === page) return;
-      setPage(i);
+      const go = () => setPage(i);
+      if (cutRef.current) cutRef.current.run(go);
+      else go();
     },
     [paused, page, last]
   );
@@ -202,6 +215,26 @@ export default function Grantha({
             <span>{profile.nameTe}</span>
           </span>
         </a>
+        {/* The noren trigger. Always present, not only on narrow screens: the
+            curtain is the volume's table of contents, and the inline nav is a
+            shortcut to four of its pages. */}
+        <button
+          className="menu-btn"
+          onClick={() => setMenu(true)}
+          aria-haspopup="dialog"
+          aria-expanded={menu}
+        >
+          <span className="menu-bars" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className="menu-txt">
+            విషయసూచిక
+            <i>Contents</i>
+          </span>
+        </button>
+
         <nav className="nav">
           {nav.map((n) => {
             const target = SPREADS.findIndex((s) => s.slug === n.href.slice(1));
@@ -236,7 +269,42 @@ export default function Grantha({
         cacheKey="volume"
         paused={paused}
         inputTarget={rootRef}
+        // Petals at the apex of the turn and nowhere else (02 §2.2). Scarcity is
+        // the meaning: falling petals are mono no aware, and a thing that is always
+        // happening cannot mean "this moment passed".
+        onApex={(d) => sakuraRef.current?.burst(d)}
       />
+
+      {/* Above the book, because a petal that leaves the gutter has to pass in front
+          of the paper. This is why the burst is DOM and not part of the r3f canvas —
+          that canvas is deliberately behind everything. */}
+      <Sakura ref={sakuraRef} />
+      {/* The noren. It is the designed menu (02 §2.5) AND the fix for the nav
+          disappearing below 900px — in a scrolling document you could still reach
+          every section past a hidden nav, but in a book you cannot, so on a phone
+          the volume had no navigation at all. */}
+      <Noren
+        open={menu}
+        onClose={() => setMenu(false)}
+        items={SPREADS.map((sp, i) => ({
+          en: sp.title[1],
+          te: sp.title[0],
+          href: spreadHref(i),
+          current: i === page,
+        }))}
+        onPick={(href, e) => {
+          const i = pageFromPath(href);
+          if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+          e.preventDefault();
+          setMenu(false);
+          jumpTo(i);
+        }}
+      />
+
+      {/* The cut. Mounted always and invisible at rest; it owns no state until a
+          jump asks for it. */}
+      <Cut ref={cutRef} />
+
       {/* Telugu-paired page marker (locked "Telugu always paired" rule). */}
       <div className="book-counter" aria-live="polite">
         <span className="te">

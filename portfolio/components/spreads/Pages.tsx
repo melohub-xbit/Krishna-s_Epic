@@ -37,6 +37,7 @@ import {
   Hanko,
 } from "@/components/ornament/Motifs";
 import Enso from "@/components/ink/Enso";
+import Gate from "@/components/ornament/Gate";
 import { profile } from "@/data/profile";
 import { epics } from "@/data/projects";
 
@@ -50,6 +51,19 @@ function Eyebrow({ en, te }: { en: string; te: string }) {
       {en}
       <span className="te">{te}</span>
     </div>
+  );
+}
+
+/**
+ * A full-page wagara ground. `Patterns.tsx` emits the pattern once into a hidden
+ * <defs>, so this is just a rect filled by id — which is why the pattern's colour
+ * is set in CSS on `.pg-wash` (the fill is `currentColor` inside the pattern).
+ */
+function Wash({ id }: { id: "kikko" | "shippo" }) {
+  return (
+    <svg className="pg-wash" aria-hidden="true" preserveAspectRatio="none">
+      <rect width="100%" height="100%" fill={`url(#${id})`} />
+    </svg>
   );
 }
 
@@ -177,15 +191,22 @@ export function AboutSpread() {
 /* -------------------------------------------------------------------- fork */
 
 /**
- * Page 3 — the fork. §03.2: "Two-panel spread split by a DIAGONAL gutter."
- * The diagonal is the whole point of this page: it is the one place in the volume
- * where the reader chooses, and a straight vertical gutter would read as two
- * columns of a layout rather than as a split.
+ * Page 3 — the fork. §03.2 asks for a two-panel spread split by a DIAGONAL gutter,
+ * and §02.3 for the fused torii-torana gate at the moment an epic is entered. Those
+ * are the same beat, so this page is where they meet: choosing a path IS passing
+ * through its gate.
+ *
+ * So each half is a real gate rather than a card with a sigil on it — and the epic's
+ * name sits on the GAKUZUKA, the tablet a real torii carries its shrine's name on.
+ * That is the detail that makes it a gate and not an illustration of one.
+ *
+ * The diagonal stays: it is the one place in the volume where the reader chooses,
+ * and a straight vertical gutter would read as two columns of a layout.
  */
 export function ForkSpread() {
   const gates = [
-    { epic: epics.ramayanam, sigil: <Bow size={62} />, tone: "gold" as const },
-    { epic: epics.mahabharatam, sigil: <Conch size={62} />, tone: "kumkum" as const },
+    { epic: epics.ramayanam, tone: "gold" as const },
+    { epic: epics.mahabharatam, tone: "kumkum" as const },
   ];
 
   return (
@@ -194,10 +215,10 @@ export function ForkSpread() {
       <PageTitle en="Choose a path" />
 
       <div className="fk-body">
-        {gates.map(({ epic, sigil, tone }, i) => (
+        {gates.map(({ epic, tone }, i) => (
           // Anchors, not buttons: these are the volume's own pages and they have
-          // real URLs. The book intercepts the click and turns instead (Grantha's
-          // onNav), so this works as both a link and a page-turn.
+          // real URLs. The book intercepts a plain click and turns instead (see
+          // Grantha's onNav), so this is both a link and a page-turn.
           <a
             key={epic.key}
             className="fk-gate"
@@ -205,16 +226,51 @@ export function ForkSpread() {
             data-tone={tone}
             data-side={i === 0 ? "l" : "r"}
           >
-            <span className="fk-sigil" aria-hidden="true">
-              {sigil}
+            <span className="fk-arch" aria-hidden="true">
+              <Gate width={260} label={epic.name} labelTe={epic.te} />
             </span>
-            <span className="fk-te">{epic.te}</span>
-            <b className="fk-en">{epic.name}</b>
             <span className="fk-role">{epic.role}</span>
             <p className="fk-blurb">{epic.blurb}</p>
             <span className="fk-go">Enter ›</span>
           </a>
         ))}
+      </div>
+    </section>
+  );
+}
+
+/**
+ * THE ENDPAPERS (§03.2, §02.6) — the one page where the two traditions touch.
+ *
+ * "Between arcs: a quiet interleaved kolam × asanoha pattern page shown for one
+ * beat mid-flip (the §01 rhyme made visible)." The placement rule for ornament is
+ * strict — wagara for the Japanese-format zones, kolam for the world background —
+ * and §02.6 says they meet ONLY here. That is what makes this page worth a page: it
+ * is the thesis of the whole site stated once, in pattern, with no words to explain
+ * it.
+ *
+ * Bands rather than a blend: a real endpaper is printed, and two patterns
+ * interleaved as alternating bands is what a press can actually do. A crossfade
+ * would be a Photoshop gesture.
+ */
+export function EndpaperSpread() {
+  const bands = [0, 1, 2, 3, 4, 5];
+  return (
+    <section className="pg pg--endpaper" data-sec="endpaper">
+      <div className="ep-bands" aria-hidden="true">
+        {bands.map((b) => (
+          <svg key={b} className="ep-band" data-kind={b % 2 ? "kolam" : "asanoha"} preserveAspectRatio="none">
+            <rect width="100%" height="100%" fill={`url(#${b % 2 ? "kolam" : "asanoha"})`} />
+          </svg>
+        ))}
+      </div>
+
+      {/* One line, centred, and nothing else. An endpaper that explains itself is
+          not an endpaper. */}
+      <div className="ep-mark">
+        <Rosette size={22} />
+        <span className="te">॥ రెండు దారులు, ఒకే గీత ॥</span>
+        <em>Two traditions, one line</em>
       </div>
     </section>
   );
@@ -255,6 +311,9 @@ const ASTRAS: [string, string, string[]][] = [
 export function AstrasSpread() {
   return (
     <section className="pg pg--astras" id="astras" data-sec="astras">
+      {/* Kikkō: longevity and protection, and literal samurai armour plating —
+          which is why this page and no other gets it (02 §2.6). */}
+      <Wash id="kikko" />
       <Eyebrow en="The armoury" te="అస్త్రాలు" />
       <PageTitle en="Astras" te="అస్త్రాలు" />
 
@@ -300,6 +359,9 @@ export function ColophonSpread() {
 
   return (
     <section className="pg pg--colophon" id="contact" data-sec="contact">
+      {/* Shippō: "seven treasures", harmony and endless connection. A page of ways
+          to reach someone is exactly what that pattern is for (02 §2.6). */}
+      <Wash id="shippo" />
       <Eyebrow en="Colophon" te="ముద్రణ" />
       <PageTitle en="Contact" te="సంప్రదింపు" />
 

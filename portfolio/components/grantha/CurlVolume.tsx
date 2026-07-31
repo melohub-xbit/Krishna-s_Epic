@@ -99,6 +99,14 @@ export interface CurlVolumeProps {
   inputTarget?: React.RefObject<HTMLElement | null>;
   /** Bind arrow keys / PageUp / PageDown / Space on the window. */
   keyboard?: boolean;
+  /**
+   * Fired ONCE per turn, at the curl's apex, with the direction. This is where the
+   * sakura burst hangs (02 §2.2) — petals are a moment-of-passage particle, and the
+   * apex is that moment. Deliberately a callback rather than something this
+   * component owns: petals have to be drawn ABOVE the book, and the book does not
+   * know what is above it.
+   */
+  onApex?: (dir: 1 | -1) => void;
   className?: string;
 }
 
@@ -114,6 +122,7 @@ export default function CurlVolume({
   paused = false,
   inputTarget,
   keyboard = true,
+  onApex,
   className,
 }: CurlVolumeProps) {
   const [phase, setPhase] = useState<"idle" | "turning">("idle");
@@ -216,11 +225,21 @@ export default function CurlVolume({
       // MIRRORED, so it lifts the left page. The mirror is a uniform in PageCurl;
       // here the only difference is the destination texture.
       const box = { v: 0 };
+      let apexFired = false;
       gsap.to(box, {
         v: 1,
         duration: DUR.long,
         ease: EASE.ink,
-        onUpdate: () => setProgress(box.v),
+        onUpdate: () => {
+          setProgress(box.v);
+          // The APEX — where the leaf stands closest to vertical and the gutter is
+          // most open. Keyed off eased progress rather than a timer, so it stays the
+          // apex if the duration or easing ever changes.
+          if (!apexFired && box.v >= 0.42) {
+            apexFired = true;
+            onApexRef.current?.(d);
+          }
+        },
         onComplete: () => {
           onTurnEnd(target);
           setDir(1);
@@ -231,6 +250,11 @@ export default function CurlVolume({
     },
     [page, last, onTurnEnd, curlOk]
   );
+
+  // Held in a ref for the same reason the input handlers are: the tween closes over
+  // it, and a new callback identity from a parent re-render must not restart a turn.
+  const onApexRef = useRef(onApex);
+  onApexRef.current = onApex;
 
   // The Observer and the key listener are created ONCE. `turn` changes identity
   // whenever `page` does, so binding it directly would kill and rebuild the

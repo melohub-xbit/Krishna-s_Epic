@@ -23,6 +23,7 @@ import {
   AstrasSpread,
   ColophonSpread,
   CoverSpread,
+  EndpaperSpread,
   ForkSpread,
   MahabharatamSpread,
   RamayanamSpread,
@@ -74,6 +75,18 @@ export const SPREADS: SpreadDef[] = [
     component: RamayanamSpread,
     // Research arc: warm and steady. One disciplined journey (§03.2).
     chakra: { spin: 0.6, scale: 0.88, tint: "gold" },
+  },
+  {
+    // THE ENDPAPERS (§03.2) — between the arcs, and only here, kolam and asanoha
+    // interleave. It has a URL because every page in the volume does, but it is a
+    // beat rather than a destination: nothing links to it and nothing needs to.
+    slug: "endpaper",
+    title: ["లోపలి కాగితం", "Endpapers"],
+    component: EndpaperSpread,
+    // The quietest page in the book, so the chakra is at its calmest behind it —
+    // this is the one page whose job is to be a pause.
+    chakra: { spin: 0.2, scale: 0.8 },
+    pattern: "endpaper",
   },
   {
     slug: "mahabharatam",

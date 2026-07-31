@@ -37,6 +37,7 @@ export {
   CoverSpread,
   AboutSpread,
   ForkSpread,
+  EndpaperSpread,
   AstrasSpread,
   ColophonSpread,
 } from "@/components/spreads/Pages";
