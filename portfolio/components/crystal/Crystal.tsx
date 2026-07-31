@@ -10,14 +10,34 @@ import ChakraSculpt from "@/components/crystal/ChakraSculpt";
  * a black void -- the old cool blue fill read as moonlight and fought the
  * festive palette. Kept a single cool rim for edge separation only.
  */
-export default function Crystal() {
-  const { viewport } = useThree();
+export default function Crystal({
+  spin = 1,
+  pageScale = 1,
+}: {
+  /** Per-page chakra keys from data/spreads.ts, forwarded to the sculpt. */
+  spin?: number;
+  pageScale?: number;
+} = {}) {
+  // BOTH, and they are not interchangeable: `size` is CSS pixels (used to
+  // decide the breakpoint, so it matches the media query), `viewport` is
+  // three.js world units (used to place the chakra, which lives in world
+  // space). Swapping one for the other silently breaks the other use.
+  const { size, viewport } = useThree();
 
   // Composition: anchor the chakra RIGHT and let it bleed off the viewport
-  // edge, leaving a clean left column for type. Below ~820px (matching the CSS
+  // edge, leaving a clean left column for type. Below 900px (matching the CSS
   // breakpoint) it recentres and the type takes the full width instead --
   // otherwise the two fight over a narrow screen.
-  const narrow = viewport.width < 7.4;
+  //
+  // [REVISED 2026-07-20] This tested `viewport.width < 7.4` -- three.js WORLD
+  // units, not pixels. World width is a function of ASPECT RATIO, so the test
+  // was really `aspect < 1.32`, which does not track the CSS pixel breakpoint
+  // it claims to match. A short landscape window (e.g. 880x600) is narrow to
+  // the CSS at 900px but wide to the old test at aspect 1.47: the type went
+  // full-width while the chakra stayed anchored right, and they collided --
+  // exactly the fight this logic exists to prevent. `size` is in CSS pixels,
+  // so it matches the media query by construction. Change both together.
+  const narrow = size.width < 900;
   const offsetX = narrow ? 0 : viewport.width * 0.26;
   const scale = narrow ? 0.62 : 0.82;
 
@@ -42,7 +62,7 @@ export default function Crystal() {
       </Environment>
 
       <group position={[offsetX, narrow ? 0.9 : 0, 0]}>
-        <ChakraSculpt scale={scale} />
+        <ChakraSculpt scale={scale} spin={spin} pageScale={pageScale} />
       </group>
 
       {/*

@@ -1,6 +1,38 @@
 /* Shippori Mincho: a Japanese print serif -- carries the manga/woodblock read
-   without being a novelty face. Noto Sans Telugu for all Telugu. */
-@import url("https://fonts.googleapis.com/css2?family=Shippori+Mincho:wght@500;700;800&family=Noto+Sans+Telugu:wght@400;600;700&family=Inter:wght@400;500;600&display=swap");
+   without being a novelty face. Noto Sans Telugu for all Telugu.
+
+   SELF-HOSTED (roadmap P0). Files live in public/fonts/, sourced from the
+   @fontsource packages (same binaries Google serves, SIL OFL). No runtime
+   request to fonts.googleapis.com -- that was a third-party dependency on the
+   critical render path and a privacy leak.
+
+   Subsetting, deliberate:
+   - Shippori Mincho ships latin + latin-ext ONLY. Its `japanese` subset is
+     1.4 MB per weight and we render zero kana/kanji -- the CJK in the repo is
+     in code comments (Motifs.tsx, Patterns.tsx). If real Japanese type is ever
+     set on the page, add the japanese subset THEN, not pre-emptively.
+   - Noto Sans Telugu ships the `telugu` subset ONLY; Telugu is always paired
+     with English (locked decision) and the English half is set in Inter.
+   Total: 400 KB across 16 files, and unicode-range means a given visitor pulls
+   only the few they actually need. */
+
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/shippori-mincho-latin-500-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/shippori-mincho-latin-700-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 800; font-display: swap; src: url("/fonts/shippori-mincho-latin-800-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/shippori-mincho-latin-ext-500-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/shippori-mincho-latin-ext-700-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Shippori Mincho"; font-style: normal; font-weight: 800; font-display: swap; src: url("/fonts/shippori-mincho-latin-ext-800-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+@font-face { font-family: "Noto Sans Telugu"; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/noto-sans-telugu-telugu-400-normal.woff2") format("woff2"); unicode-range: U+0951-0952, U+0964-0965, U+0C00-0C7F, U+1CDA, U+1CF2, U+200C-200D, U+25CC; }
+@font-face { font-family: "Noto Sans Telugu"; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/noto-sans-telugu-telugu-600-normal.woff2") format("woff2"); unicode-range: U+0951-0952, U+0964-0965, U+0C00-0C7F, U+1CDA, U+1CF2, U+200C-200D, U+25CC; }
+@font-face { font-family: "Noto Sans Telugu"; font-style: normal; font-weight: 700; font-display: swap; src: url("/fonts/noto-sans-telugu-telugu-700-normal.woff2") format("woff2"); unicode-range: U+0951-0952, U+0964-0965, U+0C00-0C7F, U+1CDA, U+1CF2, U+200C-200D, U+25CC; }
+
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/inter-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/inter-latin-500-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/inter-latin-600-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 400; font-display: swap; src: url("/fonts/inter-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 500; font-display: swap; src: url("/fonts/inter-latin-ext-500-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Inter; font-style: normal; font-weight: 600; font-display: swap; src: url("/fonts/inter-latin-ext-600-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
 
 * { margin: 0; box-sizing: border-box; }
 
@@ -35,6 +67,10 @@ body {
    which hid the chakra completely. Separate sibling elements instead. */
 .wrap  { position: fixed; inset: 0; z-index: 0; }   /* 3D canvas */
 .scrim { position: fixed; inset: 0; z-index: 1; pointer-events: none; } /* legibility wash */
+/* [DEAD 2026-07-30] `.doc` was the scroll site's content column. Site.tsx is
+   deleted and the book occupies this layer instead (`.grantha`, same z-index: 2).
+   Kept only because the comment above it is the record of why these are three
+   sibling elements and not pseudo-elements. Delete both together or neither. */
 .doc   { position: relative; z-index: 2; }          /* content */
 
 /* Biased hard to the left, transparent on the right, because the chakra sits
@@ -44,9 +80,25 @@ body {
     linear-gradient(90deg, rgba(18,5,8,.92) 0%, rgba(18,5,8,.78) 26%, rgba(18,5,8,.34) 48%, rgba(18,5,8,0) 66%);
 }
 @media (max-width: 900px) {
-  /* chakra recentres on narrow screens, so the wash goes vertical instead */
+  /* chakra recentres on narrow screens, so the wash goes vertical instead.
+     900px here MUST stay in step with the pixel test in crystal/Crystal.tsx --
+     that is what decides whether the chakra recentres. */
   .scrim { background: linear-gradient(180deg, rgba(18,5,8,.55) 0%, rgba(18,5,8,.86) 45%, rgba(18,5,8,.94) 100%); }
 }
+
+/* No decorative SVG may set the page width. Torana is authored at 420px and
+   the narrowest target viewport is 375px, so at phone width it pushed the
+   document 65px wider than the screen and produced a horizontal scrollbar on
+   every section that carries one. Constrain here rather than at each call
+   site, so the next fixed-width ornament cannot reintroduce it.
+
+   max-width ONLY -- deliberately no `height: auto`. The flowing ornaments
+   (torana, brush rule) set `width` and let `viewBox` derive the height, so
+   they rescale proportionally on their own. Adding `height: auto` would
+   instead override the explicit `height` attribute on the square motifs
+   (hanko, conch, bow, rosette), and it would fight the `height: 100%` that
+   `.panel-wash` depends on. */
+svg { max-width: 100%; }
 
 ::selection { background: var(--kumkum-lit); color: #fff; }
 
@@ -85,7 +137,41 @@ a { color: inherit; }
 .nav a:hover, .nav a[data-on="1"] { color: var(--gold-pale); border-bottom-color: var(--gold); }
 .nav a i { display: block; font-family: "Noto Sans Telugu", sans-serif; font-style: normal; font-size: 10.5px; letter-spacing: 0; text-transform: none; opacity: .6; margin-top: 2px; }
 
-/* parva counter — the manuscript page number, replaces a guide character */
+/* [2026-07-20] The nav genuinely does not fit a phone. Four items, each
+   stacking an English label over its Telugu gloss, measure ~306px of text
+   plus ~36px of gaps; with the 130px name mark and 40px of padding that is
+   ~500px of content in a 375px bar -- it overflowed and overlapped the mark.
+   Hiding it (rather than dropping the Telugu line) is what keeps the locked
+   "Telugu always paired with English" rule intact: the pairing is never
+   broken, the whole unit just steps aside.
+
+   This is a stopgap, and an acceptable one only because the site is a single
+   scrolling document at this phase -- the fork section reaches both epics and
+   contact is the last section, so nothing becomes unreachable. The permanent
+   mobile navigation is the noren menu in roadmap P4. Remove this rule then. */
+@media (max-width: 900px) {
+  .nav { display: none; }
+  .topbar { justify-content: flex-start; }
+
+  /* The bar is transparent, which is fine on desktop where it floats over the
+     dark left edge of the scrim. On a phone the content column runs the full
+     width and headings passed *under* the name mark -- two sets of type
+     overlapping at the same weight, unreadable. A short gradient (not a solid
+     bar, which would read as a UI chrome strip and break the paper illusion)
+     gives the mark something to sit on and fades out before it becomes a bar.
+     3px of blur behind it does the rest. */
+  .topbar {
+    background: linear-gradient(180deg, rgba(24,10,12,.94) 0%, rgba(24,10,12,.82) 55%, rgba(24,10,12,0) 100%);
+    padding-bottom: 26px;
+  }
+}
+
+/* parva counter — the manuscript page number, replaces a guide character.
+   [DEAD 2026-07-30] Nothing renders `.parva` any more: it was scroll-site chrome
+   driven by Reveal.tsx's IntersectionObserver, and the book has its own
+   `.book-counter`. Kept because a column of dots marking your place in the volume
+   is a better page indicator than a number, and wiring it to `page` is a
+   ten-line job — see roadmap Phase 3. If that never happens, delete this. */
 .parva {
   position: fixed; right: clamp(14px, 2vw, 26px); top: 50%;
   transform: translateY(-50%); z-index: 20;
@@ -97,9 +183,20 @@ a { color: inherit; }
 }
 .parva b[data-on="1"] { opacity: 1; background: var(--gold); box-shadow: 0 0 10px var(--gold); }
 
+/* At 375px the counter sits 14px from the edge while panels run to 20px --
+   the dots landed on the panel border and read as a rendering fault rather
+   than as a page marker. It is pure ornament, so it goes rather than fights. */
+@media (max-width: 900px) { .parva { display: none; } }
+
 /* ============================================================ sections */
 .sec {
   min-height: 100vh;
+  /* svh = the SMALL viewport height (toolbars shown). Plain 100vh on mobile
+     resolves to the LARGE height, so every section was taller than the screen
+     the moment the browser chrome was visible, and the layout jumped by the
+     toolbar height on each scroll direction change. Declared second so it
+     simply wins where supported and is ignored where not. */
+  min-height: 100svh;
   display: flex;
   align-items: center;
   padding: clamp(90px, 11vh, 150px) clamp(20px, 5vw, 90px);
@@ -131,7 +228,12 @@ a { color: inherit; }
 .brush { color: var(--gold); opacity: .55; margin: 18px 0; }
 
 /* ============================================================ cover */
-.cover { min-height: 100vh; display: flex; align-items: center; padding: 0 clamp(20px, 5vw, 90px); }
+.cover { min-height: 100vh; min-height: 100svh; display: flex; align-items: center; padding: 0 clamp(20px, 5vw, 90px); }
+/* The cover is the one section with no top padding (it is centred, so it does
+   not normally need to clear the fixed topbar). On a phone the hero column is
+   tall enough that centring pushes its first line up under the bar, so it
+   needs the clearance there. */
+@media (max-width: 900px) { .cover { padding-top: 88px; padding-bottom: 40px; } }
 .hero-te { font-family: "Noto Sans Telugu", sans-serif; font-weight: 600; font-size: clamp(15px, 1.5vw, 21px); color: var(--saffron); margin-bottom: 12px; }
 .hero-en { font-family: "Shippori Mincho", serif; font-weight: 800; font-size: clamp(42px, 7vw, 96px); line-height: .94; color: var(--paper); text-shadow: 0 2px 30px rgba(0,0,0,.6); }
 .hero-rule { width: 78px; height: 2px; background: linear-gradient(90deg, var(--gold), transparent); margin: 22px 0 16px; }
@@ -248,3 +350,808 @@ a { color: inherit; }
   .scroll-cue i { animation: none; }
   html { scroll-behavior: auto; }
 }
+
+/* ============================================================ landing (§03.1)
+   Beats 0.0-3.4. The stage is a paper field, not the site ground: the landing
+   is page one of the volume being drawn, so it must already look like paper
+   before anything animates. */
+.landing {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  overflow: hidden;
+  /* Aged washi: a warm base with two very soft off-centre lifts. Kept to
+     gradients rather than a texture image so beat 0.0 has nothing to load —
+     the field must be there on the first frame or the silence reads as a
+     blank page still loading. */
+  background:
+    radial-gradient(120% 90% at 28% 18%, rgba(240,224,196,.10), transparent 60%),
+    radial-gradient(100% 80% at 78% 88%, rgba(224,170,74,.07), transparent 62%),
+    var(--ground);
+}
+.landing-stage { text-align: center; will-change: transform; }
+/* The seal sits at the top-right OF THE NAME, so the lockup is inline-block:
+   it has to shrink-wrap the title or "top right" means "top right of the
+   viewport" and the stamp lands nowhere near the writing. */
+/* A column, sized by the title. The seal banner matches the NAME's width, so
+   the lockup shrink-wraps the title and the seal is told to fill it -- pinning
+   a height on the seal instead would drift the moment either ratio changes. */
+.landing-lockup { position: relative; display: inline-block; }
+.landing-title { color: var(--paper); line-height: 0; }
+.landing-seal {
+  line-height: 0;
+  margin-bottom: 14px;
+  transform-origin: 50% 50%;
+}
+.landing-seal svg { width: 100%; height: auto; display: block; }
+.landing-caption {
+  margin-top: 22px;
+  font-size: clamp(11px, 1.5vw, 13px);
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.landing-flash {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+
+@media (max-width: 900px) {
+  .landing-seal { margin-bottom: 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Final state, no motion. The content is identical -- that is the rule. */
+  .landing-seal, .landing-caption { opacity: 1 !important; }
+  .landing-flash { display: none; }
+}
+
+/* The mon in the hanko position -- top-right of the panel, as on a chapter
+   cover (04 §4.3). Absolute so it never pushes the title's line box around;
+   the panel already has padding for it. */
+.p-mon {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+  line-height: 0;
+  color: rgba(224,170,74,.55);
+  transition: color .25s ease;
+}
+.panel:hover .p-mon { color: var(--gold-pale); }
+/* At 375px a 44px crest crowds the title, and the badge already lives up
+   there on some cards. Shrink rather than hide -- the crest is the project's
+   identity, not decoration. */
+@media (max-width: 640px) {
+  .p-mon { top: 10px; right: 10px; }
+  .p-mon svg { width: 34px; height: 34px; }
+}
+
+/* ================================================ the book (/) =============
+   The page-curl volume: an open two-page spread over the fixed chakra canvas.
+
+   [REVISED 2026-07-30] THE VISIBLE SPREAD IS LIVE DOM, NOT AN IMAGE. The curl
+   shader can only deform a texture, so the previous build showed a *rasterised*
+   screenshot of the spread at all times and parked the real markup off-viewport
+   under `aria-hidden`. That was survivable only while the scroll site at / was
+   the readable copy. It is not any more: / IS the book, so the reader must be
+   able to select the text, a crawler must be able to index it, and a screen
+   reader must be able to speak it.
+   So the live DOM sits on the paper and the curl canvas is revealed ONLY for the
+   ~1s of an actual turn — nobody selects text mid-turn. `data-hidden` is the
+   only switch, and it is opacity so both layers stay painted and capturable. */
+.grantha { position: relative; z-index: 2; min-height: 100svh; overflow: hidden; }
+
+/* The open book, centred. Two equal pages with the spine between them. */
+.book {
+  position: fixed;
+  left: 50%; top: 52%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+}
+
+/* The paper and its drop onto the stage. This is a SEPARATE, CHILDLESS element
+   on purpose: `filter` rasterises the whole subtree, and the off-slot pages live
+   at left:-99999px, so putting the shadow on `.book` itself would ask the
+   compositor for a ~100000px-wide filter region. Childless plate, tiny region. */
+.book-plate {
+  position: absolute; inset: 0; z-index: 0;
+  background: #f3ede0;
+  /* A bound volume sits ABOVE the surface it rests on. The one place a shadow
+     earns its keep. */
+  filter: drop-shadow(0 24px 48px rgba(0, 0, 0, .5));
+}
+
+/* The live layer: every spread mounted ONCE, positioned by slot. Mounting all of
+   them and moving them between slots (rather than mounting the two on screen)
+   means a turn never unmounts and remounts twenty panels and their SVGs at the
+   exact frame the leaf lands — and every spread stays laid out, so it stays
+   capturable for the texture without a second offscreen copy of the markup. */
+.book-pages { position: absolute; inset: 0; z-index: 1; }
+/* Mid-turn the curl is what you see, so the live layer must not still be
+   clickable underneath it — a link you cannot see is not a link. */
+.book-pages[data-hidden="1"] { opacity: 0; pointer-events: none; }
+
+.book-page {
+  position: absolute; top: 0;
+  width: 50%; height: 100%;
+  overflow: hidden;
+  background: #f3ede0;
+  /* THE PAGE IS THE CONTAINER. Everything composed for a page sizes itself in
+     cqw/cqh against this, so a page scales as one object — same design at any
+     window size, just larger or smaller. Viewport units are meaningless inside a
+     leaf, and @media is worse: this box is ~480px wide while a media query still
+     reads the real window, so every breakpoint fires at the wrong time. */
+  container-type: size;
+  container-name: page;
+}
+.book-page[data-slot="l"] { left: 0; }
+.book-page[data-slot="r"] { left: 50%; }
+/* Parked: still laid out at exactly page size (so a capture of it matches what
+   the reader will see) but off the viewport. NOT display:none or
+   visibility:hidden — html-to-image clones computed styles, so either one
+   captures a blank page. */
+.book-page[data-slot="off"] { left: -99999px; }
+
+/* One WebGL canvas spanning both pages; the curl rolls across the whole book.
+   `pointer-events: none` is NOT optional: this canvas covers the entire book at
+   z-index 2, so without it every mousedown lands on the canvas and the live text
+   underneath cannot be selected by dragging — Ctrl+A still finds it, which is
+   exactly the symptom that says "the DOM is fine, something is on top of it".
+   The curl is decorative; it should never take a click. */
+.book-face-full {
+  position: absolute; inset: 0; z-index: 2;
+  display: block; width: 100%; height: 100%;
+  pointer-events: none;
+}
+.book-face-full[data-hidden="1"] { opacity: 0; }
+/* The gutter: a soft crease where the two pages meet, darkest at the spine. */
+.book-spine {
+  position: absolute; left: 50%; top: 0; bottom: 0;
+  width: 26px; transform: translateX(-13px);
+  z-index: 3; pointer-events: none;
+  background: linear-gradient(to right,
+    rgba(60, 40, 22, 0) 0%,
+    rgba(60, 40, 22, .28) 46%,
+    rgba(30, 18, 8, .42) 50%,
+    rgba(60, 40, 22, .28) 54%,
+    rgba(60, 40, 22, 0) 100%);
+}
+
+/* Telugu-paired page marker. */
+.book-counter {
+  position: fixed; right: 20px; bottom: 18px; z-index: 30;
+  display: flex; align-items: center; gap: 12px;
+  font-size: 11px; letter-spacing: .12em; color: var(--muted);
+}
+.book-counter-latin { font-variant-numeric: tabular-nums; }
+
+/* Page-edge hot strips: RIGHT = next (the free edge you reach for). */
+.book-edge {
+  position: fixed; top: 0; bottom: 0; width: 48px; z-index: 25;
+  border: 0; background: transparent; cursor: pointer;
+}
+.book-edge--next { right: 0; }
+.book-edge--prev { left: 0; }
+@media (pointer: coarse) { .book-edge { display: none; } }
+
+/* [REMOVED 2026-07-30] The `.book-page .sec / .col / .grid / .rv / …` override
+   block used to live here. It was the crutch that made scroll-site sections
+   *almost* fit a page: force the reveal elements visible, collapse the 6-column
+   grid to one column, clamp the full-viewport section to the page box. It never
+   worked — content still overflowed and got clipped — and every page is now
+   composed for a page instead (Pages.tsx, EpicIndex.tsx), so nothing uses those
+   classes on a page any more.
+   It is deleted rather than kept-just-in-case ON PURPOSE: leaving it would let the
+   next page get written as a scroll section and appear to work. If you find
+   yourself wanting it back, the page you are writing needs composing, not
+   overriding. The two rules that replace it are in the header of Spreads.tsx. */
+
+/* ============================================ the chapter index page (an epic)
+   components/spreads/EpicIndex.tsx. A page COMPOSED for a page: three rows,
+   head / index / foot, with the index taking exactly what is left. Every length
+   is in page units (cqh/cqw against the `page` container on .book-page).
+
+   The overflow guarantee is structural, and it is worth stating because it is
+   the thing that was broken: the index row is `1fr`, its chapter rows are `fr`
+   with `minmax(0, …)`, and every text run is line-clamped. Adding a project
+   makes all rows shorter. It cannot push content off the page, at any page size,
+   for any number of projects. */
+.page-idx {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 2.2cqh;
+  padding: 5cqh 6cqw;
+  position: relative;
+  color: var(--ink, #2a1a12);
+}
+
+/* ---- head */
+.idx-head { position: relative; }
+.idx-eyebrow {
+  display: flex; align-items: center; gap: 1.6cqw;
+  font-size: 1.75cqh; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--kumkum-lit);
+}
+.idx-eyebrow svg { width: 2.6cqh; height: auto; flex: none; }
+.idx-eyebrow .te {
+  text-transform: none; letter-spacing: 0; font-size: 1.9cqh;
+  font-family: "Noto Sans Telugu", sans-serif; opacity: .75;
+}
+.idx-title {
+  margin: 1.4cqh 0 0;
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 5.1cqh; line-height: .98; letter-spacing: .01em;
+  color: #3a2214;
+}
+.idx-title .te {
+  display: block;
+  font-family: "Noto Sans Telugu", sans-serif; font-weight: 600;
+  font-size: 2.5cqh; letter-spacing: 0; line-height: 1.2;
+  color: var(--kumkum-lit); opacity: .9; margin-bottom: .4cqh;
+}
+.idx-lede {
+  margin: 1.4cqh 0 0;
+  /* 62% and not the full width: the sigil sits top-right, and copy running under
+     it reads as a collision rather than as a composition. */
+  max-width: 62%;
+  font-size: 2.05cqh; line-height: 1.45; color: #5a4030;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+.idx-rule { margin-top: 1.1cqh; color: var(--gold-deep); opacity: .55; }
+.idx-rule svg { width: 46%; height: auto; }
+.idx-sigil {
+  position: absolute; right: 0; top: 0;
+  width: 11cqh; color: var(--kumkum); opacity: .5;
+}
+.idx-sigil svg { width: 100%; height: auto; display: block; }
+
+/* ---- the index itself */
+.idx-list {
+  margin: 0; padding: 0; list-style: none;
+  display: grid;
+  /* grid-template-rows comes from the component: 1.5fr for a hero chapter, 1fr
+     otherwise. Weight = importance (§03.2), authored in projects.ts. */
+  min-height: 0;
+}
+/* minmax(0,…) on the row itself: without it a long title can force a row past
+   its fr share and the last chapter walks off the page. */
+.idx-row { min-height: 0; display: grid; overflow: hidden; }
+.idx-row + .idx-row { border-top: 1px solid rgba(120, 84, 40, .16); }
+
+.idx-link {
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 2.2cqw;
+  min-height: 0; height: 100%;
+  padding: 0 .5cqw;
+  overflow: hidden;
+  text-decoration: none; color: inherit;
+  transition: background-color .18s;
+}
+.idx-link:hover { background: rgba(224, 170, 74, .10); }
+
+.idx-mon { width: 4.0cqh; color: var(--kumkum); flex: none; opacity: .85; }
+.idx-mon svg { width: 100%; height: auto; display: block; }
+.idx-row[data-hero="1"] .idx-mon { width: 5.6cqh; opacity: 1; }
+
+.idx-no {
+  font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 1.95cqh; color: var(--gold-deep); opacity: .6;
+  min-width: 3.4cqw; text-align: right;
+}
+
+.idx-name { min-width: 0; display: block; }
+.idx-name b {
+  display: block;
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 2.2cqh; letter-spacing: .07em; line-height: 1.15;
+  color: #33200f;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.idx-name b s { text-decoration: none; color: var(--kumkum-lit); }
+.idx-name i {
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 1;
+  overflow: hidden;
+  font-style: normal; font-size: 1.6cqh; line-height: 1.25;
+  color: #6b4e39; margin-top: .25cqh;
+}
+.idx-row[data-hero="1"] .idx-name b { font-size: 2.9cqh; color: var(--kumkum); }
+.idx-row[data-hero="1"] .idx-name i { -webkit-line-clamp: 2; font-size: 1.7cqh; }
+
+.idx-badge {
+  font-size: 1.5cqh; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--gold-deep); opacity: .95;
+  border: 1px solid rgba(143, 99, 24, .38);
+  padding: .5cqh 1.1cqw;
+  white-space: nowrap;
+  /* On a narrow page the badge is the first thing to go: the title and its
+     subtitle are the content, the badge is a label. */
+  max-width: 26cqw; overflow: hidden; text-overflow: ellipsis;
+}
+@container page (max-width: 380px) {
+  .idx-badge { display: none; }
+}
+
+/* ---- foot */
+.idx-foot {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 2cqw;
+  font-size: 1.7cqh; letter-spacing: .12em; text-transform: uppercase;
+  color: #7a5a40;
+  border-top: 1px solid rgba(120, 84, 40, .22);
+  padding-top: 1.4cqh;
+}
+.idx-foot a { color: var(--kumkum-lit); text-decoration: none; border-bottom: 1px solid currentColor; }
+.idx-count { font-variant-numeric: tabular-nums; opacity: .8; }
+
+.idx-read {
+  font-size: 1.5cqh; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-deep); opacity: .75; white-space: nowrap;
+}
+/* A hand-written manga chapter announces itself; a record book is quieter. Both
+   open, so this is a promise about the READING, not about whether the row works. */
+.idx-row[data-scripted="1"] .idx-read { color: var(--kumkum-lit); opacity: 1; }
+.idx-row .idx-link:hover { background: rgba(192, 26, 68, .09); }
+.idx-row .idx-link:hover .idx-read { opacity: 1; }
+
+/* ================================== the framing pages, composed for a page ==
+   components/spreads/Pages.tsx: cover, about, fork, astras, colophon. All in page
+   units (cqh/cqw against the `page` container on .book-page) and all structurally
+   unable to overflow — content region is 1fr, its rows are minmax(0,…), every text
+   run is clamped. See the header of Pages.tsx for the three rules. */
+
+.pg {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto auto 1fr;
+  gap: 1.8cqh;
+  padding: 5cqh 6cqw;
+  position: relative;
+  color: #33200f;
+}
+.pg-eyebrow {
+  display: flex; align-items: center; gap: 1.6cqw;
+  font-size: 1.7cqh; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--kumkum-lit);
+}
+.pg-eyebrow svg { width: 2.5cqh; height: auto; flex: none; }
+.pg-eyebrow .te {
+  text-transform: none; letter-spacing: 0; font-size: 1.85cqh;
+  font-family: "Noto Sans Telugu", sans-serif; opacity: .75;
+}
+.pg-title {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 5.1cqh; line-height: .98; color: #3a2214;
+}
+.pg-title .te {
+  display: block;
+  font-family: "Noto Sans Telugu", sans-serif; font-weight: 600;
+  font-size: 2.4cqh; letter-spacing: 0; line-height: 1.2;
+  color: var(--kumkum-lit); opacity: .9; margin-bottom: .4cqh;
+}
+
+/* ---- cover: tachikiri, no panel at all. The chakra behind the paper is the art
+        and a frame here would stand between the reader and the first thing they
+        see. Three rows: seal / lockup centred / shloka + cue. */
+.pg--cover { grid-template-rows: auto 1fr auto; padding: 6cqh 7cqw; }
+.cv-top { color: var(--kumkum-lit); opacity: .9; }
+.cv-lockup { align-self: center; }
+.cv-te {
+  font-family: "Noto Sans Telugu", sans-serif; font-weight: 700;
+  font-size: 3.1cqh; line-height: 1.25; color: var(--kumkum);
+}
+.cv-en {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 8.6cqh; line-height: .96; letter-spacing: .03em; color: #2e1a0d;
+  margin-top: .8cqh;
+}
+.cv-rule { margin: 1.6cqh 0; color: var(--gold-deep); opacity: .55; }
+.cv-rule svg { width: 62%; height: auto; }
+.cv-role {
+  font-size: 2.05cqh; line-height: 1.45; color: #5a4030; max-width: 92%;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.cv-foot { display: grid; gap: 1.4cqh; }
+.cv-shloka {
+  border-left: 2px solid rgba(143, 99, 24, .4); padding-left: 2cqw;
+}
+.cv-shloka .te {
+  display: block; font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 1.9cqh; line-height: 1.5; color: var(--kumkum);
+}
+.cv-shloka em {
+  display: block; font-style: normal; font-size: 1.6cqh; line-height: 1.4;
+  color: #7a5a40; margin-top: .5cqh;
+}
+.cv-cue {
+  display: flex; align-items: center; gap: 1.4cqw;
+  font-size: 1.55cqh; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--gold-deep);
+}
+.cv-cue i {
+  width: 5cqw; height: 1px; background: currentColor; opacity: .6;
+}
+
+/* Both inherit .pg's three-row grid; these two rules are the per-page tuning.
+   The gates carry their own inner padding, so the fork page gives back some of the
+   shared bottom padding rather than double-spacing its own edge. */
+.pg--about { gap: 1.5cqh; }
+.pg--fork { padding-bottom: 4cqh; }
+
+/* ---- about: a kakemono (hanging scroll) column beside the record. Tight
+        gutters, because §03.2 wants this page to read as one continuous thought
+        rather than as separate facts. */
+.ab-body {
+  display: grid; grid-template-columns: 0.82fr 1fr; gap: 1.4cqh 3cqw;
+  min-height: 0;
+}
+.ab-kakemono {
+  position: relative; min-height: 0;
+  display: flex; flex-direction: column; gap: 1.4cqh;
+  padding: 2cqh 1.8cqw;
+  background: linear-gradient(180deg, rgba(224,170,74,.10), rgba(224,170,74,.03));
+  border-top: 2px solid rgba(143, 99, 24, .5);
+  border-bottom: 2px solid rgba(143, 99, 24, .5);
+  overflow: hidden;
+}
+.ab-torana { width: 100%; height: auto; color: var(--kumkum); opacity: .55; }
+.ab-lede {
+  font-family: "Shippori Mincho", serif;
+  font-size: 1.95cqh; line-height: 1.5; color: #4a3323;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 8; overflow: hidden;
+}
+.ab-seal { margin-top: auto; color: var(--kumkum-lit); opacity: .7; }
+
+.ab-record { display: grid; grid-template-rows: auto auto 1fr; gap: 1.4cqh; min-height: 0; }
+.ab-koma {
+  border: 1px solid rgba(120, 84, 40, .3);
+  padding: 1.6cqh 1.8cqw; min-height: 0; overflow: hidden;
+  background: #faf6ec;
+}
+.ab-koma[data-accent="1"] { border-color: rgba(192, 26, 68, .34); background: #fbf3ee; }
+.ab-k-label {
+  font-size: 1.45cqh; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--kumkum-lit);
+}
+.ab-k-title {
+  display: block; font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 2.5cqh; line-height: 1.15; margin: .5cqh 0 .6cqh; color: #33200f;
+}
+.ab-k-text {
+  font-size: 1.7cqh; line-height: 1.42; color: #5a4030;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden;
+}
+.ab-wins {
+  list-style: none; margin: 0; padding: 0; min-height: 0;
+  display: grid; grid-auto-rows: minmax(0, 1fr); gap: .6cqh;
+}
+.ab-wins li {
+  display: flex; flex-direction: column; justify-content: center;
+  min-height: 0; overflow: hidden;
+  border-left: 2px solid var(--kumkum); padding-left: 1.6cqw;
+}
+.ab-wins b {
+  font-size: 1.7cqh; font-weight: 500; line-height: 1.25; color: #33200f;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.ab-wins i {
+  font-style: normal; font-size: 1.45cqh; color: #7a5a40; line-height: 1.3;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ---- fork: two gates split by a DIAGONAL gutter. The diagonal is the point —
+        this is the one page where the reader chooses, and a vertical gutter would
+        read as two columns of a layout instead of as a split. */
+.fk-body { display: grid; grid-template-rows: 1fr 1fr; gap: 1.2cqh; min-height: 0; }
+.fk-gate {
+  position: relative; min-height: 0; overflow: hidden;
+  display: grid; grid-template-columns: auto 1fr; align-items: center;
+  gap: 0 2.4cqw;
+  padding: 2cqh 2.4cqw;
+  text-decoration: none; color: inherit;
+  background: #faf6ec;
+  border: 1px solid rgba(143, 99, 24, .38);
+  transition: background-color .2s;
+}
+.fk-gate[data-side="l"] { clip-path: polygon(0 0, 100% 0, 100% 82%, 0 100%); }
+.fk-gate[data-side="r"] { clip-path: polygon(0 18%, 100% 0, 100% 100%, 0 100%); }
+.fk-gate[data-tone="kumkum"] { border-color: rgba(192, 26, 68, .36); background: #fbf3ee; }
+.fk-gate:hover { background: #fff9ef; }
+.fk-sigil { grid-row: 1 / span 4; color: var(--kumkum); opacity: .8; }
+.fk-sigil svg { width: 9cqh; height: auto; display: block; }
+.fk-te {
+  font-family: "Noto Sans Telugu", sans-serif; font-weight: 600;
+  font-size: 2cqh; color: var(--kumkum-lit);
+}
+.fk-en {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 3.4cqh; line-height: 1.05; color: #33200f;
+}
+.fk-role {
+  font-size: 1.5cqh; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--gold-deep);
+}
+.fk-blurb {
+  font-size: 1.7cqh; line-height: 1.4; color: #5a4030; margin-top: .5cqh;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.fk-go {
+  position: absolute; right: 2.4cqw; bottom: 2cqh;
+  font-size: 1.5cqh; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--kumkum-lit);
+}
+
+/* ---- astras: a weapons rack, not a tag cloud. Each group is a rung with its
+        items laid along it, on a kikkō (tortoiseshell) ground drawn here because
+        Patterns.tsx has no kikkō yet — that is Phase 4. */
+.pg--astras::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(30deg, rgba(120,84,40,.10) 1px, transparent 1px),
+    linear-gradient(-30deg, rgba(120,84,40,.10) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,84,40,.10) 1px, transparent 1px);
+  background-size: 22px 38px;
+  mask-image: linear-gradient(200deg, #000, rgba(0,0,0,.25) 75%);
+}
+.pg--astras > * { position: relative; z-index: 1; }
+.as-rack { display: grid; grid-auto-rows: minmax(0, 1fr); gap: 1.4cqh; min-height: 0; }
+.as-rung {
+  min-height: 0; overflow: hidden;
+  display: grid; grid-template-rows: auto 1fr; gap: .7cqh;
+  border-top: 2px solid rgba(143, 99, 24, .45);
+  padding-top: 1.1cqh;
+}
+.as-r-head { display: flex; align-items: baseline; gap: 1.4cqw; }
+.as-r-head b {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 2.1cqh; color: #33200f;
+}
+.as-r-head .te {
+  font-family: "Noto Sans Telugu", sans-serif; font-size: 1.7cqh;
+  color: var(--kumkum-lit); opacity: .85;
+}
+.as-r-items {
+  list-style: none; margin: 0; padding: 0;
+  display: flex; flex-wrap: wrap; align-content: flex-start; gap: .7cqh 1cqw;
+  min-height: 0; overflow: hidden;
+}
+.as-r-items li {
+  font-size: 1.55cqh; letter-spacing: .06em;
+  color: #4a3323; background: rgba(250, 246, 236, .9);
+  border: 1px solid rgba(143, 99, 24, .3);
+  padding: .5cqh 1cqw;
+}
+
+/* ---- colophon: the printer's page. Ensō closes around the seal; contacts are
+        set as marks in a list rather than as buttons. */
+.pg--colophon { grid-template-rows: auto auto 1fr auto; }
+.cl-body { display: grid; grid-template-columns: auto 1fr; gap: 3cqw; align-items: center; min-height: 0; }
+.cl-enso { position: relative; display: grid; place-items: center; color: var(--kumkum); }
+.cl-enso svg { width: 17cqh; height: auto; display: block; }
+.cl-enso-seal { position: absolute; color: var(--kumkum-lit); }
+.cl-enso-seal svg { width: 5.6cqh; }
+.cl-marks { list-style: none; margin: 0; padding: 0; display: grid; gap: 1.1cqh; min-height: 0; }
+.cl-marks a {
+  display: grid; grid-template-columns: 26cqw 1fr; align-items: baseline; gap: 1.4cqw;
+  text-decoration: none; color: inherit;
+  border-bottom: 1px solid rgba(120, 84, 40, .22); padding-bottom: .8cqh;
+}
+.cl-marks a:hover .cl-m-value { color: var(--kumkum-lit); }
+.cl-m-label {
+  font-size: 1.5cqh; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--gold-deep);
+}
+.cl-m-value {
+  font-size: 1.75cqh; color: #33200f; transition: color .18s;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cl-foot {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 2cqw;
+  border-top: 1px solid rgba(120, 84, 40, .22); padding-top: 1.4cqh;
+  font-size: 1.55cqh; letter-spacing: .12em; text-transform: uppercase; color: #7a5a40;
+}
+.cl-foot .te {
+  font-family: "Noto Sans Telugu", sans-serif; text-transform: none;
+  letter-spacing: 0; font-size: 1.9cqh; color: var(--kumkum);
+}
+
+/* ================================================ a project book (Phase 5) ==
+   components/book/. Same page rules as the index — page units, structural fit —
+   because they are general: a page is a fixed rectangle whatever is on it. */
+
+.bpage { height: 100%; display: grid; grid-template-rows: 1fr; padding: 4.5cqh 5cqw; }
+.bpage-koma {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  /* 1fr rows with minmax(0,…) is the fit guarantee: panels share the page's
+     height, so a fourth panel shortens the other three instead of pushing itself
+     off the bottom. Never auto rows here. */
+  grid-auto-rows: minmax(0, 1fr);
+  min-height: 0;
+}
+/* The gutter encodes TIME (§03.2): tight = continuous thought, wide = a beat
+   passing. It is the one panel property that is about pacing rather than weight. */
+.bpage[data-gutter="tight"]  .bpage-koma { gap: 1.1cqh 1.4cqw; }
+.bpage[data-gutter="normal"] .bpage-koma { gap: 2.1cqh 2.4cqw; }
+.bpage[data-gutter="wide"]   .bpage-koma { gap: 3.4cqh 3.6cqw; }
+
+.koma { min-height: 0; min-width: 0; display: flex; }
+/* A hero panel is double height as well as full width — that is what makes it
+   slow the reader down rather than just being wide. */
+.koma[data-size="hero"] { grid-row: span 2; }
+.koma[data-diagonal="1"] { clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%); }
+/* A KOMA INVERTS Panel. `.panel` is a near-black card designed to float over the
+   dark scroll ground; inside a book the page IS paper, and a manga panel is ink on
+   paper — a dark box here would read as the old project card dropped onto a page,
+   which is the exact thing the koma pass is undoing. Kept: the frame, the double
+   inset border (which follows `currentColor`), the corner ornaments, the notch.
+   Also note `.panel`'s own padding is `clamp(18px, 2vw, 26px)` — a VIEWPORT unit,
+   meaningless inside a page — so the padding is restated in page units here. */
+.koma-panel {
+  flex: 1; min-width: 0; min-height: 0;
+  display: flex;
+  padding: 2cqh 2.2cqw;
+  overflow: hidden;
+  position: relative;
+  background: #faf6ec;
+  color: rgba(96, 66, 32, .5);          /* the border, via currentColor */
+  box-shadow: none;
+  backdrop-filter: none;
+}
+/* Children live in Panel's own `.panel-body`, so THAT is the column — styling the
+   panel root as a flex column would have laid out one child and stacked nothing. */
+.koma-panel .panel-body {
+  flex: 1; min-width: 0; min-height: 0;
+  display: flex; flex-direction: column; justify-content: flex-end;
+  gap: 1cqh;
+  color: #33200f;
+}
+/* Tachikiri — full bleed, no border: a moment that stops time. */
+.koma[data-bleed="1"] .koma-panel {
+  border: 0; background: #f6efe0;
+}
+.koma[data-bleed="1"] .koma-panel::after { display: none; }
+
+.koma[data-tone="speedlines"] .koma-panel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(78deg,
+    rgba(60, 40, 22, .13) 0 1px, transparent 1px 7px);
+  mask-image: linear-gradient(100deg, #000, transparent 62%);
+}
+/* Screentone: a benday dot grid, the manga way of saying "this area is shaded".
+   Values are set here rather than reusing Patterns.tsx's fills because those are
+   toned for a near-black ground. */
+.koma[data-tone="screentone"] .koma-panel::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background-image: radial-gradient(rgba(60, 40, 22, .34) 32%, transparent 34%);
+  background-size: 5px 5px;
+  mask-image: linear-gradient(160deg, #000, rgba(0, 0, 0, .35) 70%);
+}
+.koma-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+
+/* Numbers and SFX are the loudest thing on the page (§9.2). */
+.koma-sfx {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 3.6cqh; line-height: 1; letter-spacing: .04em;
+  color: var(--kumkum); text-transform: uppercase;
+}
+.koma[data-size="hero"] .koma-sfx { font-size: 4.6cqh; }
+/* A cartouche is a formula or an architecture, not an onomatopoeia — it gets a
+   mantra frame and a mono face instead of display weight. */
+.koma-sfx[data-cartouche="1"] {
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; font-weight: 500;
+  font-size: 2cqh; letter-spacing: 0; text-transform: none;
+  color: #3c2716;
+  border: 1px solid rgba(143, 99, 24, .45);
+  padding: 1cqh 1.4cqw; align-self: flex-start;
+}
+.koma-caption {
+  font-size: 1.85cqh; line-height: 1.42; color: #4a3323;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4;
+  overflow: hidden;
+}
+.koma[data-size="third"] .koma-caption { -webkit-line-clamp: 3; font-size: 1.7cqh; }
+.koma-dialogue {
+  font-size: 1.95cqh; line-height: 1.4; color: #33200f; font-style: italic;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3;
+  overflow: hidden;
+}
+.koma-dialogue b {
+  display: block; font-style: normal; font-weight: 500;
+  font-size: 1.5cqh; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--kumkum-lit); margin-bottom: .4cqh;
+}
+.koma-panel .panel-body { position: relative; z-index: 2; }
+.koma-mon { position: absolute; z-index: 3; top: 1.6cqh; right: 1.8cqw; width: 4.4cqh; color: var(--kumkum); opacity: .8; }
+.koma-mon svg { width: 100%; height: auto; display: block; }
+
+/* ---- the cover page: a lockup, not a koma grid */
+.bpage--cover {
+  height: 100%; display: grid; grid-template-rows: auto 1fr auto;
+  padding: 5cqh 6cqw; position: relative;
+}
+.bcover-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 2cqw; }
+.bcover-chapter {
+  font-family: "Noto Sans Telugu", sans-serif;
+  font-size: 1.8cqh; letter-spacing: .06em; color: var(--gold-deep); opacity: .8;
+}
+.bcover-mon { width: 7cqh; color: var(--kumkum); }
+.bcover-mon svg { width: 100%; height: auto; display: block; }
+.bcover-lockup { align-self: center; }
+.bcover-title {
+  font-family: "Shippori Mincho", serif; font-weight: 800;
+  font-size: 7.4cqh; line-height: .98; letter-spacing: .02em; color: #33200f;
+  overflow-wrap: anywhere;
+}
+.bcover-title s { text-decoration: none; color: var(--kumkum); }
+.bcover-theme { display: flex; align-items: baseline; gap: 1.6cqw; margin-top: 1.6cqh; }
+.bcover-theme .te {
+  font-family: "Noto Sans Telugu", sans-serif; font-weight: 600;
+  font-size: 3.2cqh; color: var(--kumkum-lit);
+}
+.bcover-theme i {
+  font-style: normal; font-size: 1.7cqh; letter-spacing: .2em;
+  text-transform: uppercase; color: var(--gold-deep);
+}
+.bcover-sub {
+  margin-top: 1.4cqh; font-size: 2cqh; line-height: 1.4; color: #5a4030;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden;
+}
+.bcover-caption {
+  font-family: "Shippori Mincho", serif;
+  font-size: 2.1cqh; line-height: 1.5; color: #4a3323;
+  border-top: 1px solid rgba(120, 84, 40, .22); padding-top: 1.6cqh;
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow: hidden;
+}
+.bcover-seal { position: absolute; right: 6cqw; bottom: 5cqh; opacity: .5; }
+
+/* ---- the seal page's astras strip + colophon (§9.1 beat 5) */
+.bpage-seal { margin-top: 2cqh; border-top: 1px solid rgba(120, 84, 40, .22); padding-top: 1.6cqh; }
+.bseal-astras { display: flex; flex-wrap: wrap; gap: .8cqh 1.2cqw; }
+.bseal-astras span {
+  font-size: 1.5cqh; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--gold-deep); border: 1px solid rgba(143, 99, 24, .32); padding: .5cqh 1cqw;
+}
+.bseal-colophon { display: flex; gap: 2cqw; margin-top: 1.4cqh; }
+.bseal-colophon a {
+  font-size: 1.6cqh; letter-spacing: .12em; text-transform: uppercase;
+  color: var(--kumkum-lit); text-decoration: none; border-bottom: 1px solid currentColor;
+}
+
+/* ---- the modal the book opens into */
+.mbook { position: fixed; inset: 0; z-index: 60; display: grid; place-items: center; }
+.mbook-veil { position: absolute; inset: 0; background: rgba(12, 4, 6, .78); backdrop-filter: blur(2px); }
+/* The stage is what animates out of the clicked row; it must be its own element so
+   the transform does not fight the book's fixed centring. */
+.mbook-stage { position: relative; z-index: 1; }
+.mbook-chrome {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 18px; padding: 14px clamp(16px, 3vw, 36px);
+  font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+}
+.mbook-where { font-variant-numeric: tabular-nums; }
+.mbook-close {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; border: 1px solid rgba(224, 170, 74, .4);
+  color: var(--gold); font: inherit; padding: 7px 12px; cursor: pointer;
+}
+.mbook-close kbd { font: inherit; opacity: .6; }
+
+/* The landing, when it plays as page one at / rather than in isolation at
+   /landing: it covers the book until beat 3.0 hands off. */
+.landing-veil {
+  position: fixed; inset: 0; z-index: 40;
+  background: var(--ground);
+  transition: opacity .5s ease;
+}
+.landing-veil[data-out="1"] { opacity: 0; pointer-events: none; }
+

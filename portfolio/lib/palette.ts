@@ -33,6 +33,16 @@ export const PALETTE = {
   ink: "#180a0c",
   inkSoft: "#2e1416",
 
+  // --- Paper ---
+  // Mirrors --paper in globals.css; keep the two in step.
+  paper: "#f0e0c4",
+  // The impression colour inside a seal. Warmer and a shade lighter than
+  // `paper` on purpose: a hanko is stamped in cinnabar paste, and the
+  // uninked areas read warmer than the surrounding page. Was hardcoded in
+  // ornament/Motifs.tsx before the Velidanda seal needed the same value —
+  // one palette, one source (locked decision, PROJECT-STATUS §2).
+  sealInk: "#f6e7cc",
+
   // Tint for the transmissive lens. Much lighter than `inkSoft` -- at ink
   // density the glass swallowed the chakra behind it entirely. This is a
   // smoky amber that darkens without extinguishing.

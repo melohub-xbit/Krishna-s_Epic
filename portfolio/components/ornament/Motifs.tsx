@@ -9,17 +9,12 @@
  * eyeballed with beziers.
  */
 
-const deg = (d: number) => (d * Math.PI) / 180;
+// n3 rounds every generated coordinate to fixed precision — required for
+// hydration, not cosmetic. It used to be defined here; it moved to lib/n3.ts
+// when components/ink needed the same guarantee. The "why" lives there.
+import { n3 } from "@/lib/n3";
 
-/**
- * Round every generated coordinate to fixed precision.
- *
- * Required, not cosmetic: raw floats serialise differently on the server and
- * in the browser at the last decimal place (…4176494814 vs …417649481), which
- * makes React throw a hydration mismatch on every procedurally drawn shape.
- * Anything computed that ends up in the DOM goes through this.
- */
-const n3 = (n: number) => Number(n.toFixed(3));
+const deg = (d: number) => (d * Math.PI) / 180;
 
 // ============================================================ TORANA
 /**

@@ -16,15 +16,22 @@ export const profile = {
     linkedin: "https://linkedin.com/in/krishna-sai-velidanda",
     email: "mailto:kvelidanda.1177@gmail.com",
     /**
-     * DISABLED — the PDF carried over from portfolio-site was a stale render
-     * (it showed CGPA 3.44; the LaTeX source in ../Resume/ says 3.51).
-     * Shipping an out-of-date resume is worse than shipping none.
+     * RE-ENABLED 2026-07-20. The stale render (CGPA 3.44) was the June PDF;
+     * ../Resume/ now holds current renders of both variants, each showing the
+     * correct 3.51. Copied to public/ rather than linked out of Resume/ so the
+     * deployed site carries its own copy.
      *
-     * To restore: rebuild from Resume/main.tex, drop the output at
-     * public/resume.pdf, set this back to "/resume.pdf", and re-add the
-     * Résumé link in components/foreground/Site.tsx (Contact section).
+     * TWO résumés, split along the epic spine — same decision that governs the
+     * project sections, applied to the document itself:
+     *   resume         → 1-page general    (contact bar + Mahabharatam)
+     *   resumeResearch → 2-page research   (Ramayanam)
+     *
+     * Regenerating: the sources are Resume/main.tex and main_research.tex.
+     * They need the `newtx` LaTeX package, which the Linux sandbox does not
+     * have — recompile on Windows or Overleaf, then re-copy into public/.
      */
-    resume: null as string | null,
+    resume: "/resume.pdf" as string | null,
+    resumeResearch: "/resume-research.pdf" as string | null,
   },
 };
 

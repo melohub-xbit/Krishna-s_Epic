@@ -220,8 +220,30 @@ function triRing(r: number, inner = 0.80) {
 
 // ---------------------------------------------------------------- component
 
-export default function ChakraSculpt({ scale = 1 }: { scale?: number }) {
+export default function ChakraSculpt({
+  scale = 1,
+  /**
+   * Per-page reaction (03 §3.3, data/spreads.ts). `spin` multiplies the base rate,
+   * `scale` the radius. Both eased toward rather than snapped, so a page turn makes
+   * the wheel change GEAR — snapping would make it read as another animated element
+   * instead of as the one fixed thing behind the paper.
+   *
+   * Values are deliberately close to 1. The chakra is the only element that persists
+   * across every page; if it lurched between spreads it would stop being the stage.
+   */
+  spin = 1,
+  pageScale = 1,
+}: {
+  scale?: number;
+  spin?: number;
+  pageScale?: number;
+}) {
   const g = useRef<THREE.Group>(null);
+  // Eased, per-frame, toward the target. Kept in refs rather than state: this
+  // changes every frame and must never trigger a React render.
+  const spinNow = useRef(spin);
+  const scaleNow = useRef(pageScale);
+  const spun = useRef(0);
 
   const gold = useMemo(
     () => new THREE.MeshStandardMaterial({ color: PALETTE.gold, metalness: 1, roughness: 0.42, envMapIntensity: 1.1 }),
@@ -327,12 +349,27 @@ export default function ChakraSculpt({ scale = 1 }: { scale?: number }) {
   const vTip = useMemo(() => new THREE.OctahedronGeometry(0.045), []);
   const bindu = useMemo(() => new THREE.SphereGeometry(0.038, 24, 24), []);
 
-  useFrame((s) => {
-    if (g.current) g.current.rotation.z = s.clock.elapsedTime * 0.08;
+  useFrame((s, dt) => {
+    if (!g.current) return;
+    // Exponential approach, frame-rate independent. 2.2 is a ~0.45s settle, which
+    // is the house `base` duration — the wheel arrives about when the page does.
+    const k = 1 - Math.exp(-dt * 2.2);
+    spinNow.current += (spin - spinNow.current) * k;
+    scaleNow.current += (pageScale - scaleNow.current) * k;
+
+    // INTEGRATE the rate; never multiply elapsedTime by it. `elapsedTime * rate`
+    // recomputes the whole history at the new rate, so changing gear would JUMP the
+    // wheel to a different angle. Accumulating the delta changes only the speed.
+    spun.current += dt * 0.08 * spinNow.current;
+    g.current.rotation.z = spun.current;
+    const sc = scale * scaleNow.current;
+    g.current.scale.set(sc, sc, sc);
   });
 
   return (
-    <group rotation={[-0.26, 0.16, 0]} scale={scale}>
+    <group rotation={[-0.26, 0.16, 0]}>
+      {/* This inner group carries BOTH the base scale and the per-page multiplier,
+          set per frame in useFrame — see the top of this component. */}
       <group ref={g}>
         {/* ---- backing plate: gives the openwork something to sit against ---- */}
         <mesh geometry={plateGeo} material={plate} position={[0, 0, -0.055]} />
