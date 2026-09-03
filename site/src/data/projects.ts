@@ -652,6 +652,29 @@ export const SKILLS = [
   },
 ];
 
+/**
+ * How many of the 22 projects touched each skills group.
+ *
+ * Derived, never typed by hand: a project counts for a group if anything
+ * in its `stack` names a tool in that group. Matching is loose in one
+ * direction only — "YOLO" catches "YOLOv10" — because the résumé writes
+ * families and the projects write versions. Coursework has no stack
+ * entries and honestly reports zero rather than being given a number.
+ */
+export const SKILL_USES: Record<string, number> = Object.fromEntries(
+  SKILLS.map((g) => {
+    const want = g.items.map((i) => i.toLowerCase());
+    const n = PROJECTS.filter((p) =>
+      p.stack.some((s) => {
+        const t = s.toLowerCase();
+        return want.some((w) => t === w || t.startsWith(w) || w.startsWith(t));
+      })
+    ).length;
+    return [g.group, n];
+  })
+);
+
+
 /** The five stops the nav dots track. */
 export const SECTIONS = [
   { id: "entry", en: "Entry", te: "ద్వారం" },

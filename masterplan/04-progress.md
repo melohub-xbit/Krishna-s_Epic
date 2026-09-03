@@ -83,6 +83,12 @@ Anything joined later gets written here, in the change that defers it.
 - **2026-08-26** — Direction set: minimal, two colours, dots as the design
   language. Site scaffolded and built to a running state with all 20
   projects. Masterplan rewritten to match.
+- **2026-09-07** — Skills is now **the glyph matrix**: a circular dot screen
+  turned by scroll, five groups, morphing by radius. Made it a real part of
+  the site (~4 screens) so the field can arrive on the barcode, hold, and
+  leave cleanly — which was the actual bug behind the overlapping backgrounds.
+  New `data/glyphs.ts` (one procedural emblem per group) and `SKILL_USES`
+  (derived, never typed). The barcode-bands enclosure is out.
 - **2026-09-06** — The field became **the whole site's background**: five
   stations — photo, photo, live project mark, barcode, Telugu name — morphing
   into each other by **radius, not opacity**. The dots never move; the screen

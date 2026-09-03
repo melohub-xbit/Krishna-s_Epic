@@ -114,12 +114,34 @@ move backwards.
 
 GitHub is one choice inside the record, never automatic.
 
-### 04 · Skills — barcode bands
-One band per group, one bar per tool, bars growing from the baseline as the
-section arrives. Deliberately **not a chart**: there is no proficiency number
-anywhere on this site, so the bars carry texture and the names underneath
-carry the information. Inventing a percentage to fill a bar is the easiest
-lie in a portfolio and this section refuses it.
+### 04 · Skills — the glyph matrix
+A ring of 545 cells, in the spirit of the 489 micro-LEDs on the back of a
+Nothing Phone (3). Each of the five groups is baked once into a radius per
+cell, and the screen **redraws itself from one group into the next by
+changing dot size, not by fading** — the same move the background field makes
+between sections, pointed at a circle instead of a rectangle.
+
+**Scroll is the button.** Each group holds for the first 55% of its beat and
+then morphs, so the section reads as five deliberate stops rather than a
+scrub. Beside the screen: the group name, how many tools it holds, how many
+of the 22 projects touched it, and the list. Five ticks underneath fill as
+you go.
+
+**The section is deliberately tall — about four screens — and that is not
+padding.** A five-line list is one screen long, which gave the field behind it
+no time to arrive, sit or leave; the barcode and the sign-off were fighting
+over the same stretch of scroll. Because the barcode's slot lives inside the
+sticky pin, its rect does not move while the pin holds, so the field lands on
+the barcode, stays perfectly still for the whole section, and hands over to
+Contact only once the pin releases.
+
+**Still no proficiency numbers.** The one figure shown — *used in N of 22
+projects* — is derived in `SKILL_USES`, never typed: a project counts for a
+group if anything in its `stack` names a tool in that group. Coursework has no
+stack entries and honestly reports nothing rather than being given a number.
+
+Under reduced motion the pin and the scrub both go and every group is listed
+at once.
 
 ### 05 · Contact
 The email at display size, links as small caps. End.

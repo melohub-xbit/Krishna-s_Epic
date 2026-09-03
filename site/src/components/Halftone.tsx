@@ -1,11 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { addJob, fontStack } from "@/lib/dots";
+import { addJob } from "@/lib/dots";
 import { readVar } from "@/lib/palette";
-import { onFieldMark } from "@/lib/field";
+import { onFieldMark, onFieldGlyph } from "@/lib/field";
 import { MARKS, type MarkId } from "@/data/marks";
-import { SKILLS } from "@/data/projects";
+import { glyphFor } from "@/data/glyphs";
 
 /**
  * THE FIELD — one fixed canvas for the whole page.
@@ -41,15 +41,15 @@ import { SKILLS } from "@/data/projects";
  * only on frames where the scroll or the pointer actually moved.
  */
 
-const COLS = 68;
-const ROWS = 90;
+const COLS = 104;
+const ROWS = 138;
 const N = COLS * ROWS;
 
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
-type Kind = "image" | "mark" | "bars" | "text";
+type Kind = "image" | "mark" | "glyph" | "seal";
 
 type Station = {
   slot: string;
@@ -58,6 +58,8 @@ type Station = {
   key: string;
   /** the colour the torch reveals where the source has no colour of its own */
   tint: [number, number, number] | null;
+  /** how loud this picture is allowed to be behind the section's words */
+  alpha: number;
   aspect: number;
   r: Float32Array;
   c: Uint8ClampedArray;
@@ -74,6 +76,7 @@ function blank(): Station {
     kind: "mark",
     key: "",
     tint: null,
+    alpha: 1,
     aspect: 0,
     r: new Float32Array(N),
     c: new Uint8ClampedArray(N * 3),
@@ -123,22 +126,14 @@ export default function Halftone({
     let imgReady = false;
 
     const stations: Station[] = [
-      { ...blank(), slot: "hero-slot", kind: "image", key: photo, tint: null },
-      { ...blank(), slot: "about-slot", kind: "image", key: photo, tint: null },
-      { ...blank(), slot: "work-slot", kind: "mark", key: "ring", tint: accent },
-      { ...blank(), slot: "skills-slot", kind: "bars", key: "bars", tint: accent },
-      {
-        ...blank(),
-        slot: "contact-slot",
-        kind: "text",
-        key: "వెలిదండ కృష్ణ సాయి",
-        tint: accent,
-      },
+      /* the hero has a veil over it, so the photograph can be full strength.
+         Everywhere else the picture is behind live text and has to give way. */
+      { ...blank(), slot: "hero-slot", kind: "image", key: photo, tint: null, alpha: 1 },
+      { ...blank(), slot: "about-slot", kind: "image", key: photo, tint: null, alpha: 1 },
+      { ...blank(), slot: "work-slot", kind: "mark", key: "ring", tint: accent, alpha: 0.3 },
+      { ...blank(), slot: "skills-slot", kind: "glyph", key: "Languages", tint: accent, alpha: 0.28 },
+      { ...blank(), slot: "contact-slot", kind: "seal", key: "seal", tint: accent, alpha: 0.34 },
     ];
-
-    /* the working buffers the frame interpolates into */
-    const wr = new Float32Array(N);
-    const wc = new Float32Array(N * 3);
 
     /* ── the sources ──────────────────────────────────────── */
 
@@ -150,17 +145,24 @@ export default function Halftone({
       const o = off.getContext("2d", { willReadFrequently: true })!;
       o.clearRect(0, 0, COLS, ROWS);
 
-      /* one cell is (aspect / COLS) wide and (1 / ROWS) tall in rect units,
-         so a source of aspect S drawn contained inside the rect covers: */
+      /* The grid is COLS × ROWS cells covering a rect of this aspect, so a
+         cell is (W/COLS) wide and (H/ROWS) tall. Contain a source of aspect
+         S inside that rect and measure the result in cells:
+             wider than the box   → dw = COLS, dh = ROWS · aspect / S
+             taller than the box  → dh = ROWS, dw = COLS · S / aspect
+         Both branches used to take their base from the *other* axis, which
+         scaled everything by ROWS/COLS — 33% here. A picture whose aspect
+         already matched its slot came out a third too wide and cropped, and
+         the seal came out an ellipse. */
       const fit = (S: number) => {
         let dw: number;
         let dh: number;
         if (S > aspect) {
           dw = COLS;
-          dh = (COLS * aspect) / S;
+          dh = (ROWS * aspect) / S;
         } else {
           dh = ROWS;
-          dw = (ROWS * S) / aspect;
+          dw = (COLS * S) / aspect;
         }
         return { dw, dh, dx: (COLS - dw) / 2, dy: (ROWS - dh) / 2 };
       };
@@ -168,11 +170,31 @@ export default function Halftone({
       if (st.kind === "image") {
         if (!imgReady) return false;
         const b = fit(img.naturalWidth / img.naturalHeight);
-        o.drawImage(img, b.dx, b.dy, b.dw, b.dh);
+        /* Step the photograph down by halves rather than dropping 1400px
+           straight to a hundred-odd. One big drawImage point-samples and
+           the face comes out speckled; halving averages every pixel in. */
+        let sw = img.naturalWidth;
+        let sh = img.naturalHeight;
+        let src: CanvasImageSource = img;
+        while (sw > b.dw * 2 && sh > b.dh * 2) {
+          const half = document.createElement("canvas");
+          half.width = Math.max(1, Math.round(sw / 2));
+          half.height = Math.max(1, Math.round(sh / 2));
+          const hc = half.getContext("2d")!;
+          hc.imageSmoothingEnabled = true;
+          hc.imageSmoothingQuality = "high";
+          hc.drawImage(src, 0, 0, half.width, half.height);
+          src = half;
+          sw = half.width;
+          sh = half.height;
+        }
+        o.imageSmoothingEnabled = true;
+        o.imageSmoothingQuality = "high";
+        o.drawImage(src, b.dx, b.dy, b.dw, b.dh);
       } else {
         /* everything else is drawn big and downsampled, so the strokes
            land on the screen as smooth luminance rather than aliasing */
-        const S = st.kind === "bars" ? 1.9 : st.kind === "text" ? 3.4 : 1;
+        const S = 1;
         const b = fit(S);
         const big = document.createElement("canvas");
         const BW = 480;
@@ -186,10 +208,10 @@ export default function Halftone({
         if (st.kind === "mark") {
           const paint = MARKS[st.key as MarkId] ?? MARKS.ring;
           paint(g, BW, BH);
-        } else if (st.kind === "bars") {
-          drawBars(g, BW, BH);
+        } else if (st.kind === "glyph") {
+          glyphFor(st.key)(g, BW, BH);
         } else {
-          drawText(g, BW, BH, st.key);
+          drawSeal(g, BW, BH);
         }
         o.drawImage(big, b.dx, b.dy, b.dw, b.dh);
       }
@@ -221,45 +243,30 @@ export default function Halftone({
       return true;
     }
 
-    /** the skills barcode, at section scale */
-    function drawBars(g: CanvasRenderingContext2D, W: number, H: number) {
-      const laneH = H / SKILLS.length;
-      let seed = 2166136261;
-      const rnd = () => {
-        seed = Math.imul(seed ^ (seed >>> 15), 2246822507);
-        seed = Math.imul(seed ^ (seed >>> 13), 3266489909);
-        return (seed >>> 0) / 4294967296;
-      };
-      SKILLS.forEach((grp, li) => {
-        const n = grp.items.length * 2 + 5;
-        const cw = W / (n * 2.1);
-        const base = li * laneH + laneH * 0.88;
-        for (let i = 0; i < n; i++) {
-          const r = rnd();
-          const bw = r > 0.66 ? cw * 2.2 : cw;
-          const bh = laneH * 0.72 * (0.34 + r * 0.66);
-          g.fillRect(i * cw * 2.1 + cw * 0.6, base - bh, bw, bh);
-        }
-      });
-    }
-
-    /** the name, in Telugu, for the sign-off */
-    function drawText(
-      g: CanvasRenderingContext2D,
-      W: number,
-      H: number,
-      text: string
-    ) {
-      g.textAlign = "center";
-      g.textBaseline = "middle";
-      let size = Math.round(H * 0.5);
-      g.font = `500 ${size}px ${fontStack("telugu")}`;
-      /* shrink until it fits the box with a margin */
-      while (g.measureText(text).width > W * 0.9 && size > 8) {
-        size -= 2;
-        g.font = `500 ${size}px ${fontStack("telugu")}`;
+    /** the seal the last section is named after */
+    function drawSeal(g: CanvasRenderingContext2D, W: number, H: number) {
+      const cx = W / 2;
+      const cy = H / 2;
+      const R = Math.min(W, H) * 0.42;
+      g.lineWidth = Math.max(3, W * 0.02);
+      g.beginPath();
+      g.arc(cx, cy, R, 0, Math.PI * 2);
+      g.stroke();
+      g.setLineDash([W * 0.02, W * 0.022]);
+      g.beginPath();
+      g.arc(cx, cy, R * 0.78, 0, Math.PI * 2);
+      g.stroke();
+      g.setLineDash([]);
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(a) * R * 0.5, cy + Math.sin(a) * R * 0.5);
+        g.lineTo(cx + Math.cos(a) * R * 0.64, cy + Math.sin(a) * R * 0.64);
+        g.stroke();
       }
-      g.fillText(text, W / 2, H / 2);
+      g.beginPath();
+      g.arc(cx, cy, R * 0.3, 0, Math.PI * 2);
+      g.stroke();
     }
 
     /* ── sizing and the lattice ───────────────────────────── */
@@ -321,13 +328,45 @@ export default function Halftone({
       /* 2 · which two stations we are between */
       const live = rects().filter(Boolean) as { st: Station; rect: DOMRect }[];
       if (live.length) {
-        let g = 0;
+        /* Walk the stations in document order. Everything whose slot has
+           risen past the arrival line is behind us; the first one that has
+           not gives the blend.
+           
+           This used to sum the per-station progress into one float and take
+           its floor. That looked equivalent and was not: a slot parked at
+           the middle of a pinned section only ever reached ~0.97, so the
+           floor stayed one station back and the field spent the whole
+           section 97% of the way out of the *previous* slot — which by then
+           was far off-screen, dragging the picture up and off centre with
+           it. Never let a discrete choice hang off a float that only
+           approaches its limit. */
+        /* Measured from the slot's TOP, as it originally was. Using the
+           middle meant a tall slot started pulling while it was still a
+           long way down: at the very top of the page the About slot was
+           already a few percent in, which dragged the hero's photograph
+           down out of its frame.
+           
+           START sits just below the fold — far enough that nothing bleeds
+           into a section you have not reached, close enough to give the
+           crossing a real runway. LINE has to sit below the resting top of
+           every pinned slot (the skills matrix rests near 0.26h) or that
+           section never saturates and the field parks between stations. */
+        const START = h * 1.15;
+        const LINE = h * 0.45;
+        let i0 = 0;
+        let f = 0;
         for (let i = 1; i < live.length; i++) {
-          g += smooth(clamp((h - live[i].rect.top) / (h * 0.74), 0, 1));
+          const top = live[i].rect.top;
+          const t = smooth(clamp((START - top) / (START - LINE), 0, 1));
+          if (t >= 1) {
+            i0 = i;
+            f = 0;
+          } else {
+            f = t;
+            break;
+          }
         }
-        const i0 = clamp(Math.floor(g), 0, live.length - 1);
-        const i1 = clamp(i0 + 1, 0, live.length - 1);
-        const f = i1 === i0 ? 0 : g - i0;
+        const i1 = Math.min(i0 + 1, live.length - 1);
 
         const a = live[i0];
         const b = live[i1];
@@ -362,25 +401,30 @@ export default function Halftone({
           if (ma >= 1) a.st.mix = 1;
           if (mb >= 1) b.st.mix = 1;
 
-          for (let i = 0; i < N; i++) {
-            const ra = lerp(a.st.pr[i], a.st.r[i], ma);
-            const rb = lerp(b.st.pr[i], b.st.r[i], mb);
-            wr[i] = lerp(ra, rb, f);
-            for (let k = 0; k < 3; k++) {
-              wc[i * 3 + k] = lerp(
-                a.st.c[i * 3 + k],
-                b.st.c[i * 3 + k],
-                f
-              );
-            }
-          }
+          /* The radius of one cell, this frame. This used to be baked into
+             two whole-grid buffers up front — a hundred thousand writes a
+             frame at this resolution, most of them for cells that are dark
+             and never drawn, and all of the colour ones for cells outside
+             the torch. Computing it where it is needed costs nothing and
+             took the per-frame work back under what it was at half the
+             resolution. */
+          const rad = (i: number) =>
+            lerp(
+              lerp(a.st.pr[i], a.st.r[i], ma),
+              lerp(b.st.pr[i], b.st.r[i], mb),
+              f
+            );
 
-          const rMax = (box.w / COLS) * 0.62;
           const cw = box.w / COLS;
           const chh = box.h / ROWS;
+          /* the radius follows the SHORTER side of a cell. A wide slot has
+             wide, short cells, and sizing off the width alone made every
+             dot overlap its neighbours into a solid white cloud. */
+          const rMax = Math.min(cw, chh) * 0.62;
 
           /* 3 · the picture, one path */
           ctx!.fillStyle = dot;
+          ctx!.globalAlpha = lerp(a.st.alpha, b.st.alpha, f);
           ctx!.beginPath();
           for (let j = 0; j < ROWS; j++) {
             const y = box.y + (j + 0.5) * chh;
@@ -388,7 +432,7 @@ export default function Halftone({
             const off = j % 2 ? 0.5 : 0;
             for (let k = 0; k < COLS; k++) {
               const i = j * COLS + k;
-              const rr = wr[i];
+              const rr = rad(i);
               if (rr < 0.06) continue;
               const x = box.x + (k + off + 0.5) * cw;
               if (x < -20 || x > w + 20) continue;
@@ -398,9 +442,17 @@ export default function Halftone({
             }
           }
           ctx!.fill();
+          ctx!.globalAlpha = 1;
 
-          /* 4 · the torch over the picture — its real colour */
-          if (mouse.on) {
+          /* 4 · the torch over the picture — its real colour.
+             Skipped outright unless the cursor is actually near the box. */
+          const near =
+            mouse.on &&
+            mouse.x > box.x - reach &&
+            mouse.x < box.x + box.w + reach &&
+            mouse.y > box.y - reach &&
+            mouse.y < box.y + box.h + reach;
+          if (near) {
             for (let j = 0; j < ROWS; j++) {
               const y = box.y + (j + 0.5) * chh;
               const dy = y - mouse.y;
@@ -408,7 +460,7 @@ export default function Halftone({
               const off = j % 2 ? 0.5 : 0;
               for (let k = 0; k < COLS; k++) {
                 const i = j * COLS + k;
-                const rr = wr[i];
+                const rr = rad(i);
                 if (rr < 0.06) continue;
                 const x = box.x + (k + off + 0.5) * cw;
                 const dx = x - mouse.x;
@@ -416,9 +468,15 @@ export default function Halftone({
                 if (d2 > R2) continue;
                 const tt = 1 - Math.sqrt(d2) / reach;
                 const ff = tt <= 1 - inner ? tt / (1 - inner) : 1;
-                ctx!.fillStyle = `rgba(${wc[i * 3] | 0},${wc[i * 3 + 1] | 0},${
-                  wc[i * 3 + 2] | 0
-                },${(ff * 0.96).toFixed(3)})`;
+                /* colour is only ever needed for the few hundred cells
+                   inside the torch, so it is mixed here rather than for
+                   the whole grid */
+                const cr = lerp(a.st.c[i * 3], b.st.c[i * 3], f) | 0;
+                const cg = lerp(a.st.c[i * 3 + 1], b.st.c[i * 3 + 1], f) | 0;
+                const cb = lerp(a.st.c[i * 3 + 2], b.st.c[i * 3 + 2], f) | 0;
+                ctx!.fillStyle = `rgba(${cr},${cg},${cb},${(ff * 0.96).toFixed(
+                  3
+                )})`;
                 ctx!.beginPath();
                 ctx!.arc(x, y, rMax * rr * (1 + ff * 0.22), 0, Math.PI * 2);
                 ctx!.fill();
@@ -511,24 +569,19 @@ export default function Halftone({
     if (img.complete && img.naturalWidth) onImg();
     else img.onload = onImg;
 
-    /* the Telugu sign-off has to wait for its face */
-    if (document.fonts?.ready) {
-      document.fonts.ready.then(() => {
-        stations[4].aspect = 0;
-        dirty = true;
-      });
-    }
-
-    /* the live poster on the rail */
-    const offMark = onFieldMark((m) => {
-      const st = stations[2];
-      if (st.key === m) return;
-      st.key = m;
+    /* the two sections that change their own background as you scroll
+       through them: the rail's live poster, and the matrix's live group */
+    const swap = (i: number) => (next: string) => {
+      const st = stations[i];
+      if (st.key === next) return;
+      st.key = next;
       st.aspect = 0;
       st.mix = 0;
       st.mixFrom = performance.now();
       dirty = true;
-    });
+    };
+    const offMark = onFieldMark(swap(2));
+    const offGlyph = onFieldGlyph(swap(3));
 
     const stop = addJob((now) => {
       const key =
@@ -555,6 +608,7 @@ export default function Halftone({
       window.removeEventListener("resize", onResize);
       mo.disconnect();
       offMark();
+      offGlyph();
       stop();
     };
   }, [photo]);

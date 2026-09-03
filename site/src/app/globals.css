@@ -304,31 +304,18 @@ section:first-of-type::before {
   z-index: -1;
 }
 .fslot--work {
-  top: 14%;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
-  width: min(66vh, 78%);
+  transform: translate(-50%, -50%);
+  width: min(62vh, 74%);
   aspect-ratio: 1 / 1;
 }
-.fslot--skills {
-  top: 16%;
-  left: -4%;
-  right: -4%;
-  aspect-ratio: 16 / 6;
-}
-.fslot--contact {
-  top: 8%;
-  left: 0;
-  right: 0;
-  aspect-ratio: 16 / 5;
-}
+
 @media (max-width: 760px) {
-  .fslot--work {
-    width: 92%;
-  }
+  .fslot--work,
   .fslot--skills,
   .fslot--contact {
-    aspect-ratio: 4 / 3;
+    width: 88%;
   }
 }
 
@@ -726,17 +713,7 @@ footer {
 
 /* ── project diagrams ──────────────────────────────────────── */
 
-.pr-diagram {
-  margin: 0 0 1.8rem;
-  border: 1px solid var(--rule-2);
-  background: color-mix(in srgb, var(--fg) 3%, transparent);
-  padding: 0.5rem;
-}
-.pr-diagram-canvas {
-  display: block;
-  width: 100%;
-  height: clamp(130px, 22vw, 200px);
-}
+
 
 /* ── the capability marquee ────────────────────────────────── */
 
@@ -982,643 +959,6 @@ button:active {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SKILLS — barcode bands
-   One band per group, one bar per tool. Deliberately not a
-   chart: there is no proficiency number anywhere on this
-   site, so the bars carry texture and the names carry the
-   information.
-   ═══════════════════════════════════════════════════════════ */
-
-.bands {
-  border-top: 1px solid var(--rule);
-}
-.band {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 0.5rem;
-  padding: 1.15rem 0;
-  border-bottom: 1px solid var(--rule-2);
-}
-@media (min-width: 760px) {
-  .band {
-    grid-template-columns: 9.5rem 1fr;
-    gap: 1.8rem;
-    align-items: center;
-  }
-}
-.band > .lab {
-  margin: 0;
-}
-.band-code {
-  display: flex;
-  align-items: flex-end;
-  gap: 3px;
-  height: 46px;
-}
-.band-code i {
-  display: block;
-  width: 2px;
-  background: var(--fg-2);
-  transform: scaleY(0.06);
-  transform-origin: 50% 100%;
-  transition: transform 620ms var(--ease), background 320ms var(--ease);
-  transition-delay: calc(var(--i) * 22ms);
-}
-.reveal.is-in .band-code i {
-  transform: scaleY(1);
-}
-.band-code i[data-w="true"] {
-  width: 5px;
-}
-.band-code i[data-a="true"] {
-  background: var(--accent);
-}
-.band:hover .band-code i {
-  background: var(--fg);
-}
-.band:hover .band-code i[data-a="true"] {
-  background: var(--accent);
-}
-.band-names {
-  margin: 0.6rem 0 0;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.68rem;
-  letter-spacing: 0.09em;
-  line-height: 1.7;
-  color: var(--fg-3);
-}
-
-/* ── the callouts either side ──────────────────────────────── */
-
-.callouts {
-  display: grid;
-  gap: 2.4rem;
-  align-content: start;
-}
-.callout > .lab {
-  margin: 0 0 0.7rem;
-  position: relative;
-}
-@media (min-width: 1000px) {
-  .callouts--l .callout > .lab {
-    text-align: right;
-  }
-  .callouts--l .callout > .lab::after,
-  .callouts--r .callout > .lab::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    width: clamp(1.4rem, 3vw, 2.6rem);
-    height: 1px;
-    background: repeating-linear-gradient(
-      90deg,
-      var(--rule) 0 3px,
-      transparent 3px 6px
-    );
-  }
-  .callouts--l .callout > .lab::after {
-    left: calc(100% + 0.55rem);
-  }
-  .callouts--r .callout > .lab::after {
-    right: calc(100% + 0.55rem);
-  }
-  .callouts--l .list span:first-child {
-    align-items: flex-end;
-    text-align: right;
-  }
-  .callouts--l .list div {
-    flex-direction: row-reverse;
-  }
-  .callouts--l .list span:last-child {
-    text-align: left;
-  }
-  .callouts--l .list .list-note {
-    text-align: right;
-  }
-}
-
-html[data-rec-open="true"] body {
-  overflow: hidden;
-  padding-right: var(--sbw, 0px);
-}
-html[data-rec-open="true"] .bar {
-  margin-right: var(--sbw, 0px);
-}
-
-/* ═══════════════════════════════════════════════════════════
-   THE RAIL — the work section, as a line of bounty posters
-
-   You scroll it like anything else — the rail just runs
-   sideways. While the cursor is over it and it still has room
-   to travel the wheel moves the rail; the moment it hits
-   either end the wheel goes back to the page. Nothing is
-   pinned, and the page is never taller than it looks.
-
-   Cards turn away from you at the edges and face you at the
-   centre. That turn is the only thing driven per frame, and
-   it is driven by the rail's own scrollLeft, not the page's.
-   ═══════════════════════════════════════════════════════════ */
-
-.strip {
-  position: relative;
-  --card-w: 168px;
-  --card-h: 236px;
-}
-@media (min-width: 760px) {
-  .strip {
-    --card-w: 232px;
-    --card-h: 326px;
-  }
-}
-@media (min-width: 1400px) {
-  .strip {
-    --card-w: 258px;
-    --card-h: 362px;
-  }
-}
-
-.strip-track {
-  display: flex;
-  align-items: center;
-  gap: clamp(0.9rem, 2.2vw, 1.8rem);
-  overflow-x: auto;
-  overflow-y: hidden;
-  overscroll-behavior-x: contain;
-  scroll-snap-type: x proximity;
-  perspective: 1600px;
-  padding: clamp(2rem, 4.5vh, 3.4rem) calc(50% - var(--card-w) / 2);
-  scrollbar-width: none;
-  -webkit-mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 9%,
-    #000 91%,
-    transparent
-  );
-  mask-image: linear-gradient(
-    90deg,
-    transparent,
-    #000 9%,
-    #000 91%,
-    transparent
-  );
-}
-.strip-track::-webkit-scrollbar {
-  display: none;
-}
-.strip-item {
-  flex: 0 0 var(--card-w);
-  width: var(--card-w);
-  height: var(--card-h);
-  scroll-snap-align: center;
-  border: 0;
-  padding: 0;
-  background: none;
-  cursor: pointer;
-  backface-visibility: hidden;
-  -webkit-tap-highlight-color: transparent;
-}
-.strip[data-active="true"] .strip-item {
-  will-change: transform, opacity;
-}
-.strip-item:focus-visible {
-  outline: none;
-}
-.strip-item:focus-visible .poster {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
-}
-
-/* ── under the rail: readout, ticks, hint ──────────────────── */
-
-.strip-under {
-  display: grid;
-  gap: 0.8rem;
-  justify-items: center;
-  margin-top: 0.4rem;
-}
-.strip-live {
-  margin: 0;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.74rem;
-  color: var(--fg-3);
-  letter-spacing: 0.04em;
-}
-.strip-live b {
-  color: var(--fg);
-  font-weight: 500;
-  letter-spacing: -0.01em;
-}
-.strip-ticks {
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: 4px;
-  height: 16px;
-}
-.strip-tick {
-  width: 2px;
-  height: 7px;
-  padding: 0;
-  border: 0;
-  background: var(--rule);
-  cursor: pointer;
-  transition: height 320ms var(--ease), background 320ms var(--ease);
-}
-.strip-tick:hover {
-  background: var(--fg-2);
-  height: 12px;
-}
-.strip-tick[data-on="true"] {
-  background: var(--accent);
-  height: 16px;
-}
-
-/* ── the poster ────────────────────────────────────────────
-   A bounty sheet: what it is, the mark, the name, the number
-   it is wanted for. A placing stamps the corner. No Telugu in
-   this section — the posters carry the other half of the
-   theme by themselves.                                      */
-
-.poster {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background: var(--bg-2);
-  border: 1px solid color-mix(in srgb, var(--fg) 24%, transparent);
-  padding: clamp(7px, 1vw, 10px);
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
-  transition: border-color 300ms var(--ease);
-}
-.poster::before {
-  content: "";
-  position: absolute;
-  inset: 4px;
-  border: 1px solid var(--rule-2);
-  pointer-events: none;
-}
-.poster-hd {
-  margin: 0;
-  text-align: center;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.34em;
-  text-indent: 0.34em;
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
-.poster-for {
-  margin: 0.3rem 0 0;
-  text-align: center;
-  font-size: 0.55rem;
-  line-height: 1.35;
-  color: var(--fg-3);
-  height: 2.7em;
-  overflow: hidden;
-}
-.poster-art {
-  margin-top: 0.35rem;
-  aspect-ratio: 4 / 3;
-  border: 1px solid var(--rule-2);
-  background: radial-gradient(
-      color-mix(in srgb, var(--fg) 20%, transparent) 1px,
-      transparent 1.15px
-    )
-    0 0 / 6px 6px;
-  display: grid;
-  place-items: center;
-}
-.poster-art canvas {
-  display: block;
-  width: 58%;
-  height: 76%;
-}
-.poster-name {
-  margin: 0.55rem 0 0;
-  text-align: center;
-  font-size: 1.02rem;
-  font-weight: 600;
-  letter-spacing: -0.015em;
-  line-height: 1.12;
-}
-.poster-fig {
-  margin: 0.2rem 0 0;
-  text-align: center;
-  font-size: 1.3rem;
-  font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1;
-  transition: color 300ms var(--ease);
-}
-.poster-cap {
-  margin: 0.25rem 0 0;
-  text-align: center;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
-.poster-foot {
-  margin-top: auto;
-  padding-top: 0.45rem;
-  border-top: 1px solid var(--rule-2);
-  display: flex;
-  justify-content: space-between;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.1em;
-  color: var(--fg-3);
-}
-.poster-stamp {
-  position: absolute;
-  top: -9px;
-  right: -9px;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  border: 1px solid var(--accent);
-  color: var(--accent);
-  background: var(--bg);
-  display: grid;
-  place-items: center;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.5rem;
-  text-align: center;
-  line-height: 1.1;
-  transform: rotate(-9deg);
-}
-.strip-item[data-live="true"] .poster {
-  border-color: var(--accent);
-}
-.strip-item[data-live="true"] .poster-fig {
-  color: var(--accent);
-}
-@media (max-width: 759px) {
-  .poster-for,
-  .poster-cap {
-    display: none;
-  }
-  .poster-hd {
-    font-size: 0.44rem;
-  }
-  .poster-name {
-    font-size: 0.8rem;
-  }
-  .poster-fig {
-    font-size: 1rem;
-  }
-  .poster-foot {
-    font-size: 0.44rem;
-  }
-}
-
-/* ═══════════════════════════════════════════════════════════
-   THE RECORD — the same poster, opened
-
-   Not a generic dialog. It is the poster you clicked, grown:
-   same frame, same WANTED head, same stamp — with everything
-   the small sheet had no room for printed underneath. It
-   grows out of the card you clicked (the transform is
-   measured from that card's rect in JS) so it reads as the
-   poster opening rather than a panel arriving.
-   ═══════════════════════════════════════════════════════════ */
-
-.pr-shell {
-  position: fixed;
-  inset: 0;
-  z-index: 90;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(0.9rem, 4vh, 2.4rem) var(--gut);
-  background: color-mix(in srgb, var(--bg) 70%, transparent);
-  backdrop-filter: blur(14px) saturate(1.1);
-  -webkit-backdrop-filter: blur(14px) saturate(1.1);
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 240ms var(--ease), visibility 0s linear 240ms;
-}
-.pr-shell[data-open="true"] {
-  opacity: 1;
-  visibility: visible;
-  transition-delay: 0s;
-}
-
-.pr {
-  position: relative;
-  width: 100%;
-  max-width: 46rem;
-  max-height: 100%;
-  display: flex;
-  flex-direction: column;
-  background: var(--bg-2);
-  border: 1px solid color-mix(in srgb, var(--fg) 26%, transparent);
-  padding: clamp(0.9rem, 2.2vw, 1.4rem);
-  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.6);
-}
-.pr::before {
-  content: "";
-  position: absolute;
-  inset: 5px;
-  border: 1px solid var(--rule-2);
-  pointer-events: none;
-}
-.pr-scroll {
-  overflow-y: auto;
-  overscroll-behavior: contain;
-  padding: clamp(0.5rem, 1.6vw, 1rem) clamp(0.4rem, 1.6vw, 1rem);
-}
-
-/* the head keeps the poster's own grammar */
-.pr-hd {
-  margin: 0;
-  text-align: center;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.66rem;
-  letter-spacing: 0.44em;
-  text-indent: 0.44em;
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
-.pr-for {
-  margin: 0.5rem 0 1.2rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--fg-2);
-}
-.pr-rule {
-  border: 0;
-  border-top: 1px solid var(--rule-2);
-  margin: 0 0 1.2rem;
-}
-
-.pr-top {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1rem;
-  align-items: center;
-  margin-bottom: 1.6rem;
-}
-@media (min-width: 620px) {
-  .pr-top {
-    grid-template-columns: 132px 1fr;
-    gap: 1.6rem;
-  }
-}
-.pr-art {
-  aspect-ratio: 1 / 1;
-  border: 1px solid var(--rule-2);
-  background: radial-gradient(
-      color-mix(in srgb, var(--fg) 20%, transparent) 1px,
-      transparent 1.15px
-    )
-    0 0 / 6px 6px;
-  display: grid;
-  place-items: center;
-}
-.pr-art canvas {
-  display: block;
-  width: 70%;
-  height: 70%;
-}
-.pr-name {
-  margin: 0;
-  font-size: clamp(1.4rem, 3.4vw, 1.9rem);
-  font-weight: 600;
-  letter-spacing: -0.03em;
-  line-height: 1.05;
-}
-.pr-fig {
-  margin: 0.3rem 0 0;
-  font-size: clamp(1.5rem, 4vw, 2.1rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 1;
-  color: var(--accent);
-}
-.pr-cap {
-  margin: 0.45rem 0 0;
-  font-size: 0.88rem;
-  color: var(--fg-2);
-  max-width: 42ch;
-}
-
-.pr-cols {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.6rem;
-}
-@media (min-width: 760px) {
-  .pr-cols {
-    grid-template-columns: 1.15fr 1fr;
-    gap: 2.2rem;
-  }
-}
-
-/* the notices — hairline cells, one fact each, like the small
-   print stacked down the side of a real bill */
-.pr-notices {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
-  border-top: 1px solid var(--rule-2);
-  border-left: 1px solid var(--rule-2);
-}
-.pr-notice {
-  border-right: 1px solid var(--rule-2);
-  border-bottom: 1px solid var(--rule-2);
-  padding: 0.7rem 0.8rem;
-  display: grid;
-  gap: 0.25rem;
-}
-.pr-notice-val {
-  font-size: 0.9rem;
-  letter-spacing: -0.01em;
-}
-
-.pr-foot {
-  margin-top: 1.8rem;
-  padding-top: 0.9rem;
-  border-top: 1px solid var(--rule-2);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-}
-.pr-stack {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem 1rem;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.66rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-3);
-}
-.pr-links {
-  display: flex;
-  gap: 1.1rem;
-  align-items: center;
-}
-.pr-links a,
-.pr-close {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.72rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-2);
-  text-decoration: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
-  transition: color var(--quick);
-}
-.pr-links a:hover,
-.pr-close:hover {
-  color: var(--accent);
-}
-.pr-no {
-  font-family: var(--font-mono), monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.12em;
-  color: var(--fg-3);
-}
-.pr .poster-stamp {
-  top: -12px;
-  right: -12px;
-  width: 52px;
-  height: 52px;
-  font-size: 0.6rem;
-}
-
-/* ma — a held beat, then the content arrives a line at a time */
-.pr .st {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 460ms var(--ease), transform 460ms var(--ease);
-}
-.pr-shell[data-open="true"] .st {
-  opacity: 1;
-  transform: none;
-  transition-delay: calc(220ms + var(--i, 0) * 70ms);
-}
-
-/* keep the page still behind an open record. --sbw is the width
-   the scrollbar was taking, measured before it goes, so nothing
-   jumps sideways at the moment it opens. */
-html[data-rec-open="true"] body {
-  overflow: hidden;
-  padding-right: var(--sbw, 0px);
-}
-html[data-rec-open="true"] .bar {
-  margin-right: var(--sbw, 0px);
-}
-
-/* ═══════════════════════════════════════════════════════════
    ABOUT — a projection, and the thing projecting it
 
    Two design languages, deliberately: the base is Apple —
@@ -1736,8 +1076,8 @@ html[data-rec-open="true"] .bar {
    the photograph's, so the two slots map onto each other exactly. */
 .holo-figure {
   position: relative;
-  width: min(238px, 66%);
-  margin: 0 auto 1.5rem;
+  width: min(310px, 76%);
+  margin: 0 auto 1.6rem;
   aspect-ratio: 1400 / 1919;
   border: 1px solid var(--rule-2);
   opacity: 0;
@@ -1771,8 +1111,8 @@ html[data-rec-open="true"] .bar {
   pointer-events: none;
   background: repeating-linear-gradient(
     0deg,
-    transparent 0 2px,
-    color-mix(in srgb, var(--bg) 46%, transparent) 2px 3px
+    transparent 0 5px,
+    color-mix(in srgb, var(--bg) 22%, transparent) 5px 7px
   );
 }
 
@@ -1924,9 +1264,6 @@ html[data-rec-open="true"] .bar {
   .strip-track {
     scroll-snap-type: none;
   }
-  .band-code i {
-    transform: none;
-  }
   .holo-beam {
     opacity: 0.45;
     transform: translateX(-50%);
@@ -1948,4 +1285,729 @@ html[data-rec-open="true"] .bar {
     opacity: 1;
     transform: none;
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SKILLS — the glyph matrix
+
+   A ring of cells, in the spirit of the 489 micro-LEDs on the
+   back of a Phone (3). Scroll is the button: each group holds
+   for most of its beat, then the screen redraws itself into
+   the next one by changing dot size rather than fading.
+
+   The section is deliberately tall. That is not padding — it
+   is what gives the field behind it time to arrive on the
+   barcode, sit there while you read, and leave cleanly.
+   ═══════════════════════════════════════════════════════════ */
+
+.gm-scene {
+  position: relative;
+  padding: 0;
+}
+.gm-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(0.8rem, 2.4vh, 1.6rem);
+  padding: clamp(4.4rem, 9vh, 6rem) 0 clamp(1.2rem, 4vh, 2.2rem);
+}
+.gm-stage {
+  position: relative;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+}
+
+.gm {
+  width: 100%;
+  display: grid;
+  gap: clamp(1.6rem, 4vh, 2.6rem);
+  align-items: center;
+  justify-items: center;
+}
+@media (min-width: 900px) {
+  .gm {
+    grid-template-columns: auto 1fr;
+    gap: clamp(2.4rem, 6vw, 5rem);
+    justify-items: start;
+  }
+}
+
+.gm-screen {
+  display: block;
+  width: min(300px, 62vw, 42vh);
+  height: min(300px, 62vw, 42vh);
+}
+
+.gm-read h3 {
+  margin: 0 0 0.35rem;
+  font-size: clamp(1.6rem, 4.4vw, 2.6rem);
+  font-weight: 600;
+  letter-spacing: -0.038em;
+  line-height: 1;
+}
+.gm-cnt {
+  margin: 0 0 1.3rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+.gm-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.4rem;
+  font-size: clamp(0.95rem, 1.5vw, 1.08rem);
+  color: var(--fg-2);
+  max-width: 46ch;
+}
+.gm-ticks {
+  display: flex;
+  gap: 6px;
+  margin-top: clamp(1.2rem, 3vh, 1.8rem);
+}
+.gm-ticks span {
+  width: 28px;
+  height: 2px;
+  background: var(--rule);
+  display: block;
+  transition: background 420ms var(--ease);
+}
+.gm-ticks span[data-on="true"] {
+  background: var(--accent);
+}
+
+.gm-bar {
+  height: 1px;
+  background: var(--rule);
+  position: relative;
+}
+.gm-bar span {
+  position: absolute;
+  inset: -1px auto -1px 0;
+  width: 0;
+  background: var(--accent);
+}
+
+/* the barcode sits behind the screen and holds while the pin holds */
+/* the glyph the matrix is showing, at section scale. Square, because a
+   circular emblem in a wide box is mostly empty box. */
+.fslot--skills {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(58vh, 68%);
+  aspect-ratio: 1 / 1;
+}
+
+@media (max-width: 899px) {
+  .gm-read {
+    text-align: center;
+  }
+  .gm-list {
+    justify-content: center;
+  }
+  .gm-ticks {
+    justify-content: center;
+  }
+}
+
+/* reduced motion: no pin, no scrub — every group, listed, at once */
+@media (prefers-reduced-motion: reduce) {
+  .gm-scene {
+    height: auto !important;
+    padding: clamp(5rem, 11vw, 9rem) 0;
+  }
+  .gm-pin {
+    position: static;
+    height: auto;
+    display: block;
+    padding: 0;
+  }
+  .gm-bar,
+  .gm-ticks {
+    display: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE RAIL — the work section, as a line of bounty posters
+
+   You scroll it like anything else — the rail just runs
+   sideways. While the cursor is over it and it still has room
+   to travel the wheel moves the rail; the moment it hits
+   either end the wheel goes back to the page. Nothing is
+   pinned, and the page is never taller than it looks.
+   ═══════════════════════════════════════════════════════════ */
+
+.strip {
+  position: relative;
+  --card-w: 168px;
+  --card-h: 236px;
+}
+@media (min-width: 760px) {
+  .strip {
+    --card-w: 232px;
+    --card-h: 326px;
+  }
+}
+@media (min-width: 1400px) {
+  .strip {
+    --card-w: 258px;
+    --card-h: 362px;
+  }
+}
+
+.strip-track {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.9rem, 2.2vw, 1.8rem);
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity;
+  perspective: 1600px;
+  padding: clamp(2rem, 4.5vh, 3.4rem) calc(50% - var(--card-w) / 2);
+  scrollbar-width: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 9%, #000 91%, transparent);
+}
+.strip-track::-webkit-scrollbar {
+  display: none;
+}
+.strip-item {
+  flex: 0 0 var(--card-w);
+  width: var(--card-w);
+  height: var(--card-h);
+  scroll-snap-align: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  backface-visibility: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+.strip[data-active="true"] .strip-item {
+  will-change: transform, opacity;
+}
+.strip-item:focus-visible {
+  outline: none;
+}
+.strip-item:focus-visible .poster {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--accent) 45%, transparent);
+}
+
+.strip-under {
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+  margin-top: 0.4rem;
+}
+.strip-live {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.74rem;
+  color: var(--fg-3);
+  letter-spacing: 0.04em;
+}
+.strip-live b {
+  color: var(--fg);
+  font-weight: 500;
+  letter-spacing: -0.01em;
+}
+.strip-ticks {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 4px;
+  height: 16px;
+}
+.strip-tick {
+  width: 2px;
+  height: 7px;
+  padding: 0;
+  border: 0;
+  background: var(--rule);
+  cursor: pointer;
+  transition: height 320ms var(--ease), background 320ms var(--ease);
+}
+.strip-tick:hover {
+  background: var(--fg-2);
+  height: 12px;
+}
+.strip-tick[data-on="true"] {
+  background: var(--accent);
+  height: 16px;
+}
+
+/* ── the poster ────────────────────────────────────────────
+   A bounty sheet: what it is, the mark, the name, the number
+   it is wanted for. No Telugu in this section — the posters
+   carry the other half of the theme by themselves.          */
+
+.poster {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: var(--bg-2);
+  border: 1px solid color-mix(in srgb, var(--fg) 24%, transparent);
+  padding: clamp(7px, 1vw, 10px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+  transition: border-color 300ms var(--ease);
+}
+.poster::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: 1px solid var(--rule-2);
+  pointer-events: none;
+}
+.poster-hd {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.poster-for {
+  margin: 0.3rem 0 0;
+  text-align: center;
+  font-size: 0.55rem;
+  line-height: 1.35;
+  color: var(--fg-3);
+  height: 2.7em;
+  overflow: hidden;
+}
+.poster-art {
+  margin-top: 0.35rem;
+  aspect-ratio: 4 / 3;
+  border: 1px solid var(--rule-2);
+  background: radial-gradient(
+      color-mix(in srgb, var(--fg) 20%, transparent) 1px,
+      transparent 1.15px
+    )
+    0 0 / 6px 6px;
+  display: grid;
+  place-items: center;
+}
+.poster-art canvas {
+  display: block;
+  width: 58%;
+  height: 76%;
+}
+.poster-name {
+  margin: 0.55rem 0 0;
+  text-align: center;
+  font-size: 1.02rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.12;
+}
+.poster-fig {
+  margin: 0.2rem 0 0;
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1;
+  transition: color 300ms var(--ease);
+}
+.poster-cap {
+  margin: 0.25rem 0 0;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.poster-foot {
+  margin-top: auto;
+  padding-top: 0.45rem;
+  border-top: 1px solid var(--rule-2);
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+  color: var(--fg-3);
+}
+.poster-stamp {
+  position: absolute;
+  top: -9px;
+  right: -9px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--accent);
+  color: var(--accent);
+  background: var(--bg);
+  display: grid;
+  place-items: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  text-align: center;
+  line-height: 1.1;
+  transform: rotate(-9deg);
+}
+.strip-item[data-live="true"] .poster {
+  border-color: var(--accent);
+}
+.strip-item[data-live="true"] .poster-fig {
+  color: var(--accent);
+}
+@media (max-width: 759px) {
+  .poster-for,
+  .poster-cap {
+    display: none;
+  }
+  .poster-hd {
+    font-size: 0.44rem;
+  }
+  .poster-name {
+    font-size: 0.8rem;
+  }
+  .poster-fig {
+    font-size: 1rem;
+  }
+  .poster-foot {
+    font-size: 0.44rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE RECORD — the same poster, opened
+
+   Not a generic dialog. It is the poster you clicked, grown:
+   same frame, same WANTED head, same stamp — with everything
+   the small sheet had no room for printed underneath. It
+   grows out of the card you clicked, because the transform is
+   measured from that card's rect in JS.
+   ═══════════════════════════════════════════════════════════ */
+
+.pr-shell {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(0.9rem, 4vh, 2.4rem) var(--gut);
+  background: color-mix(in srgb, var(--bg) 70%, transparent);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 240ms var(--ease), visibility 0s linear 240ms;
+}
+.pr-shell[data-open="true"] {
+  opacity: 1;
+  visibility: visible;
+  transition-delay: 0s;
+}
+
+.pr {
+  position: relative;
+  width: 100%;
+  max-width: 46rem;
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-2);
+  border: 1px solid color-mix(in srgb, var(--fg) 26%, transparent);
+  padding: clamp(0.9rem, 2.2vw, 1.4rem);
+  box-shadow: 0 34px 90px rgba(0, 0, 0, 0.6);
+}
+.pr::before {
+  content: "";
+  position: absolute;
+  inset: 5px;
+  border: 1px solid var(--rule-2);
+  pointer-events: none;
+}
+.pr-scroll {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: clamp(0.5rem, 1.6vw, 1rem) clamp(0.4rem, 1.6vw, 1rem);
+}
+
+.pr-hd {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.44em;
+  text-indent: 0.44em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.pr-for {
+  margin: 0.5rem 0 1.2rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--fg-2);
+}
+.pr-rule {
+  border: 0;
+  border-top: 1px solid var(--rule-2);
+  margin: 0 0 1.2rem;
+}
+
+.pr-top {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.6rem;
+}
+@media (min-width: 620px) {
+  .pr-top {
+    grid-template-columns: 132px 1fr;
+    gap: 1.6rem;
+  }
+}
+.pr-art {
+  aspect-ratio: 1 / 1;
+  border: 1px solid var(--rule-2);
+  background: radial-gradient(
+      color-mix(in srgb, var(--fg) 20%, transparent) 1px,
+      transparent 1.15px
+    )
+    0 0 / 6px 6px;
+  display: grid;
+  place-items: center;
+}
+.pr-art canvas {
+  display: block;
+  width: 70%;
+  height: 70%;
+}
+.pr-name {
+  margin: 0;
+  font-size: clamp(1.4rem, 3.4vw, 1.9rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+.pr-fig {
+  margin: 0.3rem 0 0;
+  font-size: clamp(1.5rem, 4vw, 2.1rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  color: var(--accent);
+}
+.pr-cap {
+  margin: 0.45rem 0 0;
+  font-size: 0.88rem;
+  color: var(--fg-2);
+  max-width: 42ch;
+}
+
+.pr-cols {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.6rem;
+}
+@media (min-width: 760px) {
+  .pr-cols {
+    grid-template-columns: 1.15fr 1fr;
+    gap: 2.2rem;
+  }
+}
+
+.pr-notices {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+  border-top: 1px solid var(--rule-2);
+  border-left: 1px solid var(--rule-2);
+}
+.pr-notice {
+  border-right: 1px solid var(--rule-2);
+  border-bottom: 1px solid var(--rule-2);
+  padding: 0.7rem 0.8rem;
+  display: grid;
+  gap: 0.25rem;
+}
+.pr-notice-val {
+  font-size: 0.9rem;
+  letter-spacing: -0.01em;
+}
+
+.pr-foot {
+  margin-top: 1.8rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--rule-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+.pr-stack {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.66rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.pr-links {
+  display: flex;
+  gap: 1.1rem;
+  align-items: center;
+}
+.pr-links a,
+.pr-close {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  text-decoration: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  transition: color var(--quick);
+}
+.pr-links a:hover,
+.pr-close:hover {
+  color: var(--accent);
+}
+.pr-no {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.62rem;
+  letter-spacing: 0.12em;
+  color: var(--fg-3);
+}
+.pr .poster-stamp {
+  top: -12px;
+  right: -12px;
+  width: 52px;
+  height: 52px;
+  font-size: 0.6rem;
+}
+.pr-diagram {
+  margin: 0 0 1.8rem;
+  border: 1px solid var(--rule-2);
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+  padding: 0.5rem;
+}
+.pr-diagram-canvas {
+  display: block;
+  width: 100%;
+  height: clamp(110px, 16vw, 150px);
+}
+
+/* ma — a held beat, then the content arrives a line at a time */
+.pr .st {
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 460ms var(--ease), transform 460ms var(--ease);
+}
+.pr-shell[data-open="true"] .st {
+  opacity: 1;
+  transform: none;
+  transition-delay: calc(220ms + var(--i, 0) * 70ms);
+}
+
+/* keep the page still behind an open record */
+html[data-rec-open="true"] body {
+  overflow: hidden;
+  padding-right: var(--sbw, 0px);
+}
+html[data-rec-open="true"] .bar {
+  margin-right: var(--sbw, 0px);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   CONTACT — the seal
+
+   ముద్ర means seal, so the section makes one. It is a full
+   screen tall on purpose: the field's last station is centred
+   in here, and a short section meant the sign-off never
+   finished arriving before the page ran out.
+   ═══════════════════════════════════════════════════════════ */
+
+.contact {
+  position: relative;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(1.4rem, 4vh, 2.6rem);
+  padding: clamp(6rem, 14vh, 10rem) 0 clamp(4rem, 10vh, 7rem);
+}
+
+/* the wall the front door opens with, reduced to one line */
+.contact-sign {
+  margin: 0;
+  font-size: clamp(2rem, 8.5vw, 5.4rem);
+  font-weight: 500;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  color: transparent;
+  -webkit-text-stroke: 1px color-mix(in srgb, var(--fg) 22%, transparent);
+  pointer-events: none;
+  user-select: none;
+}
+
+.contact-body {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: clamp(1.6rem, 4vw, 3rem);
+  align-items: start;
+}
+
+
+.contact-lines {
+  display: grid;
+  gap: 1.4rem;
+}
+.contact-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.4rem 2.4rem;
+  margin: 0.6rem 0 0;
+  border-top: 1px solid var(--rule-2);
+  padding-top: 1.2rem;
+}
+.contact-facts div {
+  display: grid;
+  gap: 0.15rem;
+}
+.contact-facts dd {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--fg-2);
+}
+.contact-close {
+  margin: 0;
+  color: var(--fg-3);
+  font-size: 0.94rem;
+  max-width: 46ch;
+}
+
+/* the sign-off lands here, and the section is tall enough to hold it */
+.fslot--contact {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(62vh, 82%);
+  aspect-ratio: 5 / 2;
 }

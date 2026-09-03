@@ -1,6 +1,8 @@
 import Hero from "@/components/Hero";
 import DotMark from "@/components/DotMark";
 import Strip from "@/components/Strip";
+import GlyphMatrix from "@/components/GlyphMatrix";
+import Contact from "@/components/Contact";
 import ProgressDots from "@/components/ProgressDots";
 import ThemeToggle from "@/components/ThemeToggle";
 import Reveal from "@/components/Reveal";
@@ -13,7 +15,6 @@ import {
   EDUCATION,
   EXPERIENCE,
   ACHIEVEMENTS,
-  SKILLS,
 } from "@/data/projects";
 
 const CAPABILITIES = [
@@ -26,30 +27,6 @@ const CAPABILITIES = [
   "Reverse engineering",
   "Agent tooling",
 ];
-
-/**
- * Bars for a barcode band.
- *
- * Deterministic from the group name, so the server and the client draw the
- * same thing and nothing rehydrates differently. These carry texture, not
- * data: there is no proficiency score anywhere on this site, and inventing
- * one to fill a bar chart would be the easiest lie in a portfolio.
- */
-function bars(seed: string, count: number) {
-  let h = 2166136261;
-  for (let i = 0; i < seed.length; i++) {
-    h ^= seed.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  const out: { w: boolean; a: boolean; h: number }[] = [];
-  for (let i = 0; i < count; i++) {
-    h = Math.imul(h ^ (h >>> 15), 2246822507);
-    h = Math.imul(h ^ (h >>> 13), 3266489909);
-    const r = (h >>> 0) / 4294967296;
-    out.push({ w: r > 0.66, a: i % 7 === 3, h: 50 + Math.round(r * 50) });
-  }
-  return out;
-}
 
 export default function Home() {
   return (
@@ -205,76 +182,16 @@ export default function Home() {
           <Strip projects={PROJECTS} />
         </Reveal>
 
-        {/* ── 04 · SKILLS ──────────────────────────────── */}
-        <Reveal as="section" id="skills">
-          <div className="shead">
-            <h2>
-              Skills <span className="te">అస్త్రాలు</span>
-            </h2>
-            <span className="lab">What I reach for</span>
-          </div>
+        {/* ── 04 · SKILLS ────────────────────────────────
+            A circular dot screen turned by scroll. Tall on
+            purpose: the height is what lets the field arrive
+            on the barcode, hold, and leave cleanly. */}
+        <GlyphMatrix />
 
-          {/* the field paints the barcode here, at section scale */}
-          <span id="skills-slot" className="fslot fslot--skills" aria-hidden="true" />
-
-          <div className="bands">
-            {SKILLS.map((s) => {
-              const b = bars(s.group, s.items.length * 2 + 5);
-              return (
-                <div key={s.group} className="band">
-                  <p className="lab">{s.group}</p>
-                  <div>
-                    <div className="band-code" aria-hidden="true">
-                      {b.map((bar, i) => (
-                        <i
-                          key={i}
-                          data-w={bar.w ? "true" : undefined}
-                          data-a={bar.a ? "true" : undefined}
-                          style={{
-                            height: `${bar.h}%`,
-                            ["--i" as string]: i,
-                          }}
-                        />
-                      ))}
-                    </div>
-                    <p className="band-names">
-                      {s.items.join(" · ").toUpperCase()}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Reveal>
-
-        {/* ── 05 · CONTACT ───────────────────────────── */}
-        <Reveal as="section" id="contact">
-          <div className="shead">
-            <h2>
-              Contact <span className="te">ముద్ర</span>
-            </h2>
-          </div>
-          {/* the field signs off here, with the name in Telugu */}
-          <span id="contact-slot" className="fslot fslot--contact" aria-hidden="true" />
-
-          <a className="mail" href={`mailto:${PROFILE.email}`}>
-            {PROFILE.email}
-          </a>
-          <div className="links">
-            <a href={PROFILE.github} target="_blank" rel="noreferrer">
-              GitHub ↗
-            </a>
-            <a href={PROFILE.linkedin} target="_blank" rel="noreferrer">
-              LinkedIn ↗
-            </a>
-            <a href="/resume.pdf" target="_blank" rel="noreferrer">
-              Résumé ↗
-            </a>
-            <a href="/resume-research.pdf" target="_blank" rel="noreferrer">
-              Résumé — research ↗
-            </a>
-          </div>
-        </Reveal>
+        {/* ── 05 · CONTACT ─────────────────────────────
+            A full screen, so the field's last station has
+            somewhere to land. */}
+        <Contact />
 
         <footer>
           <span className="lab">© 2026 {PROFILE.name}</span>
