@@ -83,6 +83,22 @@ Anything joined later gets written here, in the change that defers it.
 - **2026-08-26** — Direction set: minimal, two colours, dots as the design
   language. Site scaffolded and built to a running state with all 20
   projects. Masterplan rewritten to match.
+- **2026-09-06** — The field became **the whole site's background**: five
+  stations — photo, photo, live project mark, barcode, Telugu name — morphing
+  into each other by **radius, not opacity**. The dots never move; the screen
+  redraws itself. The rail publishes its live project through `lib/field.ts`.
+  Open: which Skills enclosure, and what Contact is.
+- **2026-09-05b** — The halftone became **one fixed field for the whole
+  page**, and the portrait now **travels**: it is painted into a slot in the
+  hero and a second slot in the About projection, and the field maps it
+  through a rectangle interpolated between the two as you scroll. Not a
+  cross-fade — the same picture walks up the page, and its screen gets finer
+  as it shrinks. Torch radius up to ~a quarter of the viewport.
+- **2026-09-05** — New front door: a **halftone of the photograph with a
+  colour torch under the cursor**, a **boot log**, then the **name wall** with
+  Velidanda in it. New `Halftone` component — reusable, and with no `src` it is
+  a flat lattice, which is the same component ready to sit behind the rest of
+  the site. `DotText` retired; the wall is the wordmark now.
 - **2026-09-04** — The deck is gone. A pinned section that holds your scroll
   for eleven screens is the opposite of optional, so **work is now a
   horizontal rail** you can step into and out of, with the record redrawn as

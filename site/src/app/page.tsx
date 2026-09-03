@@ -1,4 +1,4 @@
-import DotText from "@/components/DotText";
+import Hero from "@/components/Hero";
 import DotMark from "@/components/DotMark";
 import Strip from "@/components/Strip";
 import ProgressDots from "@/components/ProgressDots";
@@ -6,6 +6,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
 import Ambient from "@/components/Ambient";
+import Halftone from "@/components/Halftone";
 import {
   PROJECTS,
   PROFILE,
@@ -55,6 +56,11 @@ export default function Home() {
     <>
       <Ambient />
 
+      {/* one fixed field for the whole page: a faint lattice, the torch
+          that colours it under the cursor, and the portrait travelling
+          from the hero's slot into the projection in About */}
+      <Halftone photo="/photo/krishna.webp" className="field" />
+
       <header className="bar">
         <span className="bar-id">VELIDANDA KRISHNA SAI</span>
         <ThemeToggle />
@@ -64,43 +70,7 @@ export default function Home() {
 
       <main className="shell">
         {/* ── 01 · ENTRY ─────────────────────────────── */}
-        <section id="entry" className="hero">
-          <DotText
-            className="hero-mark"
-            ariaLabel="కృష్ణ సాయి — Krishna Sai"
-            lines={[
-              {
-                text: "కృష్ణ సాయి",
-                family: "telugu",
-                weight: "500",
-                size: 0.42,
-                y: 0.27,
-              },
-              { text: "KRISHNA SAI", weight: "600", size: 0.34, y: 0.76 },
-            ]}
-          />
-
-          <h1>
-            {PROFILE.statement} <span className="quiet">{PROFILE.quiet}</span>
-          </h1>
-
-          <div className="meta">
-            <div>
-              <span className="lab">Based in</span>
-              <span>{PROFILE.location}</span>
-            </div>
-            <div>
-              <span className="lab">Currently</span>
-              <span>Dual degree, IIIT Bangalore</span>
-            </div>
-            <div>
-              <span className="lab">Most recently</span>
-              <span>Research at Samsung Lab</span>
-            </div>
-          </div>
-
-          <p className="scrolltip lab">↓ Scroll</p>
-        </section>
+        <Hero statement={PROFILE.statement} quiet={PROFILE.quiet} />
 
         {/* ── 02 · ABOUT ─────────────────────────────────
             A projection and the thing projecting it. The base
@@ -154,15 +124,14 @@ export default function Home() {
                 </div>
 
                 <div className="holo-core">
-                  <figure className="holo-figure">
-                    <img
-                      src="/photo/krishna.webp"
-                      alt="Velidanda Krishna Sai"
-                      width={1400}
-                      height={1919}
-                      loading="lazy"
-                    />
-                  </figure>
+                  {/* the projection lands here — the picture itself is
+                      painted by the field canvas, which walks it up from
+                      the hero as you scroll */}
+                  <figure
+                    id="about-slot"
+                    className="holo-figure"
+                    aria-label="Velidanda Krishna Sai"
+                  />
 
                   <div className="holo-copy">
                     <p className="big">
@@ -230,6 +199,9 @@ export default function Home() {
 
           <Marquee items={CAPABILITIES} />
 
+          {/* the field paints the live poster's mark here */}
+          <span id="work-slot" className="fslot fslot--work" aria-hidden="true" />
+
           <Strip projects={PROJECTS} />
         </Reveal>
 
@@ -241,6 +213,9 @@ export default function Home() {
             </h2>
             <span className="lab">What I reach for</span>
           </div>
+
+          {/* the field paints the barcode here, at section scale */}
+          <span id="skills-slot" className="fslot fslot--skills" aria-hidden="true" />
 
           <div className="bands">
             {SKILLS.map((s) => {
@@ -279,6 +254,9 @@ export default function Home() {
               Contact <span className="te">ముద్ర</span>
             </h2>
           </div>
+          {/* the field signs off here, with the name in Telugu */}
+          <span id="contact-slot" className="fslot fslot--contact" aria-hidden="true" />
+
           <a className="mail" href={`mailto:${PROFILE.email}`}>
             {PROFILE.email}
           </a>

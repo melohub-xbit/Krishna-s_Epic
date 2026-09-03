@@ -19,13 +19,41 @@ sections can each afford a proper entrance; fifteen can afford nothing.
 theme by themselves, and mixing the two scripts on a card that small made it
 fussy. Telugu stays in the wordmark, the other headings and the footer.
 
-### 01 · Entry
-The wordmark resolves out of dots — కృష్ణ సాయి over KRISHNA SAI. One
-statement line. Two facts: where he is, what he is doing. Then a quiet
-pointer to the work.
+### 01 · Entry — the halftone, the log, the wall
+Three layers, arriving in order rather than all at once.
 
-No separate landing screen, no loader. This is section one of the scroll, so
-there is no hand-off to get wrong.
+**The halftone.** The photograph fills the right of the frame as a real
+halftone — a staggered screen where each dot's radius is set by how bright the
+picture is under it. It is monochrome, and within a radius of roughly a
+quarter of the viewport the dots take their **actual colour** out of the photo
+instead, feathered so there is no hard circle. Outside the picture the torch
+lights the background lattice accent. The colour is a hole you carry around.
+
+**And it travels.** The picture is not painted into the hero — it is painted
+into a *slot*. There is a second slot inside the About projection, and one
+fixed field canvas maps the picture through a rectangle interpolated between
+the two as you scroll. So it does not cross-fade from one section to the
+other; the same halftone walks up the page and lands in the projector's beam.
+Because the dot pitch is a fraction of that rectangle's width, the screen gets
+finer as the picture shrinks: **the halftone resolves as it lands.** Both slots
+carry the photograph's own aspect ratio, so nothing is ever stretched.
+
+The whole thing is one canvas for the whole site — see `04 · The field`.
+
+**The boot log.** The page comes up like a device — eight true lines type out
+in mono, each checking off, ending in `ready … online`. Under a second and a
+half, skipped instantly by any input, and skipped outright on the second visit
+in a session. Nobody should have to watch it twice.
+
+**The name wall.** When the log finishes it collapses and five rows of the
+name at wall size drift in, alternating direction: VELIDANDA, కృష్ణ సాయి,
+KRISHNA SAI solid through the middle, వెలిదండ, VELIDANDA KRISHNA SAI. Outlined
+except the hot row, masked top and bottom so it never fights the copy.
+
+Then the statement, the three facts, and `online · ↓ scroll`.
+
+There is no separate wordmark any more — the wall is the wordmark, so
+`DotText` is gone.
 
 ### 02 · About — the projection
 Two design languages, deliberately opposed.
@@ -124,3 +152,55 @@ transitions and view transitions only, both free, both zero JavaScript.
 Nothing links out automatically any more — the record opens in place and
 GitHub is a choice inside it. Detail pages, if they are ever built, are for
 people arriving from a link, not for people already on the deck.
+
+
+## 04 · The field
+
+One fixed canvas behind the entire page, at `z-index: -1`. It carries two
+sets of dots.
+
+**The lattice** is computed in screen space and never moves: a faint, even
+screen behind everything, so there is always something for the torch to light
+between sections.
+
+**The picture** is a halftone screen of a fixed size — 68 × 90 cells, always
+the same cells. What changes between sections is only each cell's *radius*
+and *colour*, which is exactly how a real halftone encodes an image. So one
+picture does not fade into the next: **the dots stay where they are and
+resize, and the screen redraws itself into the next thing.** That is the only
+transition on this site that could not be done with anything but dots.
+
+Each section owns a **slot** — an empty box that says where the picture should
+sit. The screen is mapped through a rectangle interpolated between the slot
+you are leaving and the one you are arriving at, so the picture travels up the
+page as well as changing. Because the cell pitch is a fraction of that
+rectangle's width, a picture landing in a small slot gets finer: it resolves
+as it shrinks.
+
+| Slot | What it shows |
+|---|---|
+| `hero-slot` | the photograph, full height on the right |
+| `about-slot` | the photograph, landing in the projector's beam |
+| `work-slot` | the mark of whichever poster is live on the rail |
+| `skills-slot` | the barcode, at section scale |
+| `contact-slot` | the name, in Telugu |
+
+The work slot changes *within* a section as you scroll the rail, so it has a
+second, shorter cross-fade of its own — same mechanism, radii only. The rail
+publishes the live project through `lib/field.ts`, a four-line store, rather
+than lifting it into React state and re-rendering twenty-two posters every
+time the rail nudges.
+
+Cost per frame: one interpolation pass and two batched fills — one path, one
+fill, however many dots — plus the few hundred inside the torch, and only on
+frames where the scroll position or the pointer actually moved. It rides the
+shared ticker in `lib/dots`, so there is still exactly one
+requestAnimationFrame loop.
+
+The torch is a hover effect, so on touch it does not exist and the field is a
+plain monochrome halftone. The morphing still works there, because it is
+driven by scroll.
+
+**Still open:** the Skills enclosure itself, and what the Contact section is.
+Both have proposals out; the field is settled either way, because the barcode
+and the sign-off are drawn procedurally from the same data the section uses.

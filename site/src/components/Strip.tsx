@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Poster from "./Poster";
 import PosterRecord from "./PosterRecord";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
+import { setFieldMark } from "@/lib/field";
 import type { Project } from "@/data/projects";
 
 /**
@@ -131,6 +132,8 @@ export default function Strip({ projects }: { projects: Project[] }) {
         }
         lastLive = nearest;
         liveRef.current = nearest;
+        /* the field behind the section draws whatever is live */
+        setFieldMark(projects[nearest].mark);
       }
 
       return true;

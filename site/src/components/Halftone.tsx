@@ -1,0 +1,563 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { addJob, fontStack } from "@/lib/dots";
+import { readVar } from "@/lib/palette";
+import { onFieldMark } from "@/lib/field";
+import { MARKS, type MarkId } from "@/data/marks";
+import { SKILLS } from "@/data/projects";
+
+/**
+ * THE FIELD — one fixed canvas for the whole page.
+ *
+ * Two sets of dots live on it.
+ *
+ * The **lattice** is computed in screen space and never moves: a faint even
+ * screen behind everything, so the torch always has something to light.
+ *
+ * The **picture** is a halftone screen of a fixed size — COLS × ROWS cells,
+ * always the same cells. What changes between sections is only each cell's
+ * *radius* and *colour*, which is exactly how a real halftone encodes an
+ * image. So one picture does not fade into the next: the dots stay where
+ * they are and resize, and the screen redraws itself into the next thing.
+ * That is the only transition on this site that could not be done with
+ * anything but dots.
+ *
+ * Each section owns a slot — an empty, unpainted box that says where the
+ * picture should sit. The screen is mapped through a rectangle interpolated
+ * between the slot you are leaving and the slot you are arriving at, so the
+ * picture travels up the page as well as changing. Because the cell pitch
+ * is a fraction of that rectangle's width, a picture landing in a small
+ * slot gets *finer* — it resolves as it shrinks.
+ *
+ *   hero-slot     the photograph
+ *   about-slot    the photograph, arriving in the projector's beam
+ *   work-slot     the mark of whichever poster is live on the rail
+ *   skills-slot   the barcode, at section scale
+ *   contact-slot  the name, in Telugu
+ *
+ * Cost per frame: one interpolation pass and two batched fills — one path,
+ * one fill, however many dots — plus the few hundred inside the torch, and
+ * only on frames where the scroll or the pointer actually moved.
+ */
+
+const COLS = 68;
+const ROWS = 90;
+const N = COLS * ROWS;
+
+const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+const smooth = (t: number) => t * t * (3 - 2 * t);
+
+type Kind = "image" | "mark" | "bars" | "text";
+
+type Station = {
+  slot: string;
+  kind: Kind;
+  /** src, mark id or string — a change forces a resample */
+  key: string;
+  /** the colour the torch reveals where the source has no colour of its own */
+  tint: [number, number, number] | null;
+  aspect: number;
+  r: Float32Array;
+  c: Uint8ClampedArray;
+  ready: boolean;
+  /** the previous source, for the cross-fade when `key` changes under us */
+  pr: Float32Array;
+  mix: number;
+  mixFrom: number;
+};
+
+function blank(): Station {
+  return {
+    slot: "",
+    kind: "mark",
+    key: "",
+    tint: null,
+    aspect: 0,
+    r: new Float32Array(N),
+    c: new Uint8ClampedArray(N * 3),
+    ready: false,
+    pr: new Float32Array(N),
+    mix: 1,
+    mixFrom: 0,
+  };
+}
+
+export default function Halftone({
+  photo,
+  className,
+}: {
+  photo: string;
+  className?: string;
+}) {
+  const ref = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const cv = ref.current;
+    if (!cv) return;
+    const ctx = cv.getContext("2d");
+    if (!ctx) return;
+
+    let w = 0;
+    let h = 0;
+    let reach = 190;
+
+    /* the lattice, in screen space */
+    let lx = new Float32Array(0);
+    let ly = new Float32Array(0);
+    let ln = 0;
+    const lr = 0.95;
+    const pitch = 17;
+
+    let dot = "rgba(242,239,234,.85)";
+    let accentCss = "#ff2d55";
+    let accent: [number, number, number] = [255, 45, 85];
+    let fg: [number, number, number] = [242, 239, 234];
+
+    const mouse = { x: -9999, y: -9999, on: false };
+    let dirty = true;
+    let lastKey = "";
+
+    const img = new Image();
+    let imgReady = false;
+
+    const stations: Station[] = [
+      { ...blank(), slot: "hero-slot", kind: "image", key: photo, tint: null },
+      { ...blank(), slot: "about-slot", kind: "image", key: photo, tint: null },
+      { ...blank(), slot: "work-slot", kind: "mark", key: "ring", tint: accent },
+      { ...blank(), slot: "skills-slot", kind: "bars", key: "bars", tint: accent },
+      {
+        ...blank(),
+        slot: "contact-slot",
+        kind: "text",
+        key: "వెలిదండ కృష్ణ సాయి",
+        tint: accent,
+      },
+    ];
+
+    /* the working buffers the frame interpolates into */
+    const wr = new Float32Array(N);
+    const wc = new Float32Array(N * 3);
+
+    /* ── the sources ──────────────────────────────────────── */
+
+    /** draw a source into a COLS×ROWS box, contained at the slot's aspect */
+    function render(st: Station, aspect: number) {
+      const off = document.createElement("canvas");
+      off.width = COLS;
+      off.height = ROWS;
+      const o = off.getContext("2d", { willReadFrequently: true })!;
+      o.clearRect(0, 0, COLS, ROWS);
+
+      /* one cell is (aspect / COLS) wide and (1 / ROWS) tall in rect units,
+         so a source of aspect S drawn contained inside the rect covers: */
+      const fit = (S: number) => {
+        let dw: number;
+        let dh: number;
+        if (S > aspect) {
+          dw = COLS;
+          dh = (COLS * aspect) / S;
+        } else {
+          dh = ROWS;
+          dw = (ROWS * S) / aspect;
+        }
+        return { dw, dh, dx: (COLS - dw) / 2, dy: (ROWS - dh) / 2 };
+      };
+
+      if (st.kind === "image") {
+        if (!imgReady) return false;
+        const b = fit(img.naturalWidth / img.naturalHeight);
+        o.drawImage(img, b.dx, b.dy, b.dw, b.dh);
+      } else {
+        /* everything else is drawn big and downsampled, so the strokes
+           land on the screen as smooth luminance rather than aliasing */
+        const S = st.kind === "bars" ? 1.9 : st.kind === "text" ? 3.4 : 1;
+        const b = fit(S);
+        const big = document.createElement("canvas");
+        const BW = 480;
+        const BH = Math.round(BW / S);
+        big.width = BW;
+        big.height = BH;
+        const g = big.getContext("2d")!;
+        g.fillStyle = "#fff";
+        g.strokeStyle = "#fff";
+
+        if (st.kind === "mark") {
+          const paint = MARKS[st.key as MarkId] ?? MARKS.ring;
+          paint(g, BW, BH);
+        } else if (st.kind === "bars") {
+          drawBars(g, BW, BH);
+        } else {
+          drawText(g, BW, BH, st.key);
+        }
+        o.drawImage(big, b.dx, b.dy, b.dw, b.dh);
+      }
+
+      const d = o.getImageData(0, 0, COLS, ROWS).data;
+      st.pr.set(st.r);
+      for (let i = 0; i < N; i++) {
+        const a = d[i * 4 + 3] / 255;
+        const lum =
+          a > 0.02
+            ? (0.2126 * d[i * 4] +
+                0.7152 * d[i * 4 + 1] +
+                0.0722 * d[i * 4 + 2]) /
+              255
+            : 0;
+        st.r[i] = Math.pow(lum * a, 0.8);
+        if (st.tint) {
+          st.c[i * 3] = st.tint[0];
+          st.c[i * 3 + 1] = st.tint[1];
+          st.c[i * 3 + 2] = st.tint[2];
+        } else {
+          st.c[i * 3] = d[i * 4];
+          st.c[i * 3 + 1] = d[i * 4 + 1];
+          st.c[i * 3 + 2] = d[i * 4 + 2];
+        }
+      }
+      st.aspect = aspect;
+      st.ready = true;
+      return true;
+    }
+
+    /** the skills barcode, at section scale */
+    function drawBars(g: CanvasRenderingContext2D, W: number, H: number) {
+      const laneH = H / SKILLS.length;
+      let seed = 2166136261;
+      const rnd = () => {
+        seed = Math.imul(seed ^ (seed >>> 15), 2246822507);
+        seed = Math.imul(seed ^ (seed >>> 13), 3266489909);
+        return (seed >>> 0) / 4294967296;
+      };
+      SKILLS.forEach((grp, li) => {
+        const n = grp.items.length * 2 + 5;
+        const cw = W / (n * 2.1);
+        const base = li * laneH + laneH * 0.88;
+        for (let i = 0; i < n; i++) {
+          const r = rnd();
+          const bw = r > 0.66 ? cw * 2.2 : cw;
+          const bh = laneH * 0.72 * (0.34 + r * 0.66);
+          g.fillRect(i * cw * 2.1 + cw * 0.6, base - bh, bw, bh);
+        }
+      });
+    }
+
+    /** the name, in Telugu, for the sign-off */
+    function drawText(
+      g: CanvasRenderingContext2D,
+      W: number,
+      H: number,
+      text: string
+    ) {
+      g.textAlign = "center";
+      g.textBaseline = "middle";
+      let size = Math.round(H * 0.5);
+      g.font = `500 ${size}px ${fontStack("telugu")}`;
+      /* shrink until it fits the box with a margin */
+      while (g.measureText(text).width > W * 0.9 && size > 8) {
+        size -= 2;
+        g.font = `500 ${size}px ${fontStack("telugu")}`;
+      }
+      g.fillText(text, W / 2, H / 2);
+    }
+
+    /* ── sizing and the lattice ───────────────────────────── */
+    function fit() {
+      w = window.innerWidth;
+      h = window.innerHeight;
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      cv!.width = Math.round(w * dpr);
+      cv!.height = Math.round(h * dpr);
+      cv!.style.width = w + "px";
+      cv!.style.height = h + "px";
+      ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
+      reach = clamp(Math.min(w, h) * 0.26, 150, 300);
+
+      const c = Math.ceil(w / pitch) + 2;
+      const r = Math.ceil(h / pitch) + 2;
+      lx = new Float32Array(c * r);
+      ly = new Float32Array(c * r);
+      ln = 0;
+      for (let gy = 0; gy < r; gy++) {
+        for (let gx = 0; gx < c; gx++) {
+          lx[ln] = gx * pitch + (gy % 2 ? pitch * 0.5 : 0);
+          ly[ln] = gy * pitch;
+          ln++;
+        }
+      }
+      for (const st of stations) st.aspect = 0;
+      dirty = true;
+    }
+
+    /* ── which station, and where ─────────────────────────── */
+    type Live = { st: Station; rect: DOMRect } | null;
+
+    function rects(): Live[] {
+      return stations.map((st) => {
+        const el = document.getElementById(st.slot);
+        if (!el) return null;
+        return { st, rect: el.getBoundingClientRect() };
+      });
+    }
+
+    /* ── the frame ────────────────────────────────────────── */
+    function paint(now: number) {
+      ctx!.clearRect(0, 0, w, h);
+      const R2 = reach * reach;
+      const inner = 0.55;
+
+      /* 1 · the lattice, one path */
+      ctx!.fillStyle = dot;
+      ctx!.globalAlpha = 0.22;
+      ctx!.beginPath();
+      for (let i = 0; i < ln; i++) {
+        ctx!.moveTo(lx[i] + lr, ly[i]);
+        ctx!.arc(lx[i], ly[i], lr, 0, Math.PI * 2);
+      }
+      ctx!.fill();
+      ctx!.globalAlpha = 1;
+
+      /* 2 · which two stations we are between */
+      const live = rects().filter(Boolean) as { st: Station; rect: DOMRect }[];
+      if (live.length) {
+        let g = 0;
+        for (let i = 1; i < live.length; i++) {
+          g += smooth(clamp((h - live[i].rect.top) / (h * 0.74), 0, 1));
+        }
+        const i0 = clamp(Math.floor(g), 0, live.length - 1);
+        const i1 = clamp(i0 + 1, 0, live.length - 1);
+        const f = i1 === i0 ? 0 : g - i0;
+
+        const a = live[i0];
+        const b = live[i1];
+        const box = {
+          x: lerp(a.rect.left, b.rect.left, f),
+          y: lerp(a.rect.top, b.rect.top, f),
+          w: lerp(a.rect.width, b.rect.width, f),
+          h: lerp(a.rect.height, b.rect.height, f),
+        };
+
+        /* make sure both ends are sampled for the aspect they are being
+           shown at — this costs a 68×90 read, so it is cheap enough to do
+           on demand rather than tracking invalidation by hand */
+        for (const s of [a, b]) {
+          const asp = s.rect.width / Math.max(1, s.rect.height);
+          if (!s.st.ready || Math.abs(s.st.aspect - asp) > 0.02) {
+            render(s.st, asp);
+          }
+        }
+
+        if (
+          a.st.ready &&
+          b.st.ready &&
+          box.y < h + 240 &&
+          box.y + box.h > -240
+        ) {
+          /* the within-station cross-fade, for when the live poster changes */
+          const ma =
+            a.st.mix >= 1 ? 1 : clamp((now - a.st.mixFrom) / 420, 0, 1);
+          const mb =
+            b.st.mix >= 1 ? 1 : clamp((now - b.st.mixFrom) / 420, 0, 1);
+          if (ma >= 1) a.st.mix = 1;
+          if (mb >= 1) b.st.mix = 1;
+
+          for (let i = 0; i < N; i++) {
+            const ra = lerp(a.st.pr[i], a.st.r[i], ma);
+            const rb = lerp(b.st.pr[i], b.st.r[i], mb);
+            wr[i] = lerp(ra, rb, f);
+            for (let k = 0; k < 3; k++) {
+              wc[i * 3 + k] = lerp(
+                a.st.c[i * 3 + k],
+                b.st.c[i * 3 + k],
+                f
+              );
+            }
+          }
+
+          const rMax = (box.w / COLS) * 0.62;
+          const cw = box.w / COLS;
+          const chh = box.h / ROWS;
+
+          /* 3 · the picture, one path */
+          ctx!.fillStyle = dot;
+          ctx!.beginPath();
+          for (let j = 0; j < ROWS; j++) {
+            const y = box.y + (j + 0.5) * chh;
+            if (y < -20 || y > h + 20) continue;
+            const off = j % 2 ? 0.5 : 0;
+            for (let k = 0; k < COLS; k++) {
+              const i = j * COLS + k;
+              const rr = wr[i];
+              if (rr < 0.06) continue;
+              const x = box.x + (k + off + 0.5) * cw;
+              if (x < -20 || x > w + 20) continue;
+              const r = rMax * rr;
+              ctx!.moveTo(x + r, y);
+              ctx!.arc(x, y, r, 0, Math.PI * 2);
+            }
+          }
+          ctx!.fill();
+
+          /* 4 · the torch over the picture — its real colour */
+          if (mouse.on) {
+            for (let j = 0; j < ROWS; j++) {
+              const y = box.y + (j + 0.5) * chh;
+              const dy = y - mouse.y;
+              if (dy * dy > R2) continue;
+              const off = j % 2 ? 0.5 : 0;
+              for (let k = 0; k < COLS; k++) {
+                const i = j * COLS + k;
+                const rr = wr[i];
+                if (rr < 0.06) continue;
+                const x = box.x + (k + off + 0.5) * cw;
+                const dx = x - mouse.x;
+                const d2 = dx * dx + dy * dy;
+                if (d2 > R2) continue;
+                const tt = 1 - Math.sqrt(d2) / reach;
+                const ff = tt <= 1 - inner ? tt / (1 - inner) : 1;
+                ctx!.fillStyle = `rgba(${wc[i * 3] | 0},${wc[i * 3 + 1] | 0},${
+                  wc[i * 3 + 2] | 0
+                },${(ff * 0.96).toFixed(3)})`;
+                ctx!.beginPath();
+                ctx!.arc(x, y, rMax * rr * (1 + ff * 0.22), 0, Math.PI * 2);
+                ctx!.fill();
+              }
+            }
+          }
+        }
+      }
+
+      /* 5 · the torch over the bare lattice — accent */
+      if (mouse.on) {
+        ctx!.fillStyle = accentCss;
+        for (let i = 0; i < ln; i++) {
+          const dx = lx[i] - mouse.x;
+          const dy = ly[i] - mouse.y;
+          const d2 = dx * dx + dy * dy;
+          if (d2 > R2) continue;
+          const tt = 1 - Math.sqrt(d2) / reach;
+          const ff = tt <= 1 - inner ? tt / (1 - inner) : 1;
+          ctx!.globalAlpha = ff * 0.5;
+          ctx!.beginPath();
+          ctx!.arc(lx[i], ly[i], lr * (1 + ff * 0.7), 0, Math.PI * 2);
+          ctx!.fill();
+        }
+        ctx!.globalAlpha = 1;
+      }
+    }
+
+    /* ── wiring ───────────────────────────────────────────── */
+    function readColours() {
+      dot = readVar("dot");
+      accentCss = readVar("accent");
+      const m = accentCss.match(/\d+/g);
+      if (m && m.length >= 3) accent = [+m[0], +m[1], +m[2]];
+      else if (/^#/.test(accentCss)) {
+        const v = accentCss.replace("#", "");
+        accent = [
+          parseInt(v.slice(0, 2), 16),
+          parseInt(v.slice(2, 4), 16),
+          parseInt(v.slice(4, 6), 16),
+        ];
+      }
+      const f = readVar("fg").match(/\d+/g);
+      if (f && f.length >= 3) fg = [+f[0], +f[1], +f[2]];
+      for (const st of stations) {
+        if (st.tint) st.tint = accent;
+        st.aspect = 0;
+      }
+      void fg;
+      dirty = true;
+    }
+
+    const onMove = (e: PointerEvent) => {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.on = true;
+      dirty = true;
+    };
+    const onLeave = () => {
+      mouse.on = false;
+      dirty = true;
+    };
+    const onResize = () => fit();
+
+    const hover = window.matchMedia("(hover: hover)").matches;
+    if (hover) {
+      window.addEventListener("pointermove", onMove, { passive: true });
+      document.addEventListener("pointerleave", onLeave);
+    }
+    window.addEventListener("resize", onResize);
+
+    const mo = new MutationObserver(readColours);
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["data-mode"],
+    });
+
+    readColours();
+    fit();
+
+    /* the photograph */
+    img.decoding = "async";
+    img.src = photo;
+    const onImg = () => {
+      imgReady = true;
+      stations[0].aspect = 0;
+      stations[1].aspect = 0;
+      dirty = true;
+    };
+    if (img.complete && img.naturalWidth) onImg();
+    else img.onload = onImg;
+
+    /* the Telugu sign-off has to wait for its face */
+    if (document.fonts?.ready) {
+      document.fonts.ready.then(() => {
+        stations[4].aspect = 0;
+        dirty = true;
+      });
+    }
+
+    /* the live poster on the rail */
+    const offMark = onFieldMark((m) => {
+      const st = stations[2];
+      if (st.key === m) return;
+      st.key = m;
+      st.aspect = 0;
+      st.mix = 0;
+      st.mixFrom = performance.now();
+      dirty = true;
+    });
+
+    const stop = addJob((now) => {
+      const key =
+        Math.round(window.scrollY) +
+        "|" +
+        Math.round(mouse.x) +
+        "|" +
+        Math.round(mouse.y) +
+        "|" +
+        (mouse.on ? 1 : 0) +
+        "|" +
+        stations.map((s) => (s.mix < 1 ? 1 : 0)).join("");
+      if (!dirty && key === lastKey && stations.every((s) => s.mix >= 1))
+        return true;
+      lastKey = key;
+      dirty = false;
+      paint(now);
+      return true;
+    });
+
+    return () => {
+      window.removeEventListener("pointermove", onMove);
+      document.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("resize", onResize);
+      mo.disconnect();
+      offMark();
+      stop();
+    };
+  }, [photo]);
+
+  return <canvas ref={ref} className={className} aria-hidden="true" />;
+}
