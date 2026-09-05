@@ -319,15 +319,6 @@ section:first-of-type::before {
   }
 }
 
-/* where the picture starts. Its aspect is the photograph's. */
-.hero-slot {
-  position: absolute;
-  top: -8%;
-  right: 3%;
-  height: 116%;
-  aspect-ratio: 1400 / 1919;
-}
-
 .hero-bg {
   position: absolute;
   top: 0;
@@ -344,16 +335,11 @@ section:first-of-type::before {
   inset: 0;
   pointer-events: none;
   background: linear-gradient(
-      to top,
-      var(--bg) 4%,
-      color-mix(in srgb, var(--bg) 55%, transparent) 34%,
-      transparent 62%
-    ),
-    linear-gradient(
-      90deg,
-      color-mix(in srgb, var(--bg) 62%, transparent),
-      transparent 46%
-    );
+    to top,
+    var(--bg) 2%,
+    color-mix(in srgb, var(--bg) 40%, transparent) 30%,
+    transparent 58%
+  );
 }
 
 /* ── layer 2 · the name wall ──────────────────────────────── */
@@ -975,32 +961,71 @@ button:active {
   display: grid;
   gap: 0;
 }
+/* ══════════════════════════════════════════════════════════
+   ABOUT — the projector gets its own scroll
+
+   The sequence used to hang off the section's own rect, and
+   the section was about one screen tall — so both ramps ran
+   to completion while it was still off-screen, and by the
+   time the projector was in front of you it had been fully
+   on for half a screen. Nothing to see.
+
+   So it is a pinned scene now, like the skills matrix: the
+   projector holds in the middle of the screen and the
+   section's own progress assembles it, holds it while you
+   read, and takes it apart again.
+   ══════════════════════════════════════════════════════════ */
+
+.about-scene {
+  position: relative;
+  padding: 0;
+  height: 280vh;
+}
+.about-pin {
+  position: sticky;
+  top: 0;
+  min-height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: clamp(0.8rem, 2.4vh, 1.6rem);
+  padding: clamp(4.4rem, 9vh, 6rem) 0 clamp(1.2rem, 4vh, 2.2rem);
+}
+.about-pin .holo {
+  align-content: center;
+}
+/* the projector has to fit one screen for the pin to work */
+.about-pin .holo-figure {
+  width: min(clamp(190px, 26vh, 300px), 72%);
+}
+
+/* Too short to pin — a phone in landscape, a small laptop. The section
+   becomes an ordinary block and the driver falls back to measuring how
+   centred it is instead of how far through it you are. */
+@media (max-width: 999px), (max-height: 700px) {
+  .about-scene {
+    height: auto;
+    padding: clamp(5rem, 11vw, 9rem) 0;
+  }
+  .about-pin {
+    position: static;
+    min-height: 0;
+    display: block;
+    padding: 0;
+  }
+}
+
+/* ── the projector, switching itself on ────────────────────
+   Every stage below is a window on one number — how present
+   the section is, 0 to 1 — so scrolling away runs the whole
+   sequence backwards with no separate exit to keep in step.
+   HoloDriver.tsx holds the timeline.                        */
+
 .holo-field {
   position: relative;
   padding-bottom: clamp(1.6rem, 4vh, 2.6rem);
 }
-.reveal.is-in .holo-field {
-  animation: holo-idle 11s linear 1.8s infinite;
-}
-@keyframes holo-idle {
-  0%,
-  91%,
-  100% {
-    opacity: 1;
-  }
-  93% {
-    opacity: 0.9;
-  }
-  95% {
-    opacity: 0.98;
-  }
-  97% {
-    opacity: 0.94;
-  }
-}
 
-/* ── the beam ──────────────────────────────────────────────── */
-
+/* the beam, climbing out of the lens */
 .holo-beam {
   position: absolute;
   left: 50%;
@@ -1025,27 +1050,12 @@ button:active {
       color-mix(in srgb, var(--accent) 34%, transparent),
       transparent
     );
-  -webkit-mask-image: linear-gradient(
-    to top,
-    #000,
-    rgba(0, 0, 0, 0.3) 58%,
-    transparent 93%
-  );
-  mask-image: linear-gradient(
-    to top,
-    #000,
-    rgba(0, 0, 0, 0.3) 58%,
-    transparent 93%
-  );
-  opacity: 0;
-  transform: translateX(-50%) scaleY(0.04);
+  -webkit-mask-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0.3) 58%, transparent 93%);
+  mask-image: linear-gradient(to top, #000, rgba(0, 0, 0, 0.3) 58%, transparent 93%);
   transform-origin: 50% 100%;
-  transition: opacity 700ms var(--ease) 160ms,
-    transform 950ms var(--ease) 160ms;
-}
-.reveal.is-in .holo-beam {
-  opacity: 0.55;
-  transform: translateX(-50%) scaleY(1);
+  transform: translateX(calc(-50% + var(--h-jit, 0px)))
+    scaleY(var(--h-beam, 0)) scaleX(calc(0.35 + var(--h-beam, 0) * 0.65));
+  opacity: calc(var(--h-beam, 0) * 0.55 * var(--h-flick, 1));
 }
 
 /* ── what it throws ────────────────────────────────────────── */
@@ -1070,21 +1080,23 @@ button:active {
   }
 }
 
-/* Where the projection lands. The picture itself is painted by the
-   field canvas, which walks it up from the hero as you scroll — so this
-   is a frame around a hole, not a container for an image. Its aspect is
-   the photograph's, so the two slots map onto each other exactly. */
+/* Where the projection lands. The picture is painted by the field, which
+   reads this box's rect every frame — so transforming the box is what
+   unfolds the halftone out of the lens and reels it back in, without the
+   field knowing this section exists. */
 .holo-figure {
   position: relative;
   width: min(310px, 76%);
   margin: 0 auto 1.6rem;
   aspect-ratio: 1400 / 1919;
   border: 1px solid var(--rule-2);
-  opacity: 0;
-  transition: opacity 780ms var(--ease) 460ms;
-}
-.reveal.is-in .holo-figure {
-  opacity: 1;
+  transform-origin: 50% 100%;
+  transform: translate(
+      var(--h-jit, 0px),
+      calc((1 - var(--h-fig, 0)) * var(--to-base, 240px))
+    )
+    scale(calc(0.04 + var(--h-fig, 0) * 0.96));
+  opacity: calc(var(--h-fig, 0) * var(--h-flick, 1));
 }
 /* corner ticks rather than a full frame — it is a target, not a photo */
 .holo-figure::before {
@@ -1103,22 +1115,41 @@ button:active {
   background-repeat: no-repeat;
   opacity: 0.55;
 }
-/* scan lines, the Nothing half of the projection */
+/* scan lines, and a bright band travelling down them */
 .holo-figure::after {
   content: "";
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: repeating-linear-gradient(
-    0deg,
-    transparent 0 5px,
-    color-mix(in srgb, var(--bg) 22%, transparent) 5px 7px
-  );
+      0deg,
+      transparent 0 5px,
+      color-mix(in srgb, var(--bg) 22%, transparent) 5px 7px
+    ),
+    linear-gradient(
+      to bottom,
+      transparent 42%,
+      color-mix(in srgb, var(--fg) 12%, transparent) 50%,
+      transparent 58%
+    );
+  background-size: 100% 100%, 100% 320%;
+  background-repeat: repeat, no-repeat;
+  animation: holo-sweep 5.5s linear infinite;
+}
+@keyframes holo-sweep {
+  from {
+    background-position: 0 0, 0 -220%;
+  }
+  to {
+    background-position: 0 0, 0 100%;
+  }
 }
 
 .holo-copy {
   max-width: 36ch;
   margin: 0 auto;
+  opacity: calc(var(--h-fig, 0) * var(--h-flick, 1));
+  transform: translate(var(--h-jit, 0px), calc((1 - var(--h-fig, 0)) * 26px));
 }
 .holo-copy p {
   margin: 0 0 0.9rem;
@@ -1134,118 +1165,230 @@ button:active {
   margin-bottom: 0;
 }
 
-/* the callouts arrive last, after the figure has resolved */
+/* ── the callouts either side ──────────────────────────────── */
+
+.callouts {
+  display: grid;
+  gap: 2.4rem;
+  align-content: start;
+}
+.callout > .lab {
+  margin: 0 0 0.7rem;
+  position: relative;
+}
 .holo-grid .callout {
-  opacity: 0;
-  transform: translateY(8px);
-  transition: opacity 620ms var(--ease), transform 620ms var(--ease);
+  opacity: calc(var(--h-call, 0) * var(--h-flick, 1));
+  transform: translateY(calc((1 - var(--h-call, 0)) * 10px));
 }
-.reveal.is-in .holo-grid .callout {
-  opacity: 1;
-  transform: none;
-}
-.reveal.is-in .holo-grid .callout:nth-child(1) {
-  transition-delay: 860ms;
-}
-.reveal.is-in .holo-grid .callout:nth-child(2) {
-  transition-delay: 980ms;
+@media (min-width: 1000px) {
+  .callouts--l .callout > .lab {
+    text-align: right;
+  }
+  .callouts--l .callout > .lab::after,
+  .callouts--r .callout > .lab::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: clamp(1.4rem, 3vw, 2.6rem);
+    height: 1px;
+    background: repeating-linear-gradient(
+      90deg,
+      var(--rule) 0 3px,
+      transparent 3px 6px
+    );
+  }
+  .callouts--l .callout > .lab::after {
+    left: calc(100% + 0.55rem);
+  }
+  .callouts--r .callout > .lab::after {
+    right: calc(100% + 0.55rem);
+  }
+  .callouts--l .list span:first-child {
+    align-items: flex-end;
+    text-align: right;
+  }
+  .callouts--l .list div {
+    flex-direction: row-reverse;
+  }
+  .callouts--l .list span:last-child {
+    text-align: left;
+  }
+  .callouts--l .list .list-note {
+    text-align: right;
+  }
 }
 
-/* ── the base: liquid glass ────────────────────────────────── */
+/* ── the base: liquid glass, striking like a lamp ──────────────
+   The frost lives on .holo-base ITSELF, not on a child. This
+   element is `isolation: isolate`, which makes it a backdrop
+   root — a backdrop-filter on anything inside it samples an
+   empty backdrop and renders as a flat dark panel. Learned the
+   hard way; don't move it onto a layer.
+
+   Everything above the frost is a pseudo-element, so the whole
+   thing stays one box:
+
+     ::before   the lit edge — a gradient hairline, white at one
+                corner, accent at the other, punched hollow with
+                mask-composite so it reads as a rim, not a fill
+     ::after    the specular sweep, and the lamp striking
+
+   Glass reads as an object rather than a fogged rectangle
+   because of the edge, not the blur. Hence the rim, the two
+   inset highlights top and bottom, and the sweep.            */
 
 .holo-base {
   position: relative;
-  width: min(340px, 84%);
-  height: 78px;
+  width: min(560px, 92%);
+  height: 92px;
   margin: 0 auto;
-  border-radius: 40px;
+  border-radius: 46px;
   display: grid;
-  place-items: center;
+  /* stretch, not center — the rail sizes itself and a centred grid item
+     would shrink to its content */
+  place-items: stretch;
   isolation: isolate;
   background: linear-gradient(
-    155deg,
-    color-mix(in srgb, var(--fg) 17%, transparent),
-    color-mix(in srgb, var(--fg) 5%, transparent) 46%,
+    148deg,
+    color-mix(in srgb, var(--fg) 16%, transparent),
+    color-mix(in srgb, var(--fg) 4%, transparent) 44%,
     color-mix(in srgb, var(--fg) 11%, transparent)
   );
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid color-mix(in srgb, var(--fg) 18%, transparent);
-  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 30%, transparent),
-    inset 0 -1px 2px rgba(0, 0, 0, 0.55),
-    inset 0 0 26px color-mix(in srgb, var(--fg) 6%, transparent),
-    0 26px 60px rgba(0, 0, 0, 0.5), 0 2px 10px rgba(0, 0, 0, 0.35);
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity 620ms var(--ease), transform 700ms var(--ease);
+  backdrop-filter: blur(26px) saturate(190%) brightness(1.06);
+  -webkit-backdrop-filter: blur(26px) saturate(190%) brightness(1.06);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 34%, transparent),
+    inset 0 16px 30px -24px color-mix(in srgb, #fff 60%, transparent),
+    inset 0 -10px 20px -16px rgba(0, 0, 0, 0.7),
+    inset 0 0 30px color-mix(in srgb, var(--fg) 5%, transparent),
+    0 30px 64px rgba(0, 0, 0, 0.5), 0 3px 12px rgba(0, 0, 0, 0.32);
+  /* snaps open sideways first, then fills out — and in reverse it
+     collapses to a line and then to nothing, the way a CRT switches off.
+     The opacity rides the same ramp rather than racing ahead of it, so
+     it grows in instead of appearing at 5% wide and then stretching. */
+  transform: scaleX(calc(0.05 + var(--h-bx, 0) * 0.95))
+    scaleY(calc(0.028 + var(--h-by, 0) * 0.972));
+  opacity: var(--h-bx, 0);
 }
-.reveal.is-in .holo-base {
-  opacity: 1;
-  transform: none;
-}
-/* the specular highlight, travelling slowly across the slab */
+
+/* the lit edge */
 .holo-base::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: linear-gradient(
+    118deg,
+    color-mix(in srgb, #fff 70%, transparent),
+    color-mix(in srgb, var(--fg) 14%, transparent) 26%,
+    color-mix(in srgb, var(--fg) 10%, transparent) 62%,
+    color-mix(in srgb, var(--accent) 60%, transparent)
+  );
+  -webkit-mask: linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  opacity: calc(0.5 + var(--h-by, 0) * 0.5);
+}
+
+/* the specular sweep, and the flash as the lamp strikes */
+.holo-base::after {
   content: "";
   position: absolute;
   inset: 0;
   border-radius: inherit;
   pointer-events: none;
   background: linear-gradient(
-    112deg,
-    transparent 30%,
-    color-mix(in srgb, #fff 20%, transparent) 44%,
-    transparent 56%
-  );
-  background-size: 260% 100%;
-  background-position: 130% 0;
+      112deg,
+      transparent 32%,
+      color-mix(in srgb, #fff 34%, transparent) 45%,
+      color-mix(in srgb, #fff 7%, transparent) 51%,
+      transparent 58%
+    ),
+    radial-gradient(
+      44% 130% at 50% 0%,
+      color-mix(
+        in srgb,
+        var(--fg) calc(8% + var(--h-flash, 0) * 40%),
+        transparent
+      ),
+      transparent
+    );
+  background-size: 260% 100%, 100% 100%;
+  background-position: 130% 0, 0 0;
+  background-repeat: no-repeat;
   animation: holo-sheen 9s var(--ease) infinite;
+  opacity: var(--h-by, 0);
 }
 @keyframes holo-sheen {
   0% {
-    background-position: 130% 0;
+    background-position: 130% 0, 0 0;
   }
   55%,
   100% {
-    background-position: -40% 0;
+    background-position: -40% 0, 0 0;
   }
 }
-/* light spilling off the lens */
-.holo-base::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  top: -3px;
-  width: 130px;
-  height: 28px;
-  transform: translateX(-50%);
-  pointer-events: none;
-  background: radial-gradient(
-    50% 100% at 50% 100%,
-    color-mix(in srgb, var(--fg) 26%, transparent),
-    transparent
-  );
-  filter: blur(7px);
-}
-.holo-lens {
+
+/* ── the rail ──────────────────────────────────────────────────
+   Thirty-four LEDs, flipping on a hash. GlyphRail.tsx writes only
+   the lamp opacities; nothing else about them moves.
+
+   Two layers per cell. The bar underneath is pure white and always
+   lit — that is the rail at rest, and it should read as a row of
+   white bars before anything happens. The lamp over it is the
+   accent, and it is the only thing that changes.
+
+   The white is the one place on the site that does not read the
+   palette. #fff is deliberate: an LED is not warm and it is not
+   translucent, and the moment these took the page's off-white
+   (#f2efea) they stopped reading as hardware and started reading
+   as a graphic. Solid fill, no gradient, no blur — the slab is the
+   glass, the cells are not. The dimming is in the colour rather
+   than in `opacity`, so the lamp can sit at full strength on top
+   of a faint bar instead of inheriting its transparency.       */
+
+.holo-rail {
+  /* above .holo-base::after — the sheen is a positioned pseudo-element and
+     would otherwise paint straight over the cells and grey them out */
   position: relative;
-  width: 58px;
-  height: 58px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(
-    circle at 50% 34%,
-    color-mix(in srgb, var(--fg) 13%, transparent),
-    transparent 70%
-  );
-  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 24%, transparent),
-    inset 0 -2px 6px rgba(0, 0, 0, 0.6);
-}
-.holo-lens canvas {
-  display: block;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   width: 100%;
   height: 100%;
-  opacity: 0.92;
+  padding: 0 26px;
+  opacity: var(--h-by, 0);
+}
+.holo-cell {
+  position: relative;
+  flex: 1;
+  height: 28px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.66);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.24);
+}
+.holo-lamp {
+  position: absolute;
+  inset: -1px;
+  display: block;
+  border-radius: 3px;
+  background: var(--accent);
+  box-shadow: 0 0 11px var(--accent),
+    0 0 28px color-mix(in srgb, var(--accent) 55%, transparent);
+  opacity: 0;
+}
+@media (max-width: 560px) {
+  .holo-rail {
+    gap: 3px;
+    padding: 0 18px;
+  }
+  .holo-cell {
+    height: 22px;
+  }
 }
 .holo-label {
   display: block;
@@ -1256,6 +1399,13 @@ button:active {
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: var(--fg-3);
+  opacity: calc(var(--h-call, 0) * 0.9);
+}
+
+/* the field is part of the projection, so it flickers with it */
+.field {
+  opacity: var(--field-flick, 1);
+  transform: translateX(var(--field-jit, 0px));
 }
 
 /* ── reduced motion ────────────────────────────────────────── */
@@ -1277,11 +1427,20 @@ button:active {
     opacity: 1;
     transform: none;
   }
-  .holo-base::before,
-  .reveal.is-in .holo-field {
+  .holo-base::after,
+  .holo-figure::after {
     animation: none;
   }
-  .holo-grid .callout {
+  .holo-grid .callout,
+  .holo-copy,
+  .holo-base::before,
+  .holo-base::after,
+  .holo-rail,
+  .holo-label {
+    opacity: 1;
+    transform: none;
+  }
+  .field {
     opacity: 1;
     transform: none;
   }
@@ -2010,4 +2169,496 @@ html[data-rec-open="true"] .bar {
   transform: translate(-50%, -50%);
   width: min(62vh, 82%);
   aspect-ratio: 5 / 2;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE BAND — the interests section, as a tuner
+
+   Scroll is the dial. Band.tsx writes three numbers on the pin:
+   --tune (0..1 across the scale), --lock (1 on station, 0 in
+   the static between two) and --out (the run-out past the last
+   station, where the door is). Everything below is a window on
+   one of those three, which is why the whole section animates
+   from one scroll read.
+   ═══════════════════════════════════════════════════════════ */
+
+.bd-scene {
+  position: relative;
+  padding: 0;
+}
+.bd-pin {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: clamp(0.8rem, 2.4vh, 1.6rem);
+  padding: clamp(4.4rem, 9vh, 6rem) 0 clamp(1.2rem, 4vh, 2.2rem);
+}
+.bd-stage {
+  position: relative;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+}
+
+/* the dial the field paints behind the section, at section scale */
+.fslot--band {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(58vh, 68%);
+  aspect-ratio: 1 / 1;
+}
+@media (max-width: 760px) {
+  .fslot--band {
+    width: 88%;
+  }
+}
+
+/* ── the set ────────────────────────────────────────────── */
+
+.bd-set {
+  position: relative;
+  z-index: 1;
+  width: min(620px, 92%);
+  display: grid;
+  gap: clamp(0.5rem, 1.4vh, 0.9rem);
+  justify-items: center;
+  text-align: center;
+  /* the whole set slides away as the band runs out, so the door is
+     alone on screen rather than competing with a station */
+  transform: translateY(calc(var(--out, 0) * -3vh));
+  opacity: calc(1 - var(--out, 0));
+  pointer-events: auto;
+}
+
+.bd-freq {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: clamp(1.6rem, 4.4vw, 2.4rem);
+  letter-spacing: 0.04em;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.bd-freq i {
+  font-style: normal;
+  font-size: 0.34em;
+  letter-spacing: 0.24em;
+  color: var(--fg-3);
+  vertical-align: 0.5em;
+  margin-left: 0.3em;
+}
+.bd-name {
+  margin: 0;
+  font-size: clamp(2rem, 6vw, 3.4rem);
+  font-weight: 600;
+  letter-spacing: -0.03em;
+  line-height: 1.02;
+  /* off station the name goes soft and dims, so landing reads as landing */
+  opacity: calc(0.28 + var(--lock, 1) * 0.72);
+  filter: blur(calc((1 - var(--lock, 1)) * 3px));
+}
+.bd-name .te {
+  font-size: 0.42em;
+  color: var(--fg-3);
+  letter-spacing: 0;
+  margin-left: 0.5em;
+}
+
+/* the caption and the static occupy the same line — one fades out as the
+   other fades in, so nothing below them moves while you tune */
+.bd-sub {
+  position: relative;
+  margin: 0;
+  min-height: 1.6em;
+  width: 100%;
+  color: var(--fg-2);
+  font-size: 0.95rem;
+}
+.bd-sub > span {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+}
+.bd-copy {
+  opacity: var(--lock, 1);
+}
+.bd-static {
+  opacity: calc(1 - var(--lock, 1));
+  font-family: var(--font-mono), monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.34em;
+  color: var(--fg-3);
+}
+
+/* ── the scale ──────────────────────────────────────────── */
+
+.bd-scale {
+  position: relative;
+  width: 100%;
+  height: 46px;
+  margin-top: clamp(0.4rem, 1.6vh, 1rem);
+}
+.bd-ticks {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 10px;
+  height: 14px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--rule) 0 1px,
+    transparent 1px 13px
+  );
+}
+.bd-ticks--big {
+  height: 24px;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--fg-3) 0 1px,
+    transparent 1px 65px
+  );
+}
+.bd-hand {
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  left: calc(var(--tune, 0) * 100%);
+  width: 2px;
+  margin-left: -1px;
+  background: var(--accent);
+  box-shadow: 0 0 12px var(--accent);
+}
+.bd-hand::before {
+  content: "";
+  position: absolute;
+  top: -3px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+
+/* ── the presets ────────────────────────────────────────── */
+
+.bd-stops {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-top: clamp(0.4rem, 1.6vh, 1rem);
+}
+.bd-stop {
+  display: grid;
+  gap: 0.1rem;
+  justify-items: center;
+  padding: 0.4rem 0.7rem;
+  background: transparent;
+  border: 1px solid var(--rule-2);
+  border-radius: 2px;
+  color: var(--fg-3);
+  cursor: pointer;
+  transition: border-color var(--quick), color var(--quick);
+}
+.bd-stop:hover {
+  border-color: var(--rule);
+  color: var(--fg-2);
+}
+.bd-stop[data-on="true"] {
+  border-color: var(--accent);
+  color: var(--fg);
+}
+.bd-stop[data-on="true"] .lab {
+  color: var(--accent);
+}
+.bd-stop-name {
+  font-size: 0.74rem;
+  letter-spacing: -0.01em;
+}
+
+/* ── the run-out, and the door ──────────────────────────── */
+
+.bd-out {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 1rem;
+  text-align: center;
+  opacity: var(--out, 0);
+  transform: translateY(calc((1 - var(--out, 0)) * 3vh));
+  pointer-events: none;
+}
+.bd-out .lab {
+  color: var(--fg-3);
+}
+/* unreachable until the band has actually run out — an invisible link
+   you can still tab to is a trap */
+.bd-out[data-open="true"] .bd-door {
+  pointer-events: auto;
+}
+.bd-out[data-open="false"] .bd-door {
+  visibility: hidden;
+}
+.bd-door {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.6rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--fg);
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  transition: border-color var(--quick), background var(--quick);
+}
+.bd-door::after {
+  content: "→";
+  color: var(--accent);
+}
+.bd-door:hover {
+  border-color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+}
+
+.bd-bar {
+  height: 1px;
+  background: var(--rule-2);
+}
+.bd-bar span {
+  display: block;
+  height: 1px;
+  width: calc(var(--tune, 0) * 100%);
+  background: var(--accent);
+}
+
+/* reduced motion, or too short to pin: one screen, everything listed */
+@media (prefers-reduced-motion: reduce) {
+  .bd-scene {
+    height: auto !important;
+    padding: clamp(5rem, 11vw, 9rem) 0;
+  }
+  .bd-pin {
+    position: static;
+    height: auto;
+    display: block;
+    padding: 0;
+  }
+  .bd-scale,
+  .bd-bar {
+    display: none;
+  }
+  .bd-set {
+    transform: none;
+    opacity: 1;
+  }
+  .bd-out {
+    position: static;
+    opacity: 1;
+    transform: none;
+    margin-top: 2rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE DOOR — the crossing to /interests
+
+   One layer of the site's own halftone with a hole in the
+   middle. Growing the hole eats the page outward into dots;
+   shrinking it resolves dots back into a page. Door.tsx runs
+   --m in both directions, one animation for both journeys.
+   ═══════════════════════════════════════════════════════════ */
+
+.door-veil {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: all;
+  background: var(--bg);
+  background-image: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--fg) 62%, transparent) 1.5px,
+    transparent 2.1px
+  );
+  background-size: 9px 9px;
+  -webkit-mask-image: radial-gradient(
+    circle at 50% 50%,
+    #000 0,
+    #000 var(--m, 0%),
+    transparent calc(var(--m, 0%) + 9%)
+  );
+  mask-image: radial-gradient(
+    circle at 50% 50%,
+    #000 0,
+    #000 var(--m, 0%),
+    transparent calc(var(--m, 0%) + 9%)
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════
+   /interests — the far side
+
+   Flat, quiet, and readable. The home page is the instrument;
+   this is the manual, so nothing here scrubs or pins.
+   ═══════════════════════════════════════════════════════════ */
+
+.in-page {
+  position: relative;
+  z-index: 1;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(6rem, 14vh, 9rem) var(--gut) clamp(4rem, 10vh, 7rem);
+}
+.in-head {
+  display: grid;
+  gap: 0.6rem;
+  padding-bottom: clamp(2rem, 5vh, 3.4rem);
+  border-bottom: 1px solid var(--rule);
+}
+.in-head h1 {
+  margin: 0;
+  font-size: clamp(2.4rem, 7vw, 4.2rem);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+}
+.in-head h1 .te {
+  font-size: 0.36em;
+  color: var(--fg-3);
+  letter-spacing: 0;
+  margin-left: 0.5em;
+}
+.in-lede {
+  margin: 0.4rem 0 0;
+  max-width: 48ch;
+  color: var(--fg-2);
+  font-size: 1.02rem;
+}
+
+.in-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+.in-item {
+  display: grid;
+  gap: 1.2rem;
+  padding: clamp(1.8rem, 4.5vh, 3rem) 0;
+  border-bottom: 1px solid var(--rule-2);
+}
+@media (min-width: 900px) {
+  .in-item {
+    grid-template-columns: 92px minmax(0, 1fr) 220px;
+    gap: clamp(1.6rem, 4vw, 3.2rem);
+    align-items: start;
+  }
+}
+
+.in-mark {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  font-family: var(--font-mono), monospace;
+}
+@media (min-width: 900px) {
+  .in-mark {
+    display: grid;
+    gap: 0.1rem;
+    justify-items: start;
+    align-content: start;
+    padding-top: 0.4rem;
+  }
+}
+.in-freq {
+  font-size: 1.15rem;
+  color: var(--accent);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.in-no {
+  font-size: 0.6rem;
+  letter-spacing: 0.24em;
+  color: var(--rule);
+}
+
+.in-body h2 {
+  margin: 0 0 0.25rem;
+  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.in-body h2 .te {
+  font-size: 0.56em;
+  color: var(--fg-3);
+  letter-spacing: 0;
+  margin-left: 0.4em;
+}
+.in-sub {
+  margin: 0 0 0.8rem;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+.in-long {
+  margin: 0;
+  max-width: 58ch;
+  color: var(--fg-2);
+}
+
+.in-facts {
+  margin: 0;
+  display: grid;
+  gap: 0.3rem;
+  align-content: start;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+}
+.in-facts > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  border-bottom: 1px dotted var(--rule-2);
+  padding-bottom: 0.25rem;
+}
+.in-facts dt {
+  color: var(--fg-3);
+}
+.in-facts dd {
+  margin: 0;
+  color: var(--fg-2);
+  text-align: right;
+}
+.in-facts dd[data-blank="true"] {
+  color: var(--rule);
+}
+
+.in-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 1rem;
+  padding-top: clamp(2rem, 5vh, 3rem);
+}
+.in-back {
+  color: var(--fg);
+  text-decoration: none;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 2px;
+}
+.in-back:hover {
+  border-color: var(--accent);
+  color: var(--accent);
 }

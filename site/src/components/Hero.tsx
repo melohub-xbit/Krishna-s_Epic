@@ -5,11 +5,9 @@ import { useEffect, useRef, useState } from "react";
 /**
  * THE FRONT DOOR — three layers, arriving in order.
  *
- *   1. A halftone of the photograph, filling the right of the frame,
- *      monochrome, with a torch of real colour following the cursor. The
- *      pixels come from the one fixed field canvas (see Halftone.tsx);
- *      all the hero holds is the slot marking where it should sit, so
- *      the same picture can travel out of here and into About.
+ *   1. The field's lattice, and the torch that colours it under the
+ *      cursor. No photograph — the face belongs to About, and having it
+ *      here as well meant meeting the same person twice.
  *   2. A boot log. The page comes up like a device: eight true lines type
  *      out, each one checks off, and the last says online. Under a second
  *      and a half, skippable with any input, and skipped outright on the
@@ -110,9 +108,6 @@ export default function Hero({
   return (
     <section id="entry" className="hero" data-done={done ? "true" : undefined}>
       <div className="hero-bg" aria-hidden="true">
-        {/* the picture is painted here by the field canvas, and this is
-            the rect it is painted into — see Halftone.tsx */}
-        <div id="hero-slot" className="hero-slot" />
         <span className="hero-veil" />
       </div>
 

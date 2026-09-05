@@ -1,5 +1,4 @@
 import Hero from "@/components/Hero";
-import DotMark from "@/components/DotMark";
 import Strip from "@/components/Strip";
 import GlyphMatrix from "@/components/GlyphMatrix";
 import Contact from "@/components/Contact";
@@ -9,6 +8,9 @@ import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
 import Ambient from "@/components/Ambient";
 import Halftone from "@/components/Halftone";
+import HoloDriver from "@/components/HoloDriver";
+import GlyphRail from "@/components/GlyphRail";
+import Band from "@/components/Band";
 import {
   PROJECTS,
   PROFILE,
@@ -54,15 +56,18 @@ export default function Home() {
             is a made object — glass, depth, a travelling
             highlight. What it throws is light and pixels:
             monochrome, dot matrix, scan lines, mono caps. */}
-        <Reveal as="section" id="about">
-          <div className="shead">
-            <h2>
-              About <span className="te">పరిచయం</span>
-            </h2>
-            <span className="lab">Projected from the mark</span>
-          </div>
+        <section id="about" className="about-scene">
+          <HoloDriver />
 
-          <div className="holo">
+          <div className="about-pin">
+            <div className="shead">
+              <h2>
+                About <span className="te">పరిచయం</span>
+              </h2>
+              <span className="lab">Projected from the mark</span>
+            </div>
+
+            <div className="holo">
             <div className="holo-field">
               <span className="holo-beam" aria-hidden="true" />
 
@@ -152,15 +157,12 @@ export default function Home() {
             </div>
 
             <div className="holo-base">
-              <span className="holo-lens">
-                <DotMark mark="ring" step={2.1} dotRadius={0.8} />
-              </span>
+              <GlyphRail />
             </div>
-            <span className="holo-label">
-              Proj · Krishna Sai · Rev 2026
-            </span>
+            <span className="holo-label">Proj · Krishna Sai · Rev 2026</span>
+            </div>
           </div>
-        </Reveal>
+        </section>
 
         {/* ── 03 · WORK ──────────────────────────────────
             A rail, not a tunnel. It scrolls on its own axis,
@@ -188,7 +190,13 @@ export default function Home() {
             on the barcode, hold, and leave cleanly. */}
         <GlyphMatrix />
 
-        {/* ── 05 · CONTACT ─────────────────────────────
+        {/* ── 05 · INTERESTS ────────────────────────────
+            A tuner. Scroll is the dial; the same needle turns
+            in the background field. Past the last station the
+            band runs out into the door to /interests. */}
+        <Band />
+
+        {/* ── 06 · CONTACT ─────────────────────────────
             A full screen, so the field's last station has
             somewhere to land. */}
         <Contact />

@@ -3,7 +3,12 @@
 import { useEffect, useRef } from "react";
 import { addJob } from "@/lib/dots";
 import { readVar } from "@/lib/palette";
-import { onFieldMark, onFieldGlyph } from "@/lib/field";
+import {
+  onFieldMark,
+  onFieldGlyph,
+  onFieldReveal,
+  onFieldTune,
+} from "@/lib/field";
 import { MARKS, type MarkId } from "@/data/marks";
 import { glyphFor } from "@/data/glyphs";
 
@@ -30,11 +35,10 @@ import { glyphFor } from "@/data/glyphs";
  * is a fraction of that rectangle's width, a picture landing in a small
  * slot gets *finer* — it resolves as it shrinks.
  *
- *   hero-slot     the photograph
- *   about-slot    the photograph, arriving in the projector's beam
+ *   about-slot    the photograph, in the projector's beam
  *   work-slot     the mark of whichever poster is live on the rail
- *   skills-slot   the barcode, at section scale
- *   contact-slot  the name, in Telugu
+ *   skills-slot   the glyph the matrix is showing
+ *   contact-slot  the seal
  *
  * Cost per frame: one interpolation pass and two batched fills — one path,
  * one fill, however many dots — plus the few hundred inside the torch, and
@@ -45,11 +49,14 @@ const COLS = 104;
 const ROWS = 138;
 const N = COLS * ROWS;
 
+/** stations on the interests band — the dial needle divides by these */
+const DIAL_STOPS = 6;
+
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 const smooth = (t: number) => t * t * (3 - 2 * t);
 
-type Kind = "image" | "mark" | "glyph" | "seal";
+type Kind = "image" | "mark" | "glyph" | "dial" | "seal";
 
 type Station = {
   slot: string;
@@ -60,6 +67,9 @@ type Station = {
   tint: [number, number, number] | null;
   /** how loud this picture is allowed to be behind the section's words */
   alpha: number;
+  /** 0..1 live multiplier on alpha - the projector uses it to hold the
+      About photograph off entirely until it has unfolded out of the lens */
+  gate: number;
   aspect: number;
   r: Float32Array;
   c: Uint8ClampedArray;
@@ -77,6 +87,7 @@ function blank(): Station {
     key: "",
     tint: null,
     alpha: 1,
+    gate: 1,
     aspect: 0,
     r: new Float32Array(N),
     c: new Uint8ClampedArray(N * 3),
@@ -126,12 +137,12 @@ export default function Halftone({
     let imgReady = false;
 
     const stations: Station[] = [
-      /* the hero has a veil over it, so the photograph can be full strength.
-         Everywhere else the picture is behind live text and has to give way. */
-      { ...blank(), slot: "hero-slot", kind: "image", key: photo, tint: null, alpha: 1 },
+      /* The photograph belongs to About and nowhere else. Everywhere after
+         it the picture sits behind live text and has to give way. */
       { ...blank(), slot: "about-slot", kind: "image", key: photo, tint: null, alpha: 1 },
       { ...blank(), slot: "work-slot", kind: "mark", key: "ring", tint: accent, alpha: 0.3 },
       { ...blank(), slot: "skills-slot", kind: "glyph", key: "Languages", tint: accent, alpha: 0.28 },
+      { ...blank(), slot: "band-slot", kind: "dial", key: "0", tint: accent, alpha: 0.3 },
       { ...blank(), slot: "contact-slot", kind: "seal", key: "seal", tint: accent, alpha: 0.34 },
     ];
 
@@ -210,6 +221,8 @@ export default function Halftone({
           paint(g, BW, BH);
         } else if (st.kind === "glyph") {
           glyphFor(st.key)(g, BW, BH);
+        } else if (st.kind === "dial") {
+          drawDial(g, BW, BH, Number(st.key) || 0);
         } else {
           drawSeal(g, BW, BH);
         }
@@ -241,6 +254,50 @@ export default function Halftone({
       st.aspect = aspect;
       st.ready = true;
       return true;
+    }
+
+    /** the tuner, at the station the band is currently on */
+    function drawDial(
+      g: CanvasRenderingContext2D,
+      W: number,
+      H: number,
+      idx: number
+    ) {
+      const cx = W / 2;
+      const cy = H / 2;
+      const R = Math.min(W, H) * 0.42;
+      const A0 = Math.PI * 0.78;
+      const A1 = Math.PI * 2.22;
+      g.lineWidth = Math.max(3, W * 0.018);
+
+      /* the scale */
+      g.beginPath();
+      g.arc(cx, cy, R, A0, A1);
+      g.stroke();
+
+      /* one tick per station, the tuned one twice as long */
+      const n = DIAL_STOPS;
+      for (let i = 0; i < n; i++) {
+        const a = A0 + ((A1 - A0) * i) / (n - 1);
+        const inner = i === idx ? R * 0.72 : R * 0.86;
+        g.beginPath();
+        g.moveTo(cx + Math.cos(a) * inner, cy + Math.sin(a) * inner);
+        g.lineTo(cx + Math.cos(a) * R * 0.98, cy + Math.sin(a) * R * 0.98);
+        g.stroke();
+      }
+
+      /* the needle */
+      const a = A0 + ((A1 - A0) * idx) / (n - 1);
+      g.lineWidth = Math.max(4, W * 0.026);
+      g.beginPath();
+      g.moveTo(cx, cy);
+      g.lineTo(cx + Math.cos(a) * R * 0.8, cy + Math.sin(a) * R * 0.8);
+      g.stroke();
+
+      /* the spindle */
+      g.beginPath();
+      g.arc(cx, cy, R * 0.11, 0, Math.PI * 2);
+      g.fill();
     }
 
     /** the seal the last section is named after */
@@ -422,9 +479,15 @@ export default function Halftone({
              dot overlap its neighbours into a solid white cloud. */
           const rMax = Math.min(cw, chh) * 0.62;
 
+          /* How much of this picture exists at all. The projector drives
+             this for About, so the photograph is genuinely absent until
+             the beam has unfolded it — the slot is still there, still
+             being measured, but nothing is painted into it. */
+          const gate = lerp(a.st.gate, b.st.gate, f);
+
           /* 3 · the picture, one path */
           ctx!.fillStyle = dot;
-          ctx!.globalAlpha = lerp(a.st.alpha, b.st.alpha, f);
+          ctx!.globalAlpha = lerp(a.st.alpha, b.st.alpha, f) * gate;
           ctx!.beginPath();
           for (let j = 0; j < ROWS; j++) {
             const y = box.y + (j + 0.5) * chh;
@@ -447,6 +510,7 @@ export default function Halftone({
           /* 4 · the torch over the picture — its real colour.
              Skipped outright unless the cursor is actually near the box. */
           const near =
+            gate > 0.01 &&
             mouse.on &&
             mouse.x > box.x - reach &&
             mouse.x < box.x + box.w + reach &&
@@ -474,9 +538,15 @@ export default function Halftone({
                 const cr = lerp(a.st.c[i * 3], b.st.c[i * 3], f) | 0;
                 const cg = lerp(a.st.c[i * 3 + 1], b.st.c[i * 3 + 1], f) | 0;
                 const cb = lerp(a.st.c[i * 3 + 2], b.st.c[i * 3 + 2], f) | 0;
-                ctx!.fillStyle = `rgba(${cr},${cg},${cb},${(ff * 0.96).toFixed(
-                  3
-                )})`;
+                /* the torch writes its own alpha rather than going
+                   through globalAlpha, so the gate has to be folded in
+                   here as well — miss it and a collapsed slot still
+                   shows a full-colour thumbnail wherever the cursor is */
+                ctx!.fillStyle = `rgba(${cr},${cg},${cb},${(
+                  ff *
+                  0.96 *
+                  gate
+                ).toFixed(3)})`;
                 ctx!.beginPath();
                 ctx!.arc(x, y, rMax * rr * (1 + ff * 0.22), 0, Math.PI * 2);
                 ctx!.fill();
@@ -580,8 +650,18 @@ export default function Halftone({
       st.mixFrom = performance.now();
       dirty = true;
     };
-    const offMark = onFieldMark(swap(2));
-    const offGlyph = onFieldGlyph(swap(3));
+    const offMark = onFieldMark(swap(1));
+    const offGlyph = onFieldGlyph(swap(2));
+
+    /* the projector, telling us how much of the photograph it is throwing */
+    const offTune = onFieldTune((v) => swap(3)(String(v)));
+
+    const offReveal = onFieldReveal((v) => {
+      const g = v < 0.02 ? 0 : v;
+      if (stations[0].gate === g) return;
+      stations[0].gate = g;
+      dirty = true;
+    });
 
     const stop = addJob((now) => {
       const key =
@@ -609,6 +689,8 @@ export default function Halftone({
       mo.disconnect();
       offMark();
       offGlyph();
+      offTune();
+      offReveal();
       stop();
     };
   }, [photo]);

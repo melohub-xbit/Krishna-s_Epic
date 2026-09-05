@@ -45,3 +45,26 @@ export const onFieldMark = mark.on;
 const glyph = channel<string>("Languages");
 export const setFieldGlyph = glyph.set;
 export const onFieldGlyph = glyph.on;
+
+/**
+ * How much of the About photograph the projector is currently throwing.
+ *
+ * The field paints the photo into `#about-slot`'s rect whether or not the
+ * projector has switched on, so a slot CSS-scaled to 0.04 still rendered a
+ * thumb-sized halftone sitting on the base. The projector publishes its
+ * figure stage here and the field multiplies it into that station's alpha,
+ * so the picture genuinely is not there until it unfolds.
+ */
+const reveal = channel<number>(1);
+export const setFieldReveal = reveal.set;
+export const onFieldReveal = reveal.on;
+
+/**
+ * Which station the interests band is tuned to.
+ *
+ * The tuner publishes an index; the field turns a needle to match, so the
+ * background dial and the dial on the page are the same instrument.
+ */
+const tune = channel<number>(0);
+export const setFieldTune = tune.set;
+export const onFieldTune = tune.on;

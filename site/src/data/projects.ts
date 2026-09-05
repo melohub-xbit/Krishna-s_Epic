@@ -675,11 +675,12 @@ export const SKILL_USES: Record<string, number> = Object.fromEntries(
 );
 
 
-/** The five stops the nav dots track. */
+/** The six stops the nav dots track. */
 export const SECTIONS = [
   { id: "entry", en: "Entry", te: "ద్వారం" },
   { id: "about", en: "About", te: "పరిచయం" },
   { id: "work", en: "Work", te: "పనులు" },
   { id: "skills", en: "Skills", te: "అస్త్రాలు" },
+  { id: "interests", en: "Off the clock", te: "అభిరుచులు" },
   { id: "contact", en: "Contact", te: "ముద్ర" },
 ] as const;
