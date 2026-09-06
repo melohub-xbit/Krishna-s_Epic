@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
-import { setFieldReveal } from "@/lib/field";
 
 /**
  * THE PROJECTOR — the About section, switching itself on.
@@ -28,10 +27,11 @@ import { setFieldReveal } from "@/lib/field";
  * one-screen section instead, both ramps finished before it came into
  * view and it simply sat there fully lit.
  *
- * The picture itself is painted by the field canvas, which reads the
- * `#about-slot` rect every frame. So the slot is what gets transformed,
- * and the halftone follows it exactly — down into the lens and back out
- * again — without the field knowing anything about this section.
+ * The picture is a plain image inside `#about-slot`, so transforming the
+ * slot is what unfolds it out of the lens and reels it back in. It used
+ * to be a halftone painted by a full-screen canvas that read this slot's
+ * rect every frame; the photograph is in colour now and the canvas is
+ * gone, which cost this file nothing — it only ever moved the box.
  *
  * The flicker is deterministic, not random: three sines beaten together
  * so it wanders instead of buzzing, and mostly sits at 1 with occasional
@@ -50,7 +50,6 @@ export default function HoloDriver() {
     const sec = document.getElementById("about");
     if (!sec) return;
 
-    const root = document.documentElement;
     const flat = prefersReducedMotion();
 
     if (flat) {
@@ -61,7 +60,6 @@ export default function HoloDriver() {
       sec.style.setProperty("--h-flick", "1");
       sec.style.setProperty("--h-jit", "0px");
       sec.style.setProperty("--to-base", "0px");
-      setFieldReveal(1);
       return;
     }
 
@@ -105,10 +103,6 @@ export default function HoloDriver() {
           }
           sec.style.setProperty("--h-flick", "1");
           sec.style.setProperty("--h-jit", "0px");
-          /* the field paints the photograph wherever the slot is, so it
-             has to be told the projector is off — otherwise a thumbnail
-             of it sits on the base at 4% scale */
-          setFieldReveal(0);
         }
         return true;
       }
@@ -168,12 +162,7 @@ export default function HoloDriver() {
       sec.style.setProperty("--h-flash", flash.toFixed(3));
       sec.style.setProperty("--h-flick", String(flick));
       sec.style.setProperty("--h-jit", `${jit}px`);
-      /* and the halftone only exists as far as the beam has unfolded it */
-      setFieldReveal(fig * flick);
 
-      /* the field is the projection too, so it flickers with it */
-      root.style.setProperty("--field-flick", String(flick));
-      root.style.setProperty("--field-jit", `${jit}px`);
       return true;
     });
 
@@ -187,9 +176,6 @@ export default function HoloDriver() {
       io.disconnect();
       window.removeEventListener("resize", onResize);
       window.removeEventListener("resize", onResize);
-      setFieldReveal(1);
-      root.style.removeProperty("--field-flick");
-      root.style.removeProperty("--field-jit");
       stop();
     };
   }, []);

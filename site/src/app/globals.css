@@ -296,21 +296,6 @@ section:first-of-type::before {
   isolation: isolate;
 }
 
-/* ── layer 1 · the halftone, full bleed ───────────────────── */
-
-/* The one fixed canvas. It paints the halftone portrait into About's slot
-   and nothing else — no lattice, no picture behind any other section.
-   Its opacity is the projector's flicker (see .holo-*), so there is no
-   intro animation here: an `animation: forwards` fill outranks a normal
-   declaration, and the fade this used to run silently pinned the opacity
-   at 1 and stopped --field-flick ever applying. */
-.field {
-  position: fixed;
-  inset: 0;
-  z-index: -1;
-  display: block;
-  pointer-events: none;
-}
 
 .hero-bg {
   position: absolute;
@@ -1069,15 +1054,18 @@ button:active {
   }
 }
 
-/* Where the projection lands. The picture is painted by the field, which
-   reads this box's rect every frame — so transforming the box is what
-   unfolds the halftone out of the lens and reels it back in, without the
-   field knowing this section exists. */
+/* Where the projection lands. Transforming this box is what unfolds the
+   picture out of the lens and reels it back in — it was a halftone
+   painted by a full-screen canvas that read this rect every frame, and
+   is now the photograph itself, in colour, inside the same box. The
+   projector never knew the difference: it only ever moved this. */
 .holo-figure {
   position: relative;
   width: min(310px, 76%);
   margin: 0 auto 1.6rem;
   aspect-ratio: 1400 / 1919;
+  /* deliberately NOT overflow:hidden — the corner ticks sit at inset:-1px
+     and the picture's glow spills past the frame, which is the point */
   border: 1px solid var(--rule-2);
   transform-origin: 50% 100%;
   transform: translate(
@@ -1086,6 +1074,19 @@ button:active {
     )
     scale(calc(0.04 + var(--h-fig, 0) * 0.96));
   opacity: calc(var(--h-fig, 0) * var(--h-flick, 1));
+}
+/* Thrown light, not a print. The photograph keeps its colour — it is
+   pushed a little cool and a little bright, because a projection carries
+   the lamp's cast, and lifted in contrast so it survives the scan lines
+   over the top of it. */
+.holo-figure img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: saturate(1.08) contrast(1.06) brightness(1.04)
+    drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 30%, transparent));
 }
 /* corner ticks rather than a full frame — it is a target, not a photo */
 .holo-figure::before {
@@ -1391,12 +1392,6 @@ button:active {
   opacity: calc(var(--h-call, 0) * 0.9);
 }
 
-/* the field is part of the projection, so it flickers with it */
-.field {
-  opacity: var(--field-flick, 1);
-  transform: translateX(var(--field-jit, 0px));
-}
-
 /* ── reduced motion ────────────────────────────────────────── */
 
 @media (prefers-reduced-motion: reduce) {
@@ -1426,10 +1421,6 @@ button:active {
   .holo-base::after,
   .holo-rail,
   .holo-label {
-    opacity: 1;
-    transform: none;
-  }
-  .field {
     opacity: 1;
     transform: none;
   }

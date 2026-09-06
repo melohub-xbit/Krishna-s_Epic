@@ -1,10 +1,10 @@
+import Image from "next/image";
 import Hero from "@/components/Hero";
 import Strip from "@/components/Strip";
 import GlyphMatrix from "@/components/GlyphMatrix";
 import ProgressDots from "@/components/ProgressDots";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
-import Halftone from "@/components/Halftone";
 import HoloDriver from "@/components/HoloDriver";
 import GlyphRail from "@/components/GlyphRail";
 import Band from "@/components/Band";
@@ -36,10 +36,6 @@ export default function Home() {
       <DoorReveal back />
       <DoorReturn />
 
-      {/* one fixed field for the whole page: a faint lattice, the torch
-          that colours it under the cursor, and the portrait travelling
-          from the hero's slot into the projection in About */}
-      <Halftone photo="/photo/krishna.webp" className="field" />
 
       <header className="bar">
         <span className="bar-id">VELIDANDA KRISHNA SAI</span>
@@ -109,11 +105,15 @@ export default function Home() {
                   {/* the projection lands here — the picture itself is
                       painted by the field canvas, which walks it up from
                       the hero as you scroll */}
-                  <figure
-                    id="about-slot"
-                    className="holo-figure"
-                    aria-label="Velidanda Krishna Sai"
-                  />
+                  <figure id="about-slot" className="holo-figure">
+                    <Image
+                      src="/photo/krishna.webp"
+                      alt="Velidanda Krishna Sai"
+                      fill
+                      sizes="(max-width: 999px) 76vw, 310px"
+                      priority
+                    />
+                  </figure>
 
                   <div className="holo-copy">
                     <p className="big">
