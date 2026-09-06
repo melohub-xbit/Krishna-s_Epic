@@ -41,7 +41,15 @@ export default function DotMark({
     };
 
     draw();
-    window.addEventListener("resize", draw);
+
+    /* A ResizeObserver rather than a window resize listener: it reports the
+       LAYOUT box, so it is unaffected by any transform on an ancestor, and
+       it fires the moment the element first has a real size. That second
+       part is the safety net — a mark drawn into a box that was not laid
+       out yet redraws itself as soon as it is, instead of staying blank. */
+    const ro = new ResizeObserver(draw);
+    ro.observe(cv);
+
     const mo = new MutationObserver(draw);
     mo.observe(document.documentElement, {
       attributes: true,
@@ -49,7 +57,7 @@ export default function DotMark({
     });
 
     return () => {
-      window.removeEventListener("resize", draw);
+      ro.disconnect();
       mo.disconnect();
     };
   }, [mark, step, dotRadius]);

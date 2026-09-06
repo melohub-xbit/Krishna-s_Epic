@@ -1,14 +1,20 @@
 /**
- * What the field is currently showing behind a section.
+ * How much of the About photograph the projector is currently throwing.
  *
- * Two sections change their own background while you are inside them: the
- * rail knows which poster is live, and the glyph matrix knows which group
- * is up. Rather than lift either into React state — which would re-render
- * twenty-two posters every time you nudge the rail — they talk to the
- * field through this. One value each, one set of listeners.
+ * One value, one set of listeners, no React. The projector writes it every
+ * frame from its own scroll timeline; the halftone canvas multiplies it
+ * into the picture's alpha, so the photograph genuinely is not there until
+ * the beam has unfolded it. CSS `opacity` on the slot cannot do this — the
+ * canvas paints wherever the slot's rect is, whatever the slot looks like,
+ * and a slot scaled to 4% used to render a thumb-sized halftone sitting on
+ * the projector base.
+ *
+ * This file used to carry four channels: the rail's live poster mark, the
+ * matrix's live glyph, and the interests dial, all feeding a full-page
+ * background that morphed between sections. That background is gone — the
+ * marks live on the posters and the matrix draws its own screen — so only
+ * this one is left.
  */
-
-import type { MarkId } from "@/data/marks";
 
 type Chan<T> = {
   get: () => T;
@@ -36,35 +42,6 @@ function channel<T>(initial: T): Chan<T> {
   };
 }
 
-/** the mark of the poster currently centred on the rail */
-const mark = channel<MarkId>("ring");
-export const setFieldMark = mark.set;
-export const onFieldMark = mark.on;
-
-/** the skills group currently up on the glyph matrix */
-const glyph = channel<string>("Languages");
-export const setFieldGlyph = glyph.set;
-export const onFieldGlyph = glyph.on;
-
-/**
- * How much of the About photograph the projector is currently throwing.
- *
- * The field paints the photo into `#about-slot`'s rect whether or not the
- * projector has switched on, so a slot CSS-scaled to 0.04 still rendered a
- * thumb-sized halftone sitting on the base. The projector publishes its
- * figure stage here and the field multiplies it into that station's alpha,
- * so the picture genuinely is not there until it unfolds.
- */
 const reveal = channel<number>(1);
 export const setFieldReveal = reveal.set;
 export const onFieldReveal = reveal.on;
-
-/**
- * Which station the interests band is tuned to.
- *
- * The tuner publishes an index; the field turns a needle to match, so the
- * background dial and the dial on the page are the same instrument.
- */
-const tune = channel<number>(0);
-export const setFieldTune = tune.set;
-export const onFieldTune = tune.on;

@@ -675,7 +675,9 @@ export const SKILL_USES: Record<string, number> = Object.fromEntries(
 );
 
 
-/** The six stops the nav dots track. */
+/** The six stops the nav dots track. Contact has no section of its own —
+ *  its dot points at a marker inside the interests scene, where the card
+ *  tunes in. */
 export const SECTIONS = [
   { id: "entry", en: "Entry", te: "ద్వారం" },
   { id: "about", en: "About", te: "పరిచయం" },

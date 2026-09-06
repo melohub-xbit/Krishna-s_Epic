@@ -1,25 +1,19 @@
-"use client";
-
 import { PROFILE } from "@/data/projects";
 
 /**
- * THE SEAL — the last section.
+ * THE SEAL — the last card.
  *
- * The name signs off at wall size, outlined — the same wall the front
- * door opens with, reduced to a single line. The seal the section is
- * named after is behind it, in the field, rather than sitting on the
- * page as a button.
+ * No section, no scroll of its own, no id. It is a card that the band
+ * scene fades up in place once the dial has run off the end and the dead
+ * air has come and gone. Contact is not a place below the interests; it
+ * is the last thing the same instrument lands on.
  *
- * It is deliberately a full screen tall. The field needs somewhere to
- * land: its last station is centred in here, and a short section meant
- * the sign-off never finished arriving before the page ran out.
+ * Band.tsx owns the arrival and everything about when this is visible.
+ * This file is only what it says.
  */
 export default function Contact() {
   return (
-    <section id="contact" className="contact" aria-label="Contact">
-      {/* the field signs off here, with the name in Telugu */}
-      <span id="contact-slot" className="fslot fslot--contact" aria-hidden="true" />
-
+    <div className="ct-card">
       <div className="shead">
         <h2>
           Contact <span className="te">ముద్ర</span>
@@ -72,6 +66,6 @@ export default function Contact() {
         If you have read this far, the fastest way to start is to tell me which
         poster you opened.
       </p>
-    </section>
+    </div>
   );
 }

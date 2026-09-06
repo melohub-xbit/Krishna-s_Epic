@@ -1,16 +1,14 @@
 import Hero from "@/components/Hero";
 import Strip from "@/components/Strip";
 import GlyphMatrix from "@/components/GlyphMatrix";
-import Contact from "@/components/Contact";
 import ProgressDots from "@/components/ProgressDots";
-import ThemeToggle from "@/components/ThemeToggle";
 import Reveal from "@/components/Reveal";
 import Marquee from "@/components/Marquee";
-import Ambient from "@/components/Ambient";
 import Halftone from "@/components/Halftone";
 import HoloDriver from "@/components/HoloDriver";
 import GlyphRail from "@/components/GlyphRail";
 import Band from "@/components/Band";
+import { DoorReveal, DoorReturn } from "@/components/Door";
 import {
   PROJECTS,
   PROFILE,
@@ -33,7 +31,10 @@ const CAPABILITIES = [
 export default function Home() {
   return (
     <>
-      <Ambient />
+      {/* if they turned the sheet back over: finish the turn, and put
+          them down where they left rather than at the top */}
+      <DoorReveal back />
+      <DoorReturn />
 
       {/* one fixed field for the whole page: a faint lattice, the torch
           that colours it under the cursor, and the portrait travelling
@@ -42,7 +43,6 @@ export default function Home() {
 
       <header className="bar">
         <span className="bar-id">VELIDANDA KRISHNA SAI</span>
-        <ThemeToggle />
       </header>
 
       <ProgressDots />
@@ -178,9 +178,6 @@ export default function Home() {
 
           <Marquee items={CAPABILITIES} />
 
-          {/* the field paints the live poster's mark here */}
-          <span id="work-slot" className="fslot fslot--work" aria-hidden="true" />
-
           <Strip projects={PROJECTS} />
         </Reveal>
 
@@ -190,16 +187,12 @@ export default function Home() {
             on the barcode, hold, and leave cleanly. */}
         <GlyphMatrix />
 
-        {/* ── 05 · INTERESTS ────────────────────────────
-            A tuner. Scroll is the dial; the same needle turns
-            in the background field. Past the last station the
-            band runs out into the door to /interests. */}
+        {/* ── 05 · OFF THE CLOCK, AND THE SIGN-OFF ──────
+            One tuner, and the end of the site. Six stations,
+            then the door to /interests, then dead air, then
+            Contact tunes in — all inside the same pin, so the
+            page never leaves this scene until it is over. */}
         <Band />
-
-        {/* ── 06 · CONTACT ─────────────────────────────
-            A full screen, so the field's last station has
-            somewhere to land. */}
-        <Contact />
 
         <footer>
           <span className="lab">© 2026 {PROFILE.name}</span>

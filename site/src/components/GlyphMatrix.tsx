@@ -3,9 +3,16 @@
 import { useEffect, useRef, useState } from "react";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
 import { readVar } from "@/lib/palette";
-import { setFieldGlyph } from "@/lib/field";
 import { glyphFor } from "@/data/glyphs";
 import { SKILLS, SKILL_USES } from "@/data/projects";
+import BandStrip, { type StripMark } from "./BandStrip";
+
+/* The scroll indicator is the same instrument the band uses, on a lower
+   band: five stations across the shortwave broadcast range, one per
+   group. The numbers are read off a linear scale rather than typed in,
+   so adding a sixth group moves them all correctly. */
+const SW0 = 5.9;
+const SW1 = 15.6;
 
 /**
  * THE GLYPH MATRIX — the skills section, as one circular dot screen.
@@ -40,8 +47,8 @@ export default function GlyphMatrix() {
   const N = SKILLS.length;
 
   const scene = useRef<HTMLElement>(null);
+  const pin = useRef<HTMLDivElement>(null);
   const cv = useRef<HTMLCanvasElement>(null);
-  const bar = useRef<HTMLSpanElement>(null);
   const ticks = useRef<(HTMLSpanElement | null)[]>([]);
 
   const [live, setLive] = useState(0);
@@ -102,10 +109,13 @@ export default function GlyphMatrix() {
     const flat = prefersReducedMotion();
 
     const draw = () => {
-      const box = canvas.getBoundingClientRect();
+      /* the LAYOUT box, not the painted one: getBoundingClientRect bakes
+         in any ancestor transform, and this screen only redraws when the
+         scroll changes — so measuring it mid page-turn would leave the
+         matrix wrong until the next scroll */
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const w = Math.max(1, Math.round(box.width));
-      const h = Math.max(1, Math.round(box.height));
+      const w = Math.max(1, Math.round(canvas.offsetWidth));
+      const h = Math.max(1, Math.round(canvas.offsetHeight));
       if (canvas.width !== Math.round(w * dpr)) {
         canvas.width = Math.round(w * dpr);
         canvas.height = Math.round(h * dpr);
@@ -159,13 +169,12 @@ export default function GlyphMatrix() {
       }
       ctx.fill();
 
-      if (bar.current) bar.current.style.width = `${(p * 100).toFixed(1)}%`;
+      /* the strip reads this off the pin, so it cannot disagree with the
+         screen it is reporting on */
+      pin.current?.style.setProperty("--p", p.toFixed(4));
       if (now !== lastLive) {
         lastLive = now;
         setLive(now);
-        /* the field behind the section shows the same glyph, so the
-           background and the screen are never two different things */
-        setFieldGlyph(SKILLS[now].group);
         ticks.current.forEach((t, i) => {
           if (t) t.dataset.on = i <= now ? "true" : "false";
         });
@@ -210,6 +219,14 @@ export default function GlyphMatrix() {
   const g = SKILLS[live];
   const uses = SKILL_USES[g.group] ?? 0;
 
+  /* one station per group, at the middle of the beat it holds for */
+  const strip: StripMark[] = SKILLS.map((s, i) => ({
+    at: (i + 0.5) / N,
+    label: (SW0 + ((SW1 - SW0) * i) / Math.max(1, N - 1)).toFixed(1),
+    name: s.group,
+    on: i === live,
+  }));
+
   return (
     <section
       id="skills"
@@ -218,7 +235,7 @@ export default function GlyphMatrix() {
       style={{ height: `${N * 62 + 90}vh` }}
       aria-label="Skills"
     >
-      <div className="gm-pin">
+      <div className="gm-pin" ref={pin}>
         <div className="shead">
           <h2>
             Skills <span className="te">అస్త్రాలు</span>
@@ -230,10 +247,6 @@ export default function GlyphMatrix() {
         </div>
 
         <div className="gm-stage">
-          {/* the field paints the barcode here, and holds it for the whole
-              section because this box does not move while the pin holds */}
-          <span id="skills-slot" className="fslot fslot--skills" aria-hidden="true" />
-
           <div className="gm">
             <canvas ref={cv} className="gm-screen" aria-hidden="true" />
 
@@ -263,9 +276,7 @@ export default function GlyphMatrix() {
           </div>
         </div>
 
-        <div className="gm-bar" aria-hidden="true">
-          <span ref={bar} />
-        </div>
+        <BandStrip band="SW" marks={strip} />
       </div>
     </section>
   );

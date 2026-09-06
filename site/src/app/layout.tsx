@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Instrument_Sans, DM_Mono, Noto_Sans_Telugu } from "next/font/google";
 import { paletteCSS, PALETTES, ACTIVE, DEFAULT_MODE } from "@/lib/palette";
 import Cursor from "@/components/Cursor";
+import Ambient from "@/components/Ambient";
 import "./globals.css";
 
 /* Self-hosted by next/font — no requests leave the origin, and the
@@ -36,14 +37,6 @@ export const viewport: Viewport = {
   themeColor: PALETTES[ACTIVE][DEFAULT_MODE].bg,
 };
 
-/* Set the mode before first paint so there is never a flash of the wrong
-   one. Reads a saved choice, else the OS setting, else DEFAULT_MODE. */
-const modeScript = `(function(){try{
-var s=localStorage.getItem('mode');
-var m=s||(window.matchMedia('(prefers-color-scheme: light)').matches?'light':'${DEFAULT_MODE}');
-document.documentElement.dataset.mode=m;
-}catch(e){document.documentElement.dataset.mode='${DEFAULT_MODE}';}})();`;
-
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
@@ -53,11 +46,10 @@ export default function RootLayout({
       className={`${sans.variable} ${mono.variable} ${telugu.variable}`}
       suppressHydrationWarning
     >
-      {/* Both of these MUST live inside <head>. React 19 will not hoist a
-          bare <style> without a `precedence` + `href` pair, and a
-          non-async <script> outside the head has no defined order — put
-          either directly under <html> and you get four console errors and
-          a hydration mismatch. */}
+      {/* This MUST live inside <head>. React 19 will not hoist a bare
+          <style> without a `precedence` + `href` pair — put one directly
+          under <html> and you get console errors and a hydration
+          mismatch. */}
       <head>
         {/* The entire palette, generated from src/lib/palette.ts.
             This is the only place colour enters the document. */}
@@ -65,12 +57,17 @@ export default function RootLayout({
           id="palette"
           dangerouslySetInnerHTML={{ __html: paletteCSS() }}
         />
-        {/* Runs before paint, so the mode is set on <html> before the
-            first frame and there is no flash of the wrong theme. */}
-        <script dangerouslySetInnerHTML={{ __html: modeScript }} />
       </head>
       <body>
-        {children}
+        {/* Outside the flipping panel on purpose: the paper turns, the
+            light does not. */}
+        <Ambient />
+        {/* The panel the door flips. It carries no transform at rest — an
+            ancestor with one turns every `position: fixed` child into a
+            positioned one, which would quietly break the field canvas, the
+            bar and every pinned section. Door.tsx adds the transform for
+            the length of the flip and takes it off again. */}
+        <div className="flip">{children}</div>
         <Cursor />
       </body>
     </html>

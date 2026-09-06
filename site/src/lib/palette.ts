@@ -155,8 +155,13 @@ export type PaletteName = keyof typeof PALETTES;
  * ───────────────────────────────────────────────────────────── */
 export const ACTIVE: PaletteName = "mono";
 
-/** Which mode the site opens in before the user touches the toggle. */
-export const DEFAULT_MODE: "dark" | "light" = "dark";
+/**
+ * The site is dark. There is no toggle any more, and no light mode is
+ * emitted — the `light` scheme on each palette above is kept because it
+ * is where the light values live if this is ever reversed, but nothing
+ * reads it.
+ */
+export const DEFAULT_MODE: "dark" = "dark";
 
 /* ── plumbing below; you shouldn't need to touch it ─────────── */
 
@@ -184,18 +189,7 @@ function block(scheme: Scheme): string {
  * Emitted once in the root layout, so CSS and JS can never disagree.
  */
 export function paletteCSS(name: PaletteName = ACTIVE): string {
-  const p = PALETTES[name];
-  const dark = block(p.dark);
-  const light = block(p.light);
-  const base = DEFAULT_MODE === "dark" ? dark : light;
-  const other = DEFAULT_MODE === "dark" ? light : dark;
-  const otherAttr = DEFAULT_MODE === "dark" ? "light" : "dark";
-
-  return [
-    `:root{${base}}`,
-    `:root[data-mode="${otherAttr}"]{${other}}`,
-    `:root[data-mode="${DEFAULT_MODE}"]{${base}}`,
-  ].join("");
+  return `:root{${block(PALETTES[name].dark)}}`;
 }
 
 /**

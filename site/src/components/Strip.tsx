@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Poster from "./Poster";
 import PosterRecord from "./PosterRecord";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
-import { setFieldMark } from "@/lib/field";
 import type { Project } from "@/data/projects";
 
 /**
@@ -133,7 +132,6 @@ export default function Strip({ projects }: { projects: Project[] }) {
         lastLive = nearest;
         liveRef.current = nearest;
         /* the field behind the section draws whatever is live */
-        setFieldMark(projects[nearest].mark);
       }
 
       return true;
@@ -150,31 +148,43 @@ export default function Strip({ projects }: { projects: Project[] }) {
     const el = track.current;
     if (!el) return;
 
-    /* A guard against catching a scroll in flight: if the page was
-       moving a moment ago, the rail sliding up under the cursor must
-       not steal the rest of that flick. */
-    let lastPage = 0;
-    const onPage = () => {
-      lastPage = performance.now();
-    };
-    window.addEventListener("scroll", onPage, { passive: true });
+    /* ── the mouse wheel, and nothing else ───────────────────
+       The track is an ordinary `overflow-x: auto` box, so a trackpad
+       already scrolls it: a two-finger horizontal swipe is native
+       horizontal scrolling and the browser does it better than we can.
+       The ONLY thing missing is a mouse, which has no horizontal axis
+       to give — so all this does is turn a wheel notch into a poster.
+
+       Two earlier versions got this wrong by trying to own the gesture:
+       the first refused any event within 200ms of a page scroll, which
+       deadlocks on a trackpad (it fires continuously, so the window
+       never elapses); the second took the dominant axis and hand-rolled
+       `scrollLeft += delta`, which meant calling preventDefault on the
+       very swipes the browser was already handling correctly, and
+       fighting scroll-snap on every event.
+
+       So: touch nothing that has a horizontal component, and nothing
+       small enough to be a trackpad. Everything else is native. */
 
     let target = -1;
     let settle = 0;
 
     const onWheel = (e: WheelEvent) => {
-      const dy =
-        Math.abs(e.deltaY) > Math.abs(e.deltaX) ? e.deltaY : e.deltaX;
-      if (!dy) return;
+      /* real horizontal intent — a trackpad swipe. The browser owns it. */
+      if (e.deltaX !== 0) return;
 
+      /* Line-mode, or a large vertical delta with no horizontal component
+         at all: a wheel notch. Trackpads emit small, continuous, mixed
+         deltas, and their vertical gestures should scroll the page — a
+         horizontal strip inside a page does not get to eat that. */
+      const isWheel = e.deltaMode !== 0 || Math.abs(e.deltaY) >= 50;
+      if (!isWheel) return;
+
+      const dy = e.deltaY;
       const max = el.scrollWidth - el.clientWidth;
-      const atStart = el.scrollLeft <= 1;
-      const atEnd = el.scrollLeft >= max - 1;
-
-      /* at either end, or straight after a page scroll, the wheel is
-         the page's — hand it back */
-      if ((dy < 0 && atStart) || (dy > 0 && atEnd)) return;
-      if (performance.now() - lastPage < 200) return;
+      /* out of rail in the direction asked for — let the page have it */
+      if (dy < 0 && el.scrollLeft <= 1) return;
+      if (dy > 0 && el.scrollLeft >= max - 1) return;
 
       e.preventDefault();
 
@@ -183,26 +193,21 @@ export default function Strip({ projects }: { projects: Project[] }) {
       const pitch =
         a && b ? b.offsetLeft - a.offsetLeft : a?.offsetWidth || 240;
 
-      if (e.deltaMode === 1 || Math.abs(dy) >= 45) {
-        /* a mouse notch: one poster at a time, glided */
-        if (target < 0) target = el.scrollLeft;
-        target = Math.max(0, Math.min(max, target + Math.sign(dy) * pitch));
-        el.scrollTo({ left: target, behavior: "smooth" });
-        window.clearTimeout(settle);
-        settle = window.setTimeout(() => {
-          target = -1;
-        }, 260);
-      } else {
-        /* a trackpad or a touchpad flick: direct, at your speed */
+      /* one poster per notch, accumulated so a fast run of notches glides
+         to the right place instead of restarting from wherever the smooth
+         scroll happened to be */
+      if (target < 0) target = el.scrollLeft;
+      target = Math.max(0, Math.min(max, target + Math.sign(dy) * pitch));
+      el.scrollTo({ left: target, behavior: "smooth" });
+      window.clearTimeout(settle);
+      settle = window.setTimeout(() => {
         target = -1;
-        el.scrollLeft += dy;
-      }
+      }, 260);
     };
 
     el.addEventListener("wheel", onWheel, { passive: false });
     return () => {
       el.removeEventListener("wheel", onWheel);
-      window.removeEventListener("scroll", onPage);
       window.clearTimeout(settle);
     };
   }, []);

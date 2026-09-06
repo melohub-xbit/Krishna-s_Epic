@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import Ambient from "@/components/Ambient";
-import ThemeToggle from "@/components/ThemeToggle";
-import { DoorReveal } from "@/components/Door";
+import DoorLink, { DoorReveal } from "@/components/Door";
 import { INTERESTS } from "@/data/interests";
 import { PROFILE } from "@/data/projects";
 
@@ -23,14 +20,12 @@ export const metadata: Metadata = {
 export default function Interests() {
   return (
     <>
-      <Ambient />
       <DoorReveal />
 
       <header className="bar">
-        <Link href="/" className="bar-id">
+        <DoorLink href="/" back className="bar-id">
           ← VELIDANDA KRISHNA SAI
-        </Link>
-        <ThemeToggle />
+        </DoorLink>
       </header>
 
       <main className="in-page">
@@ -75,9 +70,9 @@ export default function Interests() {
         </ol>
 
         <div className="in-foot">
-          <Link href="/#interests" className="in-back">
-            ← Back to the dial
-          </Link>
+          <DoorLink href="/" back className="in-back">
+            ← Turn it back
+          </DoorLink>
           <span className="lab te">{PROFILE.te}</span>
         </div>
       </main>

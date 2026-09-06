@@ -90,6 +90,12 @@ export default function HoloDriver() {
     let measured = false;
 
     const stop = addJob((now) => {
+      /* Nothing measured during a page-turn is true: the whole page is
+         inside a rotated panel, so every rect comes back foreshortened.
+         --to-base is measured once and kept, so one bad read would stick. */
+      if (document.documentElement.classList.contains("door-flip")) {
+        return true;
+      }
       if (!visible) {
         /* fully gone: collapsed, and nothing to compute */
         if (lastKey !== "off") {

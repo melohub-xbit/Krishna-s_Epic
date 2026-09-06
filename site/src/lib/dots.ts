@@ -20,10 +20,16 @@ export type Painter = (
 
 /** Size a canvas to its CSS box at capped DPR and return a ready context. */
 export function fitCanvas(cv: HTMLCanvasElement) {
+  /* offsetWidth/Height, NOT getBoundingClientRect: the rect is the element
+     as painted, so any transform on an ancestor is baked into it. During
+     the page-turn everything is inside a rotated panel, and a canvas that
+     mounted mid-turn measured itself as a few pixels wide and drew its
+     mark into a box that size — which is how the posters came back from
+     /interests as empty grids. The layout box ignores transforms. */
   const rect = cv.getBoundingClientRect();
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const w = Math.max(1, Math.round(rect.width));
-  const h = Math.max(1, Math.round(rect.height));
+  const w = Math.max(1, Math.round(cv.offsetWidth || rect.width));
+  const h = Math.max(1, Math.round(cv.offsetHeight || rect.height));
   cv.width = Math.round(w * dpr);
   cv.height = Math.round(h * dpr);
   const ctx = cv.getContext("2d")!;

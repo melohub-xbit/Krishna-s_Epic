@@ -2,45 +2,88 @@
 
 import { useEffect, useRef, useState } from "react";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
-import { setFieldTune } from "@/lib/field";
 import { INTERESTS } from "@/data/interests";
 import DoorLink from "./Door";
+import Contact from "./Contact";
+import BandStrip, { type StripMark } from "./BandStrip";
 
 /**
- * THE BAND — the personal section, as one tuner.
+ * THE BAND — the personal section and the sign-off, as one tuner.
  *
- * Scroll is the dial. The scene is pinned and tall, and how far through it
- * you are is a position on a frequency scale; the nearest station is what
- * shows. Between stations the readout drops to static, which does two
- * useful things: it makes landing on a station feel like landing, and it
- * stops the section reading as a list you scrub past.
+ * Scroll is the dial. How far through this scene you are is a position on
+ * a frequency scale, and the whole end of the site happens inside it —
+ * the page never leaves this pin until it is over:
  *
- * The same number turns the needle painted into the page background, so
- * the giant halftone dial behind you and the small one in front are one
- * instrument. That is the whole reason this section works where a list of
- * hobbies would not.
+ *   0.00 – 0.58   the six stations. Between them the readout drops to
+ *                 static and the name goes soft, so landing on one feels
+ *                 like landing rather than like scrubbing a list.
+ *   0.52 – 0.58   the set lets go
+ *   0.55 – 0.80   past the end of the band: the door to /interests, alone
+ *                 on screen, for a few screens of scroll
+ *   0.72 – 0.86   dead air. The door goes under it and the noise comes up
+ *   0.80 – 0.94   the card locks in — out of the noise, in place
+ *   0.94 – 1.00   hold. Nothing moves; the page has ended.
  *
- * Past the last station the band does not stop — the last stretch of the
- * scene is the run-out, and the door to /interests sits at the end of it.
- * Overshooting is how you get in.
+ * Contact is NOT a section below this one. It is the last thing the same
+ * instrument lands on, faded up in the same pin the dial is in, which is
+ * why there is no handoff to get wrong and no second scroll to sit
+ * through. Scrolling back up runs every one of those ranges in reverse
+ * for free: they are all windows on one number, not animations with a
+ * direction of their own.
  *
- * Only the live index goes through React: six state changes for the whole
- * section. Everything else is a CSS variable written on the shared ticker.
+ * Only the live station index and two booleans go through React — nine
+ * state changes for the entire end of the site. Everything else is a CSS
+ * variable written on the shared ticker.
  */
 
 const clamp = (v: number, a: number, b: number) => (v < a ? a : v > b ? b : v);
 const smooth = (t: number) => t * t * (3 - 2 * t);
+/** a 0..1 window on p, eased */
+const win = (p: number, a: number, b: number) =>
+  smooth(clamp((p - a) / (b - a), 0, 1));
 
-/** fraction of the scene given over to the run-out past the last station */
-const RUNOUT = 0.16;
+/* the timeline above, as numbers */
+const BAND_END = 0.58;
+const SET_GO = 0.52;
+const DOOR_GO = 0.74;
+const AIR_IN = 0.72;
+const LOCK_IN = 0.8;
+const LOCK_OUT = 0.94;
+
+/**
+ * The strip along the bottom is the WHOLE band, zoomed out; the dial in
+ * the middle of the screen is the interests part of it, zoomed in. Both
+ * hands are driven by the same scroll number, so they always agree — the
+ * dial's position is just the strip's divided by BAND_END.
+ *
+ * Everything past the six stations is off the end of the interests band,
+ * which is where the door and the sign-off live. Their frequencies are
+ * not decoration: they are read off the same linear scale the six sit on,
+ * so the numbers stay true however the timeline is retuned.
+ */
+const F0 = Number(INTERESTS[0].freq);
+const F1 = Number(INTERESTS[INTERESTS.length - 1].freq);
+const freqAt = (p: number) => F0 + ((F1 - F0) * p) / BAND_END;
+
+const MARKS = [
+  ...INTERESTS.map((s, i) => ({
+    at: (i / (INTERESTS.length - 1)) * BAND_END,
+    label: s.freq,
+    name: s.name,
+  })),
+  { at: 0.66, label: freqAt(0.66).toFixed(1), name: "The shelf", minor: true },
+  { at: 0.9, label: freqAt(0.9).toFixed(1), name: "Signal", minor: true },
+];
 
 export default function Band() {
   const N = INTERESTS.length;
   const scene = useRef<HTMLElement>(null);
   const pin = useRef<HTMLDivElement>(null);
   const [live, setLive] = useState(0);
-  /** true once the band has run out and the door is the only thing left */
+  /** the door is alone on screen and can be reached */
   const [open, setOpen] = useState(false);
+  /** the card has tuned in and can be read */
+  const [locked, setLocked] = useState(false);
 
   useEffect(() => {
     const el = scene.current;
@@ -49,11 +92,19 @@ export default function Band() {
 
     const flat = prefersReducedMotion();
     if (flat) {
-      box.style.setProperty("--tune", "0.5");
-      box.style.setProperty("--lock", "1");
-      box.style.setProperty("--out", "0");
-      /* no scroll timeline to run out, so the door is simply there */
+      for (const [k, v] of [
+        ["--tune", "1"],
+        ["--lock", "1"],
+        ["--out", "0"],
+        ["--door", "1"],
+        ["--ct-air", "0"],
+        ["--ct-lock", "1"],
+        ["--p", "1"],
+      ] as const) {
+        box.style.setProperty(k, v);
+      }
       setOpen(true);
+      setLocked(true);
       return;
     }
 
@@ -68,6 +119,8 @@ export default function Band() {
 
     let lastKey = "";
     let lastLive = -1;
+    let wasOpen = false;
+    let wasLocked = false;
 
     const stop = addJob(() => {
       if (!visible) return true;
@@ -76,30 +129,50 @@ export default function Band() {
       lastKey = key;
 
       const travel = el.offsetHeight - window.innerHeight;
-      const p = travel <= 0 ? 0 : clamp(-el.getBoundingClientRect().top / travel, 0, 1);
+      const p =
+        travel <= 0
+          ? 0
+          : clamp(-el.getBoundingClientRect().top / travel, 0, 1);
 
-      /* the band occupies everything before the run-out */
-      const band = clamp(p / (1 - RUNOUT), 0, 1);
-      const out = smooth(clamp((p - (1 - RUNOUT)) / RUNOUT, 0, 1));
-
+      /* ── the band ── */
+      const band = clamp(p / BAND_END, 0, 1);
       const pos = band * (N - 1);
       const idx = Math.round(pos);
-      /* how far off station we are, 0 at a stop and 1 exactly between two */
+      /* how far off station, 0 at a stop and 1 exactly between two */
       const drift = Math.min(1, Math.abs(pos - idx) * 2);
-      /* the last station stays locked through the run-out */
+      const out = win(p, SET_GO, BAND_END);
+      /* the last station stays locked once the set is on its way out */
       const lock = out > 0 ? 1 : 1 - smooth(clamp((drift - 0.34) / 0.5, 0, 1));
 
+      /* ── the crossing ── */
+      const ctLock = win(p, LOCK_IN, LOCK_OUT);
+      /* the door comes up with the run-out and goes under the noise */
+      const door = out * (1 - win(p, DOOR_GO, AIR_IN + 0.08));
+      /* dead air: up as the door leaves, gone once the card has landed */
+      const air = win(p, AIR_IN, AIR_IN + 0.06) * (1 - ctLock);
+
+      box.style.setProperty("--p", p.toFixed(4));
       box.style.setProperty("--tune", band.toFixed(4));
       box.style.setProperty("--lock", lock.toFixed(3));
       box.style.setProperty("--out", out.toFixed(3));
+      box.style.setProperty("--door", door.toFixed(3));
+      box.style.setProperty("--ct-air", air.toFixed(3));
+      box.style.setProperty("--ct-lock", ctLock.toFixed(4));
 
       if (idx !== lastLive) {
         lastLive = idx;
         setLive(idx);
-        /* the needle in the page background turns with this one */
-        setFieldTune(idx);
       }
-      setOpen(out > 0.5);
+      const o = door > 0.5;
+      if (o !== wasOpen) {
+        wasOpen = o;
+        setOpen(o);
+      }
+      const l = ctLock > 0.5;
+      if (l !== wasLocked) {
+        wasLocked = l;
+        setLocked(l);
+      }
       return true;
     });
 
@@ -114,25 +187,53 @@ export default function Band() {
     const el = scene.current;
     if (!el) return;
     const travel = el.offsetHeight - window.innerHeight;
-    const p = (i / (N - 1)) * (1 - RUNOUT);
     window.scrollTo({
-      top: el.offsetTop + travel * p,
+      top: el.offsetTop + travel * ((i / (N - 1)) * BAND_END),
       behavior: "smooth",
     });
   };
 
   const st = INTERESTS[live];
 
+  const strip: StripMark[] = MARKS.map((m, i) => ({
+    ...m,
+    on:
+      i < N
+        ? !open && !locked && i === live
+        : m.name === "The shelf"
+          ? open && !locked
+          : locked,
+  }));
+
   return (
     <section
       id="interests"
       className="bd-scene"
       ref={scene}
-      style={{ height: `${N * 40 + 80}vh` }}
-      aria-label="Interests"
+      style={{ height: `${N * 40 + 80 + 210}vh` }}
+      aria-label="Interests and contact"
     >
-      <div className="bd-pin" ref={pin}>
-        <div className="shead">
+      {/* What the nav dot for Contact tracks, because Contact has no
+          section of its own any more.
+
+          It has to be a RANGE, not a point, and it has to be positioned
+          in the scene's own coordinates rather than as a flat percentage.
+          A pinned scene scrolls by `height - 100vh`, so a marker at a
+          fixed 82% only crosses the middle of the viewport for about two
+          percent of the scroll and sits above it for the whole of the
+          final hold — which is exactly when you are reading the card.
+          Anchored to the moment the card locks, and running to the end
+          of the scene, it is in the band for as long as Contact is what
+          you are looking at. */}
+      <span
+        id="contact"
+        className="ct-anchor"
+        aria-hidden="true"
+        style={{ top: `calc(50vh + ${LOCK_IN} * (100% - 100vh))`, bottom: 0 }}
+      />
+
+      <div className="bd-pin" ref={pin} data-open={open} data-locked={locked}>
+        <div className="shead bd-head">
           <h2>
             Off the clock <span className="te">అభిరుచులు</span>
           </h2>
@@ -143,9 +244,6 @@ export default function Band() {
         </div>
 
         <div className="bd-stage">
-          {/* the field paints the same dial here, at section scale */}
-          <span id="band-slot" className="fslot fslot--band" aria-hidden="true" />
-
           <div className="bd-set">
             <p className="bd-freq" aria-hidden="true">
               {st.freq} <i>MHz</i>
@@ -182,17 +280,22 @@ export default function Band() {
             </div>
           </div>
 
-          <div className="bd-out" data-open={open} aria-hidden={!open}>
+          <div className="bd-out" aria-hidden={!open}>
             <p className="lab">Past the end of the band</p>
             <DoorLink href="/interests" className="bd-door">
               The whole shelf
             </DoorLink>
           </div>
+
+          {/* dead air, between the end of the band and the last card */}
+          <span className="ct-noise" aria-hidden="true" />
+
+          <Contact />
         </div>
 
-        <div className="bd-bar" aria-hidden="true">
-          <span />
-        </div>
+        {/* the whole band, zoomed out — the dial above is the left 58%
+            of this, and both hands come off the same number */}
+        <BandStrip band="FM" zone={BAND_END} marks={strip} />
       </div>
     </section>
   );
