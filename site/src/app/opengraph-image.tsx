@@ -61,7 +61,10 @@ export default function OG() {
             Velidanda Krishna Sai
           </div>
           <div style={{ fontSize: 30, color: "rgba(244,234,218,.72)" }}>
-            {PROJECTS.length} projects · @jester
+            {/* one template literal, not an expression next to text:
+                Satori counts those as two children and demands
+                display:flex on any div that has more than one. */}
+            {`${PROJECTS.length} projects · @jester`}
           </div>
         </div>
       </div>
