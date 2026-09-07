@@ -15,10 +15,7 @@ export default function Contact() {
   return (
     <div className="ct-card">
       <div className="shead">
-        <h2>
-          Contact <span className="te">ముద్ర</span>
-        </h2>
-        <span className="lab">Open to research and internships</span>
+        <h2>Contact</h2>
       </div>
 
       <p className="contact-sign te" aria-hidden="true">
@@ -45,6 +42,20 @@ export default function Contact() {
             </a>
           </div>
 
+          {/* The handle belongs here rather than in the hero: every link
+              directly above it carries the same name, so the claim is
+              visibly true at the moment it is made instead of being an
+              assertion five screens earlier. */}
+          <div className="jester">
+            <p className="jester-handle">
+              known most places as <b>@jester</b>
+            </p>
+            <p className="jester-why">
+              Why be a master at one trade when you can be the jack of so many
+              more? Jack, jester — same J, same job description.
+            </p>
+          </div>
+
           <dl className="contact-facts">
             <div>
               <dt className="lab">Based in</dt>
@@ -54,17 +65,12 @@ export default function Contact() {
               <dt className="lab">Currently</dt>
               <dd>Dual degree, IIIT Bangalore</dd>
             </div>
-            <div>
-              <dt className="lab">Reply time</dt>
-              <dd>A day or two, usually</dd>
-            </div>
           </dl>
         </div>
       </div>
 
       <p className="contact-close">
-        If you have read this far, the fastest way to start is to tell me which
-        poster you opened.
+        Thank you for coming all this way. Hope you enjoyed the tour, and talk to you soon!:)
       </p>
     </div>
   );

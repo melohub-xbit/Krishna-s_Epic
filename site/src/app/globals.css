@@ -32,6 +32,11 @@
   --max: 1180px;
   --ease: cubic-bezier(0.7, 0, 0.2, 1);
   --quick: 200ms;
+  /* How much film is over the whole page. This rides a `screen` blend,
+     which is far stronger than the `overlay` it used to be — 0.22 here
+     is louder than 0.34 was. Under 0.12 it vanishes; over 0.3 the small
+     mono type starts to fizz. Tune by eye. */
+  --grain: 0.22;
   --base: 560ms;
   --long: 900ms;
   color-scheme: dark;
@@ -307,16 +312,24 @@ section:first-of-type::before {
   z-index: 0;
   overflow: hidden;
 }
-/* keeps the copy readable without dimming the torch */
+/* The ground the copy sits on.
+   This used to reach 40% of the background colour at a third of the way
+   up and nothing above that — fine over a flat dark hero, hopeless over
+   the landscape, whose brightest band is the cream dune sitting exactly
+   where the quote is. Text at 36% alpha over that is not low contrast,
+   it is invisible. Solid at the bottom, most of the way there through
+   the copy, and out of the way by the time it reaches the wall. */
 .hero-veil {
   position: absolute;
   inset: 0;
   pointer-events: none;
   background: linear-gradient(
     to top,
-    var(--bg) 2%,
-    color-mix(in srgb, var(--bg) 40%, transparent) 30%,
-    transparent 58%
+    var(--bg) 0%,
+    var(--bg) 15%,
+    color-mix(in srgb, var(--bg) 84%, transparent) 34%,
+    color-mix(in srgb, var(--bg) 36%, transparent) 58%,
+    transparent 80%
   );
 }
 
@@ -329,6 +342,10 @@ section:first-of-type::before {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  /* centred in a box that is short at the bottom, which lifts the whole
+     block by half the padding — closes the gap under the arrow without
+     transforming a layer that has four marquees running inside it */
+  padding-bottom: 20vh;
   overflow: hidden;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(to top, transparent 8%, #000 34%, #000 78%, transparent 96%);
@@ -368,6 +385,13 @@ section:first-of-type::before {
 }
 .hw.hot span:nth-child(3n + 2) {
   color: var(--accent);
+}
+/* One word of the outlined rows, filled. The row is six copies of the
+   name and the loop translates by exactly half, so the highlight has to
+   land on 3 AND 6 — mark only one and it blinks out for half the cycle. */
+.hw.mark span:nth-child(3n) {
+  color: var(--accent);
+  -webkit-text-stroke: 0;
 }
 .hero[data-done] .hw.a {
   animation: hw-a 34s linear infinite;
@@ -721,26 +745,60 @@ footer {
   inset: 0;
   z-index: -2;
   pointer-events: none;
+  /* Two lights, drifting with overall page position — the only thing on
+     the site tied to where you are in the whole document rather than to
+     a section. Turned up: the warm one from 14% to 26%, the cool one
+     from 7% to 15%, and both a little wider. The mid-stop is new — a
+     single colour running straight to transparent falls off evenly and
+     reads as a disc, and one stop at 46% is what turns the edge into a
+     falloff. */
   background:
     radial-gradient(
-      42vw 42vw at calc(78% - var(--scroll, 0) * 40%) calc(12% + var(--scroll, 0) * 60%),
-      color-mix(in srgb, var(--accent) 14%, transparent),
-      transparent 70%
+      48vw 48vw at calc(78% - var(--scroll, 0) * 40%) calc(12% + var(--scroll, 0) * 60%),
+      color-mix(in srgb, var(--accent) 26%, transparent),
+      color-mix(in srgb, var(--accent) 9%, transparent) 46%,
+      transparent 74%
     ),
     radial-gradient(
-      50vw 50vw at calc(14% + var(--scroll, 0) * 30%) calc(84% - var(--scroll, 0) * 55%),
-      color-mix(in srgb, var(--fg) 7%, transparent),
-      transparent 72%
+      56vw 56vw at calc(14% + var(--scroll, 0) * 30%) calc(84% - var(--scroll, 0) * 55%),
+      color-mix(in srgb, var(--fg) 15%, transparent),
+      color-mix(in srgb, var(--fg) 5%, transparent) 46%,
+      transparent 76%
     );
   transition: background 800ms linear;
 }
+/* The grain, over EVERYTHING — z-index above the content, not behind it.
+   Behind, it only textures the empty background and every canvas and card
+   sits on top looking flat and digital; in front, one film covers the
+   whole page and the layers stop reading as separate objects. That is the
+   single thing those calm cream sites all do.
+
+   BLEND MODE IS THE WHOLE STORY HERE. This was `overlay`, copied from
+   the layer that sat inside the hero — and `overlay` is multiply against
+   a dark backdrop and screen against a light one. Inside the hero its
+   backdrop was the artwork: cream dunes, vermilion sand, a lit planet.
+   Plenty of light for it to work on, so it read as heavy film grain.
+   Moved out to cover the whole page, its backdrop became #0B1220, and
+   multiply against a near-black ground does almost exactly nothing. Same
+   opacity, same texture, invisible.
+
+   So: `screen`, which adds light wherever the noise is bright and is
+   therefore at its strongest on exactly the dark ground this site is
+   made of. The noise is desaturated first — raw feTurbulence is coloured
+   RGB static, and screening that puts faint red and green speckle over
+   everything. Screen is a much stronger operator than overlay, so --grain
+   is a smaller number for a louder result.
+
+   Strength is --grain, set once on :root — the one value most worth
+   tuning by eye on a real screen. */
 .grain {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 60;
   pointer-events: none;
-  opacity: 0.038;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)'/></svg>");
+  opacity: var(--grain, 0.22);
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
 }
 
 /* ── the cursor dot ────────────────────────────────────────── */
@@ -961,15 +1019,21 @@ button:active {
   min-height: 100svh;
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: clamp(0.8rem, 2.4vh, 1.6rem);
-  padding: clamp(4.4rem, 9vh, 6rem) 0 clamp(1.2rem, 4vh, 2.2rem);
+  gap: clamp(0.5rem, 1.4vh, 1rem);
+  /* The head used to clear the bar by a whole extra line and the scene
+     paid for it at the bottom, where the projector base lives. Every
+     value in this block is height the base gets back. */
+  padding: clamp(3rem, 5.4vh, 4rem) 0 clamp(0.6rem, 1.8vh, 1.2rem);
 }
 .about-pin .holo {
   align-content: center;
 }
-/* the projector has to fit one screen for the pin to work */
+/* The projector has to fit one screen for the pin to work — and now
+   the paragraphs live UNDER it rather than beside it, so the picture
+   gives back a little of its height to pay for them. */
 .about-pin .holo-figure {
-  width: min(clamp(190px, 26vh, 300px), 72%);
+  width: min(clamp(148px, 20.5vh, 224px), 82%);
+  margin-bottom: 0;
 }
 
 /* Too short to pin — a phone in landscape, a small laptop. The section
@@ -996,7 +1060,7 @@ button:active {
 
 .holo-field {
   position: relative;
-  padding-bottom: clamp(1.6rem, 4vh, 2.6rem);
+  padding-bottom: clamp(0.7rem, 1.8vh, 1.3rem);
 }
 
 /* the beam, climbing out of the lens */
@@ -1039,12 +1103,15 @@ button:active {
   z-index: 1;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 2.6rem;
+  gap: 1.8rem;
 }
 @media (min-width: 1000px) {
   .holo-grid {
-    grid-template-columns: 1fr minmax(290px, 360px) 1fr;
-    gap: clamp(1.6rem, 3.5vw, 3.2rem);
+    /* the picture is the smallest thing up here now — the two lists
+       either side are what you actually read at a glance, so they get
+       the width */
+    grid-template-columns: minmax(0, 1fr) minmax(170px, 240px) minmax(0, 1.12fr);
+    gap: clamp(1.4rem, 3vw, 2.6rem);
     align-items: center;
   }
 }
@@ -1135,32 +1202,118 @@ button:active {
   }
 }
 
+/* The copy sits in the band under the projection, spanning most of the
+   scene rather than a 290px centre column or a 42ch side one. Width is
+   what buys the height back: the same three paragraphs set to 64ch are
+   barely half the lines they were, which is what keeps the projector
+   base on screen inside a pin that cannot grow.
+
+   The type still scales on viewport HEIGHT rather than width, because
+   the constraint is the pin: a laptop in a small window has to fit the
+   same words as a monitor does. */
 .holo-copy {
-  max-width: 36ch;
-  margin: 0 auto;
+  max-width: 64ch;
   opacity: calc(var(--h-fig, 0) * var(--h-flick, 1));
   transform: translate(var(--h-jit, 0px), calc((1 - var(--h-fig, 0)) * 26px));
 }
 .holo-copy p {
-  margin: 0 0 0.9rem;
+  margin: 0 0 clamp(0.45rem, 1.05vh, 0.75rem);
   color: var(--fg-2);
-  font-size: 0.92rem;
+  font-size: clamp(0.8rem, 1.45vh, 0.9rem);
+  line-height: 1.5;
 }
 .holo-copy p.big {
   color: var(--fg);
-  font-size: 1.06rem;
-  line-height: 1.5;
+  font-size: clamp(0.92rem, 1.7vh, 1.02rem);
+  line-height: 1.4;
 }
 .holo-copy p:last-child {
   margin-bottom: 0;
+}
+
+/* Everything in this scene is set a notch tighter than the same markup
+   elsewhere on the site. The pin is a fixed screen: a row of padding
+   here is a row the projector base loses down there. */
+.holo-grid .list div {
+  padding: 0.52rem 0;
+  font-size: 0.86rem;
+}
+.holo-grid .list small {
+  font-size: 0.78rem;
+}
+.holo-grid .list span:last-child {
+  font-size: 0.7rem;
+}
+.holo-grid .callout > .lab {
+  margin-bottom: 0.45rem;
+}
+
+/* ── the band under the projection ─────────────────────────────
+   Two things live below the picture: the paragraphs, and
+   Experience. Side by side rather than stacked, because the pin
+   is a fixed screen and two short columns cost half the height
+   of one tall one. The copy takes the larger share.            */
+
+.holo-under {
+  position: relative;
+  z-index: 1;
+  max-width: 100%;
+  margin: clamp(0.7rem, 1.8vh, 1.3rem) auto 0;
+  display: grid;
+  gap: clamp(1rem, 2.4vh, 1.6rem);
+}
+@media (min-width: 1000px) {
+  .holo-under {
+    grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
+    align-items: start;
+    gap: clamp(1.6rem, 3.6vw, 3rem);
+  }
+}
+.holo-under .holo-copy {
+  max-width: 82ch;
+}
+/* the Experience list is a footnote at this size, not a section */
+.holo-exp {
+  opacity: calc(var(--h-call, 0) * var(--h-flick, 1));
+  transform: translateY(calc((1 - var(--h-call, 0)) * 10px));
+}
+.holo-exp .list div {
+  padding: 0.42rem 0;
+  font-size: 0.84rem;
+}
+.holo-exp .list-block {
+  padding: 0.52rem 0;
+}
+.holo-exp .list small {
+  font-size: 0.76rem;
+}
+.holo-exp .list .list-note {
+  font-size: 0.74rem;
+  margin-top: 0.2rem;
+  max-width: 40ch;
+}
+.holo-exp .list span:last-child {
+  font-size: 0.68rem;
 }
 
 /* ── the callouts either side ──────────────────────────────── */
 
 .callouts {
   display: grid;
-  gap: 2.4rem;
+  gap: clamp(1.5rem, 3.2vh, 2.4rem);
   align-content: start;
+}
+/* Hang the side columns from the TOP of the row rather than centring them
+   with the figure. Centred, a column only has to grow by a line or two
+   before it runs off the bottom of a pinned screen — which is what the
+   second Experience entry was doing. */
+@media (min-width: 1000px) {
+  /* Only Education and Achievements ride up here now, and neither runs
+     long, so they centre against the picture instead of hanging from
+     the top of the row. */
+  .holo-grid .callouts {
+    align-self: center;
+  }
 }
 .callout > .lab {
   margin: 0 0 0.7rem;
@@ -1416,6 +1569,7 @@ button:active {
     animation: none;
   }
   .holo-grid .callout,
+  .holo-exp,
   .holo-copy,
   .holo-base::before,
   .holo-base::after,
@@ -1561,6 +1715,71 @@ button:active {
    either end the wheel goes back to the page. Nothing is
    pinned, and the page is never taller than it looks.
    ═══════════════════════════════════════════════════════════ */
+
+/* ── the switch above the rail ──────────────────────────────
+   Two segments, and a lamp on the live one — the same grammar as
+   the dial stops in the band and the lamps on the projector base,
+   so it reads as part of the same machine rather than as a
+   control panel bolted onto the page. */
+
+.wk-switch {
+  display: inline-flex;
+  align-items: stretch;
+  margin: clamp(1.4rem, 3.4vw, 2.4rem) 0 clamp(0.9rem, 2vw, 1.4rem);
+  border: 1px solid var(--rule-2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.wk-seg {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.6rem 1rem;
+  background: transparent;
+  border: 0;
+  border-right: 1px solid var(--rule-2);
+  color: var(--fg-3);
+  cursor: pointer;
+  font: inherit;
+  transition: color var(--quick), background-color var(--quick);
+}
+.wk-seg:last-child {
+  border-right: 0;
+}
+.wk-seg:hover {
+  color: var(--fg-2);
+}
+.wk-seg[data-on="true"] {
+  color: var(--fg);
+  background: color-mix(in srgb, var(--fg) 5%, transparent);
+}
+.wk-seg-name {
+  font-size: 0.9rem;
+  letter-spacing: -0.015em;
+}
+/* the lamp is off until the segment is live, and it is the only
+   saturated thing in the control */
+.wk-lamp {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rule);
+  transition: background-color var(--quick), box-shadow var(--quick);
+}
+.wk-seg[data-on="true"] .wk-lamp {
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 70%, transparent);
+}
+.wk-n {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.68rem;
+  letter-spacing: 0.12em;
+  color: var(--fg-3);
+  font-variant-numeric: tabular-nums;
+}
+.wk-seg[data-on="true"] .wk-n {
+  color: var(--accent);
+}
 
 .strip {
   position: relative;
@@ -1708,22 +1927,47 @@ button:active {
   height: 2.7em;
   overflow: hidden;
 }
+/* ── the halo face ──────────────────────────────────────────
+   The dotted field is gone. The mark's ground is now contour
+   rings drawn from the same noise as the dunes, seeded off the
+   project — so every emblem sits in its own weather. The mark
+   itself is unchanged and still dot-matrix, because it is the
+   thing that makes a project recognisable from four cards away
+   and the texture is not worth losing that for. */
 .poster-art {
+  position: relative;
   margin-top: 0.35rem;
   aspect-ratio: 4 / 3;
-  border: 1px solid var(--rule-2);
-  background: radial-gradient(
-      color-mix(in srgb, var(--fg) 20%, transparent) 1px,
-      transparent 1.15px
-    )
-    0 0 / 6px 6px;
   display: grid;
   place-items: center;
 }
-.poster-art canvas {
+.hl-cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   display: block;
-  width: 58%;
-  height: 76%;
+  opacity: 0.85;
+  /* the rings fade out before they reach the card's edge, so the disc
+     has no rim — light has no edges, and neither does this */
+  -webkit-mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 76%);
+  mask-image: radial-gradient(circle at 50% 50%, #000 52%, transparent 76%);
+}
+.hl-mk {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 46%;
+  height: 62%;
+}
+.hl-mk canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.strip-item[data-live="true"] .hl-cv {
+  opacity: 1;
 }
 .poster-name {
   margin: 0.55rem 0 0;
@@ -1780,16 +2024,107 @@ button:active {
   line-height: 1.1;
   transform: rotate(-9deg);
 }
+/* ── the plate face ─────────────────────────────────────────
+   The inversion: a cream card on a dark rail, with a stadium
+   window cut into it. That radius is the whole reason the
+   reference screen feels the way it does — a soft-cornered
+   window onto something moving reads as a device, a square one
+   reads as a div.
+
+   It is deliberately the loudest object in the section. Half
+   the shelf wears it, alternating, so the rail has a rhythm
+   instead of eighteen of the same card. */
+.poster--plate {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: color-mix(in srgb, var(--bg) 22%, transparent);
+  gap: 0.45rem;
+}
+.poster--plate::before {
+  border-color: rgba(11, 18, 32, 0.1);
+}
+.pl-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.poster--plate .poster-hd {
+  color: rgba(11, 18, 32, 0.45);
+  letter-spacing: 0.22em;
+  text-indent: 0.22em;
+  text-align: left;
+}
+.pl-win {
+  position: relative;
+  flex: 1 1 auto;
+  min-height: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--bg);
+}
+.pl-cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* the window is a hole in a cream sheet, so it gets an inner shadow
+   rather than a border — a stroke on this radius reads as a pill button */
+.pl-win::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(11, 18, 32, 0.25),
+    inset 0 10px 26px rgba(4, 6, 12, 0.3);
+}
+.pl-body {
+  display: grid;
+  gap: 0.14rem;
+  text-align: center;
+}
+.poster--plate .poster-name {
+  margin: 0;
+  color: var(--bg);
+}
+.poster--plate .poster-fig {
+  margin: 0;
+  color: var(--accent);
+}
+.poster--plate .poster-for {
+  margin: 0;
+  height: auto;
+  color: rgba(11, 18, 32, 0.55);
+}
+.poster--plate .poster-foot {
+  border-top-color: rgba(11, 18, 32, 0.12);
+  color: rgba(11, 18, 32, 0.45);
+}
+/* the stamp sits on cream now, so it cannot be a dark disc */
+.poster--plate .poster-stamp {
+  background: var(--fg);
+  border-color: var(--accent);
+}
+
 .strip-item[data-live="true"] .poster {
   border-color: var(--accent);
+}
+.strip-item[data-live="true"] .poster--plate {
+  border-color: var(--accent);
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.5);
 }
 .strip-item[data-live="true"] .poster-fig {
   color: var(--accent);
 }
 @media (max-width: 759px) {
-  .poster-for,
+  .poster--halo .poster-for,
   .poster-cap {
     display: none;
+  }
+  .poster--plate .poster-for {
+    font-size: 0.48rem;
   }
   .poster-hd {
     font-size: 0.44rem;
@@ -2302,11 +2637,19 @@ html[data-rec-open="true"] .bar {
   opacity: calc(0.28 + var(--lock, 1) * 0.72);
   filter: blur(calc((1 - var(--lock, 1)) * 3px));
 }
-.bd-name .te {
-  font-size: 0.42em;
-  color: var(--fg-3);
-  letter-spacing: 0;
-  margin-left: 0.5em;
+.bd-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5em;
+}
+/* the emblem inherits the name's colour, so it dims and softens off
+   station along with it — one opacity, one blur, both already on the
+   parent */
+.bd-glyph {
+  flex: none;
+  width: clamp(20px, 3.4vw, 30px);
+  height: clamp(20px, 3.4vw, 30px);
+  color: var(--accent);
 }
 
 /* the caption and the static occupy the same line — one fades out as the
@@ -2418,8 +2761,15 @@ html[data-rec-open="true"] .bar {
   color: var(--accent);
 }
 .bd-stop-name {
+  display: flex;
+  align-items: center;
+  gap: 0.34rem;
   font-size: 0.74rem;
   letter-spacing: -0.01em;
+}
+.bd-stop-glyph {
+  flex: none;
+  opacity: 0.85;
 }
 
 /* ── the run-out, and the door ──────────────────────────── */
@@ -2726,159 +3076,1095 @@ html.door-flip .flip {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   /interests — the far side
+   /interests — NIGHT SHIFT ON THE M BAND
 
-   Flat, quiet, and readable. The home page is the instrument;
-   this is the manual, so nothing here scrubs or pins.
+   The far side of the door, and the one part of this site with
+   no professional obligations at all. Everything here is the
+   established language — pill radii, halo rings, mono labels,
+   the cream inversion off the posters — behaving badly.
+
+   The ground ALTERNATES. A station carries data-invert and
+   lands on cream with ink type; the tokens are re-declared on
+   the section itself, so every child inside it (rules, labels,
+   the accent, the tag borders) inverts with it and nothing has
+   to be restyled twice. That is the whole trick: the page is
+   six sections that each redefine what --fg means.
    ═══════════════════════════════════════════════════════════ */
 
-.in-page {
+.ns {
   position: relative;
   z-index: 1;
-  max-width: var(--max);
-  margin: 0 auto;
-  padding: clamp(6rem, 14vh, 9rem) var(--gut) clamp(4rem, 10vh, 7rem);
+  padding-top: clamp(5rem, 12vh, 8rem);
 }
-.in-head {
-  display: grid;
-  gap: 0.6rem;
-  padding-bottom: clamp(2rem, 5vh, 3.4rem);
-  border-bottom: 1px solid var(--rule);
-}
-.in-head h1 {
-  margin: 0;
-  font-size: clamp(2.4rem, 7vw, 4.2rem);
-  font-weight: 600;
-  letter-spacing: -0.035em;
-  line-height: 1;
-}
-.in-head h1 .te {
-  font-size: 0.36em;
-  color: var(--fg-3);
-  letter-spacing: 0;
-  margin-left: 0.5em;
-}
-.in-lede {
-  margin: 0.4rem 0 0;
-  max-width: 48ch;
-  color: var(--fg-2);
-  font-size: 1.02rem;
+.ns-acc {
+  color: var(--accent);
 }
 
-.in-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: grid;
+/* the ON AIR lamp in the bar */
+.ns-air {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
-.in-item {
+.ns-lamp {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: ns-pulse 1.6s infinite;
+}
+@keyframes ns-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 80%, transparent);
+  }
+  50% {
+    opacity: 0.32;
+    box-shadow: none;
+  }
+}
+
+/* ── the head ───────────────────────────────────────────── */
+
+.ns-head {
+  position: relative;
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: clamp(1.5rem, 5vh, 3rem) var(--gut) clamp(1rem, 3vh, 1.6rem);
   display: grid;
-  gap: 1.2rem;
-  padding: clamp(1.8rem, 4.5vh, 3rem) 0;
-  border-bottom: 1px solid var(--rule-2);
+  gap: 1.1rem;
+}
+.ns-head h1 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 30, "WONK" 1;
+  font-size: clamp(2.6rem, 9vw, 6rem);
+  line-height: 0.94;
+  letter-spacing: -0.04em;
+}
+.ns-head h1 em {
+  font-style: italic;
+  color: var(--accent);
+}
+.ns-lede {
+  margin: 0;
+  max-width: 52ch;
+  color: var(--fg-2);
+}
+/* the seal turns once every half minute — slow enough that you are
+   never sure it is moving until you look twice */
+.ns-seal {
+  position: absolute;
+  right: var(--gut);
+  top: clamp(1.5rem, 5vh, 3rem);
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 1px dashed var(--accent);
+  color: var(--accent);
+  display: grid;
+  place-items: center;
+  text-align: center;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  line-height: 1.6;
+  animation: ns-spin 34s linear infinite;
+}
+@keyframes ns-spin {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(352deg);
+  }
+}
+@media (max-width: 820px) {
+  .ns-seal {
+    display: none;
+  }
+}
+
+/* ── the ticker ─────────────────────────────────────────── */
+
+.ns-tick {
+  margin-top: 1.4rem;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  overflow: hidden;
+  padding: 0.6rem 0;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+}
+.ns-tick-t {
+  display: flex;
+  gap: 2.4rem;
+  width: max-content;
+  animation: ns-roll 46s linear infinite;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.64rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+  white-space: nowrap;
+}
+.ns-tick-t b {
+  color: var(--accent);
+  font-weight: 400;
+}
+@keyframes ns-roll {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+/* ── the dial ───────────────────────────────────────────── */
+
+.ns-dial {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 1.6rem var(--gut) 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.ns-dial a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.9rem;
+  border: 1px solid var(--rule-2);
+  border-radius: 999px;
+  color: var(--fg-3);
+  text-decoration: none;
+  font-size: 0.8rem;
+  transition: border-color var(--quick), color var(--quick), transform var(--quick);
+}
+.ns-dial a:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+  transform: translateY(-2px);
+}
+.ns-dial-g {
+  flex: none;
+  color: var(--accent);
+}
+
+/* ── a station ──────────────────────────────────────────── */
+
+.ns-stn {
+  position: relative;
+  border-top: 1px solid var(--rule-2);
+  padding: clamp(3rem, 8vh, 5.5rem) 0;
+}
+.ns-stn-in {
+  max-width: var(--max);
+  margin: 0 auto;
+  padding: 0 var(--gut);
+}
+/* THE INVERSION. Redeclaring the tokens is what makes every child of
+   this section flip with it — labels, rules, tag borders, the lot —
+   instead of each one needing its own [data-invert] rule. */
+.ns-stn[data-invert="true"] {
+  --bg: #f4eada;
+  --bg-2: #e8dcc7;
+  --fg: #0b1220;
+  --fg-2: rgba(11, 18, 32, 0.66);
+  --fg-3: rgba(11, 18, 32, 0.42);
+  --rule: rgba(11, 18, 32, 0.16);
+  --rule-2: rgba(11, 18, 32, 0.09);
+  --accent: #b73b2a;
+  background: #f4eada;
+  color: #0b1220;
+  border-top-color: transparent;
+}
+
+.ns-top {
+  display: grid;
+  gap: 1.4rem;
+  align-items: end;
 }
 @media (min-width: 900px) {
-  .in-item {
-    grid-template-columns: 92px minmax(0, 1fr) 220px;
-    gap: clamp(1.6rem, 4vw, 3.2rem);
+  .ns-top {
+    grid-template-columns: 200px minmax(0, 1fr);
+    gap: clamp(1.6rem, 4vw, 3.4rem);
+  }
+}
+.ns-disc {
+  position: relative;
+  display: block;
+  aspect-ratio: 1;
+  width: min(200px, 56%);
+}
+.ns-disc-cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  -webkit-mask-image: radial-gradient(circle, #000 52%, transparent 78%);
+  mask-image: radial-gradient(circle, #000 52%, transparent 78%);
+}
+/* the halo is drawn in the dusk palette's cream and vermilion, which
+   disappears on a cream ground — on an inverted station it is knocked
+   back and multiplied into the paper instead */
+.ns-stn[data-invert="true"] .ns-disc-cv {
+  mix-blend-mode: multiply;
+  opacity: 0.75;
+}
+.ns-disc-g {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--fg);
+}
+.ns-freq {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  color: var(--accent);
+}
+.ns-stn h2 {
+  margin: 0.25rem 0 0.35rem;
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 600;
+  font-variation-settings: "SOFT" 24, "WONK" 1;
+  font-size: clamp(2rem, 5.4vw, 3.4rem);
+  line-height: 1;
+  letter-spacing: -0.035em;
+}
+.ns-pitch {
+  margin: 0.5rem 0 0;
+  max-width: 40ch;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: clamp(1.05rem, 2.3vw, 1.36rem);
+  line-height: 1.32;
+  color: var(--fg);
+}
+
+/* ── a group inside a station ───────────────────────────── */
+
+.ns-grp {
+  margin-top: clamp(1.6rem, 4vh, 2.6rem);
+}
+.ns-grp-hd {
+  margin: 0 0 0.75rem;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.4rem 0.9rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--rule-2);
+}
+.ns-note {
+  color: var(--fg-3);
+  font-size: 0.84rem;
+  line-height: 1.4;
+  max-width: 58ch;
+}
+/* the loud ones — a rule in the accent and the heading twice the size,
+   for the two or three groups that are the actual point of a station */
+.ns-grp[data-loud="true"] .ns-grp-hd {
+  border-bottom-color: var(--accent);
+  padding-bottom: 0.7rem;
+}
+.ns-grp[data-loud="true"] .ns-grp-hd .lab {
+  color: var(--accent);
+  font-size: 0.72rem;
+  letter-spacing: 0.3em;
+}
+.ns-grp[data-loud="true"] .ns-pick-t {
+  font-size: 1.24rem;
+}
+
+.ns-picks {
+  display: grid;
+  gap: 0.7rem;
+  /* min() rather than a bare 238px: auto-fill will happily lay out a
+     track wider than its container and push the whole page sideways on
+     a narrow phone. This collapses to one column instead. */
+  grid-template-columns: repeat(auto-fill, minmax(min(238px, 100%), 1fr));
+}
+.ns-pick {
+  position: relative;
+  padding: 0.85rem 0.95rem;
+  border: 1px solid var(--rule-2);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--fg) 3%, transparent);
+  transition: border-color var(--quick), transform var(--quick);
+}
+.ns-pick:hover {
+  border-color: var(--accent);
+  transform: translateY(-3px) rotate(-0.55deg);
+}
+.ns-no {
+  font-family: var(--font-mono), monospace;
+  font-size: 0.54rem;
+  letter-spacing: 0.2em;
+  color: var(--fg-3);
+}
+.ns-pick-t {
+  display: block;
+  margin: 0.15rem 0 0.22rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.2;
+}
+.ns-pick-w {
+  display: block;
+  color: var(--fg-2);
+  font-size: 0.84rem;
+  line-height: 1.42;
+}
+.ns-tag {
+  display: inline-block;
+  margin-top: 0.55rem;
+  padding: 0.14rem 0.55rem;
+  border: 1px solid color-mix(in srgb, var(--accent) 42%, transparent);
+  border-radius: 999px;
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+/* the starred pick takes the opposite ground to whatever it is on, so
+   it pops out of the wall on a dark station and on a cream one */
+.ns-pick[data-star="true"] {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: transparent;
+}
+.ns-pick[data-star="true"] .ns-pick-w {
+  color: color-mix(in srgb, var(--bg) 66%, transparent);
+}
+.ns-pick[data-star="true"] .ns-no {
+  color: color-mix(in srgb, var(--bg) 44%, transparent);
+}
+.ns-pick[data-star="true"] .ns-tag {
+  color: var(--accent);
+  border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+}
+
+.ns-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.7rem;
+}
+.ns-chip {
+  padding: 0.36rem 0.8rem;
+  border: 1px solid var(--rule-2);
+  border-radius: 999px;
+  font-size: 0.84rem;
+  color: var(--fg-2);
+  transition: border-color var(--quick), color var(--quick), transform var(--quick);
+}
+.ns-chip:hover {
+  border-color: var(--accent);
+  color: var(--fg);
+  transform: translateY(-2px) rotate(-0.8deg);
+}
+
+/* ── the spec sheet and the take ────────────────────────── */
+
+.ns-row {
+  display: grid;
+  gap: 1.4rem;
+  margin-top: clamp(1.8rem, 4.5vh, 2.8rem);
+}
+@media (min-width: 900px) {
+  .ns-row {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: clamp(1.6rem, 4vw, 3rem);
     align-items: start;
   }
 }
-
-.in-mark {
+.ns-spec {
+  margin: 0;
+  border-top: 1px solid var(--rule);
+}
+.ns-spec > div {
   display: flex;
-  align-items: baseline;
-  gap: 0.5rem;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.52rem 0;
+  border-bottom: 1px solid var(--rule-2);
+  font-size: 0.88rem;
+}
+.ns-spec dt {
   font-family: var(--font-mono), monospace;
-}
-@media (min-width: 900px) {
-  .in-mark {
-    display: grid;
-    gap: 0.1rem;
-    justify-items: start;
-    align-content: start;
-    padding-top: 0.4rem;
-  }
-}
-.in-freq {
-  font-size: 1.15rem;
-  color: var(--accent);
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
-}
-.in-no {
-  font-size: 0.6rem;
-  letter-spacing: 0.24em;
-  color: var(--rule);
-}
-
-.in-body h2 {
-  margin: 0 0 0.25rem;
-  font-size: clamp(1.35rem, 3.2vw, 1.75rem);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-}
-.in-body h2 .te {
-  font-size: 0.56em;
-  color: var(--fg-3);
-  letter-spacing: 0;
-  margin-left: 0.4em;
-}
-.in-sub {
-  margin: 0 0 0.8rem;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.7rem;
+  font-size: 0.58rem;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--fg-3);
+  padding-top: 0.2rem;
 }
-.in-long {
+.ns-spec dd {
   margin: 0;
-  max-width: 58ch;
-  color: var(--fg-2);
-}
-
-.in-facts {
-  margin: 0;
-  display: grid;
-  gap: 0.3rem;
-  align-content: start;
-  font-family: var(--font-mono), monospace;
-  font-size: 0.7rem;
-}
-.in-facts > div {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  border-bottom: 1px dotted var(--rule-2);
-  padding-bottom: 0.25rem;
-}
-.in-facts dt {
-  color: var(--fg-3);
-}
-.in-facts dd {
-  margin: 0;
-  color: var(--fg-2);
   text-align: right;
 }
-.in-facts dd[data-blank="true"] {
-  color: var(--rule);
+.ns-spec dd[data-blank="true"] {
+  color: var(--fg-3);
+}
+.ns-take {
+  border: 1px dashed color-mix(in srgb, var(--accent) 52%, transparent);
+  border-radius: 16px;
+  padding: 1rem 1.2rem;
+}
+.ns-take .lab {
+  color: var(--accent);
+}
+.ns-take p + p {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-size: 1.08rem;
+  line-height: 1.36;
 }
 
-.in-foot {
+.ns-caller {
+  margin: clamp(1.4rem, 3.5vh, 2.2rem) 0 0;
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.9rem;
   align-items: baseline;
-  gap: 1rem;
-  padding-top: clamp(2rem, 5vh, 3rem);
+  color: var(--fg-2);
+  font-size: 0.9rem;
 }
-.in-back {
+
+/* ── the sign-off ───────────────────────────────────────── */
+
+.ns-foot {
+  border-top: 1px solid var(--rule);
+  padding: clamp(3rem, 9vh, 6rem) var(--gut) clamp(4rem, 12vh, 7rem);
+  display: grid;
+  gap: 0.8rem;
+  justify-items: center;
+  text-align: center;
+}
+.ns-foot h3 {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 500;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+  letter-spacing: -0.02em;
+}
+.ns-foot-w {
+  margin: 0;
+  max-width: 44ch;
+  color: var(--fg-2);
+}
+.ns-back {
+  margin-top: 0.7rem;
+  padding: 0.72rem 1.35rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
   color: var(--fg);
   text-decoration: none;
-  border-bottom: 1px solid var(--rule);
-  padding-bottom: 2px;
+  transition: border-color var(--quick), color var(--quick), transform var(--quick);
 }
-.in-back:hover {
+.ns-back:hover {
   border-color: var(--accent);
   color: var(--accent);
+  transform: translateY(-2px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ns-tick-t,
+  .ns-seal,
+  .ns-lamp {
+    animation: none;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE DAWN — the front door
+
+   The landscape is drawn once, in the dark, and then lit. What
+   animates is light, never an object: no disc, no hills, only
+   unbounded gradients and one grain layer over the whole plate.
+   A border-radius circle reads as a browser shape however well
+   it is coloured — light has no edges, and that difference is
+   the entire reason this does not look like CSS.
+
+   Sunrise.tsx writes --t (the light), --w0..--w6 (each word)
+   and --c (the credit). One clock, nine seconds.
+   ═══════════════════════════════════════════════════════════ */
+
+.dawn {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  overflow: hidden;
+  background: #04060c;
+  isolation: isolate;
+  /* the lift, at the end */
+  transition: transform 900ms cubic-bezier(0.7, 0, 0.2, 1),
+    opacity 900ms cubic-bezier(0.7, 0, 0.2, 1);
+}
+.dawn[data-gone] {
+  transform: translateY(-6%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* the ground: a soft darkening, not an object with a top edge. The
+   drawn landscape belongs to the hero — this is only the weight the
+   bottom of the frame needs so the light has something to rise out of. */
+.dawn-land {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 34%;
+  pointer-events: none;
+  background: linear-gradient(180deg, transparent, #04060c 62%);
+  opacity: calc(0.5 + (1 - var(--t, 0)) * 0.5);
+}
+
+/* the sky: one tall gradient scrolled through, so the horizon warms from
+   the bottom up rather than a band sliding into place */
+.dawn-sky {
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    180deg,
+    #04060c 0%,
+    #060a14 18%,
+    #0b1220 34%,
+    color-mix(in srgb, var(--accent) 22%, #0b1220) 56%,
+    color-mix(in srgb, var(--accent) 52%, #2a1b22) 74%,
+    color-mix(in srgb, var(--accent) 40%, var(--fg)) 88%,
+    var(--fg) 100%
+  );
+  background-size: 100% 300%;
+  background-position: 0 calc((1 - var(--t, 0)) * 100%);
+  opacity: 0.62;
+}
+
+.dawn-stars {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(
+    circle,
+    rgba(233, 242, 254, 0.9) 0.7px,
+    transparent 1.1px
+  );
+  background-size: 34px 34px;
+  opacity: calc((1 - var(--t, 0)) * 0.34);
+  -webkit-mask-image: linear-gradient(#000, transparent 60%);
+  mask-image: linear-gradient(#000, transparent 60%);
+}
+
+/* the sun. It never has a boundary, which is the whole difference
+   between light and a circle. */
+.dawn-glow {
+  position: absolute;
+  left: 50%;
+  bottom: calc(-34% + var(--t, 0) * 46%);
+  width: min(160%, 1400px);
+  aspect-ratio: 1.6;
+  translate: -50% 0;
+  pointer-events: none;
+  background: radial-gradient(
+    closest-side,
+    color-mix(in srgb, var(--accent) 92%, var(--fg)) 0%,
+    color-mix(in srgb, var(--accent) 74%, transparent) 22%,
+    color-mix(in srgb, var(--accent) 34%, transparent) 46%,
+    transparent 74%
+  );
+  opacity: calc(0.22 + var(--t, 0) * 0.78);
+  filter: blur(calc(16px + (1 - var(--t, 0)) * 30px));
+}
+
+/* the words are the actual animation; the sky is the room it happens in */
+.dawn-say {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  gap: 1.1rem;
+  padding: 0 clamp(1.4rem, 6vw, 4rem);
+  text-align: center;
+}
+.dawn-line {
+  margin: 0;
+  max-width: 18ch;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  font-variation-settings: "SOFT" 70, "WONK" 1;
+  font-size: clamp(1.6rem, 5vw, 3.2rem);
+  line-height: 1.34;
+  color: var(--fg);
+  text-shadow: 0 2px 30px rgba(4, 6, 12, 0.45);
+}
+/* The words are separate elements with no text node between them, so the
+   space between them has to be drawn here — without it the line sets as
+   "Watchasunrise". A margin rather than word-spacing, because these are
+   inline-blocks and word-spacing has nothing to act on. */
+.dawn-line i {
+  display: inline-block;
+  margin-right: 0.3em;
+  font-style: inherit;
+  opacity: var(--w, 0);
+  clip-path: inset(0 0 calc((1 - var(--w, 0)) * 110%) 0);
+  transform: translateY(calc((1 - var(--w, 0)) * 0.34em));
+}
+/* no trailing space on the last word, or the centred line sits a third
+   of an em to the left of centre */
+.dawn-line i:last-child {
+  margin-right: 0;
+}
+
+/* the grain: kills the banding a wide gradient always shows on a warm
+   ground, and puts one shared texture over every layer so they stop
+   reading as separate elements */
+/* same reasoning as .grain — the dawn spends most of its nine seconds
+   as a near-black sky, which is precisely where overlay does nothing */
+.dawn-grain {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: calc(var(--grain, 0.22) * 1.1);
+  mix-blend-mode: screen;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n' color-interpolation-filters='sRGB'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='200' height='200' filter='url(%23n)'/></svg>");
+}
+
+.dawn-skip {
+  position: absolute;
+  z-index: 4;
+  left: 50%;
+  bottom: clamp(1.2rem, 4vh, 2.2rem);
+  translate: -50% 0;
+  color: var(--fg-3);
+  opacity: calc(var(--c, 0) * 0.7);
+}
+
+/* ── the landscape under the hero ──────────────────────────
+   The same drawing the dawn lit, still there after it lifts —
+   the site opens standing where the sunrise left you. Masked
+   out at the top so the name wall has clean air to sit in. */
+/* ── the landscape, where it actually lives ────────────────
+   The dawn is light; this is the picture. It breathes — a slow
+   drift through the same noise field — which is the one place
+   on the site a moving background is right, because you are
+   only ever looking at it while you are standing still. */
+.hero-land {
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 76%;
+  width: 100%;
+  display: block;
+  z-index: 0;
+  opacity: 0.78;
+  /* one mask, matching in both syntaxes — a two-layer -webkit rule beside
+     a one-layer standard rule means the two engines clip differently */
+  -webkit-mask-image: linear-gradient(to top, #000 30%, transparent 88%);
+  mask-image: linear-gradient(to top, #000 30%, transparent 88%);
+}
+
+
+/* ── the two borrowed lines ────────────────────────────────
+   Set in the warm face, uncredited by choice. If somebody
+   knows where they are from, that is the joke; if they do not,
+   they are just two good lines. */
+.said {
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 60, "WONK" 1;
+  font-size: clamp(1.02rem, 2vw, 1.28rem);
+  line-height: 1.32;
+  color: var(--accent);
+  max-width: 34ch;
+  margin: 0;
+}
+
+/* the handle, and why it is the handle. It sits under the profile links
+   in Contact, where every one of them already reads @jester — so the
+   line lands as a caption on something true rather than as a claim. */
+.jester {
+  display: grid;
+  gap: 0.3rem;
+  padding-top: clamp(0.8rem, 2vh, 1.2rem);
+  border-top: 1px solid var(--rule-2);
+}
+.jester-handle {
+  margin: 0;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.76rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-3);
+}
+.jester-handle b {
+  font-weight: 400;
+  color: var(--accent);
+}
+.jester-why {
+  margin: 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 50, "WONK" 1;
+  font-size: 0.94rem;
+  line-height: 1.38;
+  color: var(--fg-2);
+  max-width: 42ch;
+}
+
+/* ── the warm face, where it earns its place ───────────────
+   Section headings and the two quotes. Everything else stays
+   in the grotesque — a serif on every label would be costume. */
+.shead h2,
+.pr-head h3 {
+  font-family: var(--font-display), Georgia, serif;
+  font-weight: 500;
+  font-variation-settings: "SOFT" 24, "WONK" 0;
+  letter-spacing: -0.025em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dawn {
+    display: none;
+  }
+}
+
+/* the loader's last line, once the log has finished checking off */
+.boot-creed {
+  margin: 0.9rem 0 0;
+  max-width: 42ch;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 60, "WONK" 1;
+  font-size: 0.98rem;
+  line-height: 1.35;
+  color: var(--fg-2);
+  animation: creed 700ms var(--ease) both;
+}
+@keyframes creed {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .boot-creed {
+    animation: none;
+  }
+}
+
+
+
+/* ── the two asides ────────────────────────────────────────
+   The only handwriting on the site. They arrive with the rest
+   of the hero, after the boot log, and they are aria-hidden:
+   the name is already an h1 and the quote is already read, so
+   to a screen reader these are two arrows pointing at things
+   it has been told twice.                                   */
+
+.hero-yo,
+.hero-thought {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.3rem;
+  margin: 0;
+  color: var(--accent);
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 80, "WONK" 1;
+  line-height: 1;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 700ms var(--ease) 520ms, transform 700ms var(--ease) 520ms;
+}
+.hero[data-done] .hero-yo,
+.hero[data-done] .hero-thought {
+  opacity: 1;
+  transform: none;
+}
+.doodle {
+  width: 3em;
+  height: auto;
+  flex: none;
+  overflow: visible;
+}
+
+/* Over the wall, not in the flow — it has to sit against the name it is
+   pointing at, and the name is a full-bleed background layer. */
+.hero-yo {
+  position: absolute;
+  z-index: 3;
+  left: var(--gut);
+  top: clamp(5.4rem, 15vh, 9rem);
+  font-size: clamp(1.05rem, 2.6vw, 1.5rem);
+}
+.hero-yo .doodle {
+  margin-bottom: -0.7em;
+}
+
+/* Under the boot log, over the quote it points down at.
+   The arrow hangs BELOW the label baseline, so the label needs room
+   underneath it to hang into — with the old -1.2em and no margin the tip
+   landed in the middle of the first line of the quote. The overhang and
+   the gap are now the same distance, which is what keeps the tip in the
+   whitespace whatever the type scale does. */
+.hero-thought {
+  --hang: 0.9em;
+  font-size: clamp(0.95rem, 2.2vw, 1.25rem);
+  margin-bottom: var(--hang);
+  color: var(--fg-2);
+  align-items: baseline;
+}
+.hero-thought .doodle {
+  width: 1.85em;
+  margin-bottom: calc(var(--hang) * -1);
+  color: var(--accent);
+}
+
+@media (max-width: 720px) {
+  .hero-yo {
+    top: clamp(4.6rem, 11vh, 7rem);
+  }
+  .doodle {
+    width: 2.1em;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-yo,
+  .hero-thought {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ── the beat after the quote ──────────────────────────────
+   Two lines doing two different jobs, so they are set two
+   different ways: the aside stays in the handwriting, and the
+   introduction goes back into the grotesque the rest of the
+   site speaks. Keeping both in the italic would have made the
+   whole hero sound like a caption.               */
+
+.hero-quip {
+  margin: 0.5rem 0 0;
+  font-family: var(--font-display), Georgia, serif;
+  font-style: italic;
+  font-variation-settings: "SOFT" 80, "WONK" 1;
+  font-size: clamp(0.92rem, 2vw, 1.12rem);
+  color: var(--fg-2);
+}
+.hero-intro {
+  margin: 0.7rem 0 0;
+  max-width: 46ch;
+  font-size: clamp(0.96rem, 2vw, 1.14rem);
+  line-height: 1.45;
+  color: var(--fg-2);
+}
+/* the one clause that is an instruction rather than a description */
+.hero-intro span {
+  color: var(--fg);
+}
+
+/* ── the sign-off's landscape ──────────────────────────────
+   The same generator as the hero on an offset seed, so the
+   page ends somewhere else on the same evening rather than
+   back where it started. It arrives on --ct-lock with the
+   card, out of the dead air, and it is mounted only for the
+   back half of the scene — see Band.tsx.               */
+
+/* Full bleed. The pin lives inside the shell's gutters, so the layer has
+   to break out to the viewport on its own — a landscape that stops at the
+   text margin reads as an image in a column, not as the place you are
+   standing. */
+.ct-land {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 100vw;
+  transform: translateX(-50%);
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--ct-lock, 0);
+}
+.ct-land-cv {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0.95;
+}
+/* An even scrim rather than a gradient to the floor. The card sits over
+   the middle of the picture, not the bottom of it, so a bottom-weighted
+   veil would darken the dunes and leave the type fighting the sky. */
+/* Where he stands. Right of centre and cropped by the floor of the
+   frame, so the card's own column of type never has to share space with
+   him — on a narrow screen he steps further out and goes quieter still,
+   because there is no room there to be anything but a distraction. */
+.ct-figure {
+  position: absolute;
+  right: 4vw;
+  bottom: -2%;
+  height: 74%;
+  width: auto;
+  opacity: 0.92;
+  --as-suit: #e8dcc7;
+  --as-ink: #0b1220;
+  --as-visor: #c75340;
+  filter: drop-shadow(0 18px 40px rgba(4, 6, 12, 0.55));
+  /* his legs dissolve into the near dune rather than being cut off by
+     the bottom of a box — he is standing in the sand, not in front of a
+     picture of it */
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 20%);
+  mask-image: linear-gradient(to top, transparent 0%, #000 20%);
+}
+@media (max-width: 1100px) {
+  .ct-figure {
+    right: -6vw;
+    height: 58%;
+    opacity: 0.6;
+  }
+}
+
+.ct-land-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--bg) 88%, transparent) 0%,
+    color-mix(in srgb, var(--bg) 72%, transparent) 30%,
+    color-mix(in srgb, var(--bg) 64%, transparent) 62%,
+    color-mix(in srgb, var(--bg) 76%, transparent) 100%
+  );
+}
+/* everything in the pin sits above it — a positioned layer at z-index 0
+   otherwise paints over its in-flow siblings */
+.bd-head,
+.bd-stage,
+.fstrip {
+  position: relative;
+  z-index: 1;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   THE MACHINE-READABLE COPY
+
+   components/Machine.tsx — the whole site again as plain
+   headings and paragraphs. Hidden by clip, never by
+   `display: none`: a scraper that reads rendered text skips
+   anything display:none, which would defeat the point of
+   having it. It is aria-hidden in the markup instead, so a
+   screen reader is not read the same portfolio twice.
+   ═══════════════════════════════════════════════════════════ */
+
+.machine {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   THE LAST RESPONSIVE PASS
+
+   Everything above sizes itself; these are the places where a
+   real phone, a tablet in portrait or a very small laptop
+   window still found an edge.
+   ═══════════════════════════════════════════════════════════ */
+
+/* the work switch: two segments side by side is fine until the
+   viewport is narrower than the two words, at which point it takes
+   the full width and splits it evenly */
+@media (max-width: 460px) {
+  .wk-switch {
+    display: flex;
+    width: 100%;
+  }
+  .wk-seg {
+    flex: 1;
+    justify-content: center;
+    padding: 0.6rem 0.5rem;
+  }
+  .wk-seg-name {
+    font-size: 0.82rem;
+  }
+}
+
+/* the M band's spec sheets: a key and a long value on one row runs out
+   of width long before the page does */
+@media (max-width: 560px) {
+  .ns-spec > div {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.1rem;
+    padding: 0.6rem 0;
+  }
+  .ns-spec dd {
+    text-align: left;
+  }
+  .ns-caller {
+    flex-direction: column;
+    gap: 0.3rem;
+  }
+  .ns-take {
+    padding: 0.9rem 1rem;
+  }
+}
+
+/* a tablet in portrait: the station header stacks, so the disc should
+   not eat a third of the screen doing it */
+@media (max-width: 899px) {
+  .ns-disc {
+    width: min(148px, 42%);
+  }
+  .ns-stn {
+    padding: clamp(2.4rem, 6vh, 3.6rem) 0;
+  }
+}
+
+/* the plate poster at phone card size: the window keeps its radius but
+   the type has to give way, or the three lines under it push the
+   window down to nothing */
+@media (max-width: 759px) {
+  .poster--plate {
+    gap: 0.3rem;
+  }
+  .poster--plate .poster-fig {
+    font-size: 0.98rem;
+  }
+  .pl-win {
+    border-radius: 40px;
+  }
+}
+
+/* short landscape phones and small laptop windows: the About scene has
+   already given up pinning by here (see the 700px height query), so the
+   lower band stops trying to be two columns as well */
+@media (max-height: 700px) and (min-width: 1000px) {
+  .holo-under {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

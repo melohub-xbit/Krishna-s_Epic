@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Contour from "./Contour";
 
 /**
  * THE FRONT DOOR — three layers, arriving in order.
@@ -31,8 +32,13 @@ const BOOT: [string, string, string][] = [
   ["ready", "", "online"],
 ];
 
+/* The line the loader is long enough to read. It is about attention to
+   detail, which is the claim the rest of the site spends five scenes
+   making — and the joke is in the arithmetic, which needs a beat. */
+const CREED = "Success is 1% inspiration, 98% perspiration, and 2% attention to detail.";
+
 const WALL = [
-  { text: "VELIDANDA", dir: "a", te: false, hot: false },
+  { text: "VELIDANDA", dir: "a", te: false, hot: false, mark: true },
   { text: "కృష్ణ సాయి", dir: "b", te: true, hot: false },
   { text: "KRISHNA SAI", dir: "a", te: false, hot: true },
   { text: "వెలిదండ", dir: "b", te: true, hot: false },
@@ -41,13 +47,64 @@ const WALL = [
 
 const DOTS = "·".repeat(40);
 
-export default function Hero({
-  statement,
-  quiet,
-}: {
-  statement: string;
-  quiet: string;
-}) {
+/**
+ * The two pointers.
+ *
+ * Each is one continuous stroke that sweeps out, loops once, and then
+ * leaves the loop heading at the thing it is pointing at — the loop is
+ * what makes it read as drawn by a hand rather than plotted. The head is
+ * an open V laid on the tip, not a filled triangle: a filled head is an
+ * icon, two strokes are a pen.
+ *
+ * They are two separate shapes rather than one rotated, because the top
+ * one has to travel right and down into the wall while the bottom one
+ * drops straight onto the line beneath it, and a rotated copy of either
+ * ends up curling the wrong way round.
+ */
+
+/** sweeps right, loops, and comes down into the name wall */
+function CurlToWall() {
+  return (
+    <svg className="doodle" viewBox="0 0 64 48" fill="none" aria-hidden="true">
+      <g
+        stroke="currentColor"
+        strokeWidth="2.1"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M3 11C17 3 32 5 41 14c7 7 5 17-2 17-6 0-8-7-2-9 7-2 14 5 15 17" />
+        <path d="M46 33l6 7 6-7" />
+      </g>
+    </svg>
+  );
+}
+
+/**
+ * Drops, loops, and lands on the line below it.
+ *
+ * The stroke starts at the far LEFT of the box and level with the middle
+ * of the text, because the box is aligned on the baseline and hangs
+ * below it — begin the path at the top of the viewBox, as this did, and
+ * the arrow appears to start an inch above the words it belongs to,
+ * floating on its own.
+ */
+function CurlToLine() {
+  return (
+    <svg className="doodle" viewBox="0 0 46 56" fill="none" aria-hidden="true">
+      <g
+        stroke="currentColor"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <path d="M2 11c13-2 24 4 26 15 1 7-4 11-8 9-3-2-3-7 1-8 7-1 12 7 11 17" />
+        <path d="M26 39l6 8 6-8" />
+      </g>
+    </svg>
+  );
+}
+
+export default function Hero({ statement }: { statement: string }) {
   const [line, setLine] = useState(0);
   const [done, setDone] = useState(false);
   const timer = useRef<number | undefined>(undefined);
@@ -108,14 +165,27 @@ export default function Hero({
   return (
     <section id="entry" className="hero" data-done={done ? "true" : undefined}>
       <div className="hero-bg" aria-hidden="true">
+        {/* the picture. The dawn is only light — this is the thing it
+            was rising over, and it breathes. */}
+        <Contour className="hero-land" animate />
         <span className="hero-veil" />
       </div>
+
+      <p className="hero-yo" aria-hidden="true">
+        <span>Yo! I&rsquo;m</span>
+        <CurlToWall />
+      </p>
 
       <div className="hero-wall" aria-hidden="true">
         {WALL.map((r, i) => (
           <div
             key={r.text + i}
-            className={`hw ${r.dir}${r.hot ? " hot" : ""}${r.te ? " te" : ""}`}
+            className={
+              `hw ${r.dir}` +
+              (r.hot ? " hot" : "") +
+              (r.te ? " te" : "") +
+              (r.mark ? " mark" : "")
+            }
             style={{ ["--i" as string]: i }}
           >
             {Array.from({ length: 6 }, (_, k) => (
@@ -148,13 +218,30 @@ export default function Hero({
               {i < BOOT.length - 1 && i >= 4 && <span className="bo"> ok</span>}
             </p>
           ))}
+          {done && <p className="boot-creed">{CREED}</p>}
           {!done && <span className="caret" />}
         </div>
 
         <div className="hero-say">
-          <p className="hero-stmt">
-            {statement} <span className="quiet">{quiet}</span>
+          <p className="hero-thought" aria-hidden="true">
+            <span>Here&rsquo;s a thought</span>
+            <CurlToLine />
           </p>
+
+          <p className="said">
+            &ldquo;When life gives you lemonade, make lemons. Life will be all
+            like, &lsquo;Whaaaaaat?!&rsquo;&rdquo;
+          </p>
+
+          <p className="hero-quip">Good one, right :)</p>
+
+          <p className="hero-intro">
+            Anyway — I&rsquo;m Krishna Sai. A developer across a lot of domains and
+            a researcher in a few of them. I like building things, shipping
+            them, and making it just in time for a twilight.{" "}
+            <span>The rest of it is below.</span>
+          </p>
+
           <div className="meta">
             <div>
               <span className="lab">Based in</span>
@@ -163,10 +250,6 @@ export default function Hero({
             <div>
               <span className="lab">Currently</span>
               <span>Dual degree, IIIT Bangalore</span>
-            </div>
-            <div>
-              <span className="lab">Most recently</span>
-              <span>Research at Samsung Lab</span>
             </div>
           </div>
         </div>

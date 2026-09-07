@@ -237,9 +237,7 @@ export default function GlyphMatrix() {
     >
       <div className="gm-pin" ref={pin}>
         <div className="shead">
-          <h2>
-            Skills <span className="te">అస్త్రాలు</span>
-          </h2>
+          <h2>Skills</h2>
           <span className="lab">
             {String(live + 1).padStart(2, "0")} / {String(N).padStart(2, "0")} ·
             scroll to turn
@@ -252,10 +250,6 @@ export default function GlyphMatrix() {
 
             <div className="gm-read">
               <h3>{g.group}</h3>
-              <p className="gm-cnt">
-                {g.items.length} tools
-                {uses > 0 && ` · used in ${uses} of 22 projects`}
-              </p>
               <ul className="gm-list">
                 {g.items.map((it) => (
                   <li key={it}>{it}</li>

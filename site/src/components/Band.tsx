@@ -3,8 +3,11 @@
 import { useEffect, useRef, useState } from "react";
 import { addJob, prefersReducedMotion } from "@/lib/dots";
 import { INTERESTS } from "@/data/interests";
+import Glyph from "@/components/Glyph";
+import Astronaut from "@/components/Astronaut";
 import DoorLink from "./Door";
 import Contact from "./Contact";
+import Contour from "./Contour";
 import BandStrip, { type StripMark } from "./BandStrip";
 
 /**
@@ -84,6 +87,11 @@ export default function Band() {
   const [open, setOpen] = useState(false);
   /** the card has tuned in and can be read */
   const [locked, setLocked] = useState(false);
+  /* The sign-off's landscape is mounted only for the back half of the
+     scene. It is invisible until the card locks, but a canvas inside a
+     pin that is on screen for five hundred vh would otherwise sit there
+     breathing for the whole of the interests band with nobody looking. */
+  const [warm, setWarm] = useState(false);
 
   useEffect(() => {
     const el = scene.current;
@@ -105,6 +113,7 @@ export default function Band() {
       }
       setOpen(true);
       setLocked(true);
+      setWarm(true);
       return;
     }
 
@@ -121,6 +130,7 @@ export default function Band() {
     let lastLive = -1;
     let wasOpen = false;
     let wasLocked = false;
+    let wasWarm = false;
 
     const stop = addJob(() => {
       if (!visible) return true;
@@ -172,6 +182,11 @@ export default function Band() {
       if (l !== wasLocked) {
         wasLocked = l;
         setLocked(l);
+      }
+      const w = p > 0.5;
+      if (w !== wasWarm) {
+        wasWarm = w;
+        setWarm(w);
       }
       return true;
     });
@@ -233,10 +248,21 @@ export default function Band() {
       />
 
       <div className="bd-pin" ref={pin} data-open={open} data-locked={locked}>
+        {/* The sign-off gets its own evening. Same generator, an offset
+            seed, so it is a different place on the same night rather than
+            the hero's picture shown twice. */}
+        {warm && (
+          <span className="ct-land" aria-hidden="true">
+            <Contour className="ct-land-cv" offset={977} animate scribble />
+            {/* the figure stands ON the picture and UNDER the veil, so the
+                scrim that keeps the type readable dims him with the dunes
+                instead of leaving him pasted on top of them */}
+            <Astronaut className="ct-figure" />
+            <span className="ct-land-veil" />
+          </span>
+        )}
         <div className="shead bd-head">
-          <h2>
-            Off the clock <span className="te">అభిరుచులు</span>
-          </h2>
+          <h2>The M Band</h2>
           <span className="lab">
             {String(live + 1).padStart(2, "0")} / {String(N).padStart(2, "0")} ·
             scroll to tune
@@ -249,7 +275,8 @@ export default function Band() {
               {st.freq} <i>MHz</i>
             </p>
             <h3 className="bd-name">
-              {st.name} <span className="te">{st.te}</span>
+              <Glyph name={st.glyph} size={30} className="bd-glyph" />
+              {st.name}
             </h3>
             <p className="bd-sub">
               <span className="bd-copy">{st.sub}</span>
@@ -274,7 +301,10 @@ export default function Band() {
                   onClick={() => goTo(i)}
                 >
                   <span className="lab">{s.freq}</span>
-                  <span className="bd-stop-name">{s.name}</span>
+                  <span className="bd-stop-name">
+                    <Glyph name={s.glyph} size={16} className="bd-stop-glyph" />
+                    {s.name}
+                  </span>
                 </button>
               ))}
             </div>
@@ -282,7 +312,10 @@ export default function Band() {
 
           <div className="bd-out" aria-hidden={!open}>
             <p className="lab">Past the end of the band</p>
-            <DoorLink href="/interests" className="bd-door">
+            {/* nofollow: the far side is the personal half. A crawler
+                coming through the front page gets the professional site
+                and stops here; the M band has to be asked for. */}
+            <DoorLink href="/interests" className="bd-door" rel="nofollow">
               The whole shelf
             </DoorLink>
           </div>

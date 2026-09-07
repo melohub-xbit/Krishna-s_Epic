@@ -217,12 +217,15 @@ export default function DoorLink({
   href,
   className,
   back,
+  rel,
   children,
 }: {
   href: string;
   className?: string;
   /** turning the sheet back over rather than forward */
   back?: boolean;
+  /** passed through — the door out to /interests carries nofollow */
+  rel?: string;
   children: React.ReactNode;
 }) {
   const router = useRouter();
@@ -263,7 +266,7 @@ export default function DoorLink({
   };
 
   return (
-    <Link href={href} className={className} onClick={cross}>
+    <Link href={href} className={className} rel={rel} onClick={cross}>
       {children}
     </Link>
   );

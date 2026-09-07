@@ -1,5 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Instrument_Sans, DM_Mono, Noto_Sans_Telugu } from "next/font/google";
+import {
+  Instrument_Sans,
+  DM_Mono,
+  Noto_Sans_Telugu,
+  Fraunces,
+} from "next/font/google";
 import { paletteCSS, PALETTES, ACTIVE, DEFAULT_MODE } from "@/lib/palette";
 import Cursor from "@/components/Cursor";
 import Ambient from "@/components/Ambient";
@@ -16,6 +21,15 @@ const mono = DM_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
   variable: "--font-mono",
+  display: "swap",
+});
+/* The one warm face. Fraunces is variable on a softness and a wonk axis,
+   so quotes can be set soft and slightly hand-drawn while headings are the
+   same family set flat — one family, two temperaments. */
+const display = Fraunces({
+  subsets: ["latin"],
+  variable: "--font-display",
+  axes: ["SOFT", "WONK", "opsz"],
   display: "swap",
 });
 const telugu = Noto_Sans_Telugu({
@@ -43,7 +57,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${mono.variable} ${telugu.variable}`}
+      className={`${sans.variable} ${mono.variable} ${telugu.variable} ${display.variable}`}
       suppressHydrationWarning
     >
       {/* This MUST live inside <head>. React 19 will not hoist a bare

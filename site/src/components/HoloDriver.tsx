@@ -11,12 +11,17 @@ import { addJob, prefersReducedMotion } from "@/lib/dots";
  * on that number, so the sequence runs forwards on the way in and
  * *backwards* on the way out, with no separate exit to keep in step:
  *
- *   0.00 – 0.16   the base snaps open sideways, a line of light
- *   0.10 – 0.24   it fills out into a slab
- *   ~0.18         the flash — the lamp striking
- *   0.20 – 0.55   the beam climbs out of the lens
- *   0.34 – 0.78   the picture unfolds up out of the base
- *   0.55 – 0.95   the callouts arrive
+ *   0.00 – 0.14   the base snaps open sideways, a line of light
+ *   0.08 – 0.20   it fills out into a slab
+ *   ~0.16         the flash — the lamp striking
+ *   0.16 – 0.48   the beam climbs out of the lens
+ *   0.24 – 0.62   the picture unfolds up out of the base
+ *   0.44 – 0.82   the callouts arrive
+ *
+ * The whole sequence used to be spread over the first 30% of the pin's
+ * travel, which is half a screen of scrolling spent looking at an empty
+ * stage before anything happened. It is 17% now — the projector is
+ * assembling by the time the section has settled, not long after.
  *
  * Scrolling away runs that in reverse: the picture reels back down into
  * the lens, the beam retracts, and the slab collapses to a line and then
@@ -122,28 +127,28 @@ export default function HoloDriver() {
         const prog = clamp(-r.top / travel, 0, 1);
         p =
           prog < 0.5
-            ? smooth(clamp(prog / 0.3, 0, 1))
-            : smooth(clamp((1 - prog) / 0.26, 0, 1));
+            ? smooth(clamp(prog / 0.17, 0, 1))
+            : smooth(clamp((1 - prog) / 0.24, 0, 1));
       } else {
         /* too short to pin — fall back to how centred the section is */
         const c = r.top + r.height / 2;
         p = smooth(clamp(1 - Math.abs(c - h * 0.5) / (h * 0.7), 0, 1));
       }
 
-      const bx = stage(p, 0, 0.16);
-      const by = stage(p, 0.1, 0.24);
-      const beam = stage(p, 0.2, 0.55);
-      const fig = stage(p, 0.34, 0.78);
-      const call = stage(p, 0.55, 0.95);
+      const bx = stage(p, 0, 0.14);
+      const by = stage(p, 0.08, 0.2);
+      const beam = stage(p, 0.16, 0.48);
+      const fig = stage(p, 0.24, 0.62);
+      const call = stage(p, 0.44, 0.82);
       /* the lamp striking — a triangle around the moment the slab fills */
-      const flash = 1 - Math.min(1, Math.abs(p - 0.19) / 0.13);
+      const flash = 1 - Math.min(1, Math.abs(p - 0.16) / 0.12);
 
       /* three sines beaten together: wanders, never repeats on a beat */
       const n =
         Math.sin(now * 0.0021) *
         Math.sin(now * 0.0071) *
         Math.sin(now * 0.0133);
-      const lit = p > 0.3 ? 1 : 0;
+      const lit = p > 0.24 ? 1 : 0;
       const flick = lit && n > 0.42 ? (n > 0.62 ? 0.82 : 0.93) : 1;
       const jit = lit && n > 0.72 ? (Math.sin(now * 0.05) > 0 ? 1.6 : -1.6) : 0;
 

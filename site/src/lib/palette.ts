@@ -42,6 +42,39 @@ export type Palette = {
 
 /* ── the palettes ───────────────────────────────────────────── */
 
+/**
+ * DUSK — every value sampled from the Nothing OS astronaut wallpaper.
+ * Ink is the sky, vermilion is the visor, cream is the dunes. The
+ * neutrals are warm on purpose: a grey off a cream is a different
+ * animal from a grey off a white, and using the second on the first is
+ * what makes a warm palette look accidentally cold.
+ */
+const dusk: Palette = {
+  label: "Dusk",
+  dark: {
+    bg: "#0B1220",
+    bg2: "#151C2C",
+    fg: "#F4EADA",
+    fg2: "rgba(244, 234, 218, 0.62)",
+    fg3: "rgba(244, 234, 218, 0.36)",
+    rule: "rgba(244, 234, 218, 0.14)",
+    rule2: "rgba(244, 234, 218, 0.07)",
+    accent: "#C75340",
+    dot: "rgba(244, 234, 218, 0.88)",
+  },
+  light: {
+    bg: "#F4EADA",
+    bg2: "#E8DCC7",
+    fg: "#0B1220",
+    fg2: "rgba(11, 18, 32, 0.66)",
+    fg3: "rgba(11, 18, 32, 0.42)",
+    rule: "rgba(11, 18, 32, 0.16)",
+    rule2: "rgba(11, 18, 32, 0.08)",
+    accent: "#B73B2A",
+    dot: "rgba(11, 18, 32, 0.85)",
+  },
+};
+
 const mono: Palette = {
   label: "Mono",
   dark: {
@@ -146,14 +179,14 @@ const turmeric: Palette = {
   },
 };
 
-export const PALETTES = { mono, kumkum, peacock, turmeric } as const;
+export const PALETTES = { dusk, mono, kumkum, peacock, turmeric } as const;
 
 export type PaletteName = keyof typeof PALETTES;
 
 /* ─────────────────────────────────────────────────────────────
  *  ⬇  CHANGE THIS LINE TO CHANGE THE WHOLE SITE
  * ───────────────────────────────────────────────────────────── */
-export const ACTIVE: PaletteName = "mono";
+export const ACTIVE: PaletteName = "dusk";
 
 /**
  * The site is dark. There is no toggle any more, and no light mode is

@@ -42,11 +42,19 @@ export type Project = {
   live?: string;
   /** a hackathon placing or similar, shown as a stamp */
   award?: string;
+  /**
+   * Which poster face it wears — see components/Poster.tsx. Assigned
+   * below rather than written on each project: it alternates down the
+   * list so no two neighbours on the rail are the same card, and it is
+   * fixed to the project rather than to its position in whatever shelf
+   * is showing, so filtering never changes how a project looks.
+   */
+  face?: "plate" | "halo";
 };
 
 const GH = "https://github.com/melohub-xbit";
 
-export const PROJECTS: Project[] = [
+const RAW: Project[] = [
   /* ── research ──────────────────────────────────────────── */
   {
     id: "eeg-stress",
@@ -150,29 +158,6 @@ export const PROJECTS: Project[] = [
     repo: `${GH}/RecSys_Project`,
   },
   {
-    id: "mutanthunter",
-    name: "Mutant Hunter",
-    sub: "RL environment for test generation",
-    mark: "blade",
-    figure: "Mutation score",
-    caption: "is the reward. A test only pays if it actually kills a mutant.",
-    problem:
-      "Models write tests that pass. Passing is not the same as catching anything — a test suite can have full coverage and detect no real bug.",
-    approach:
-      "An OpenEnv-compatible RL environment that mutates the code under test and rewards the model by how many mutants its tests kill. Trained a LoRA on Qwen-Coder-7B and shipped the environment as a live Space.",
-    details: [
-      { label: "Reward", value: "Mutation score" },
-      { label: "Model", value: "Qwen-Coder-7B, LoRA" },
-      { label: "Runtime", value: "Docker, OpenEnv" },
-      { label: "Artifacts", value: "LoRA, eval dataset, W&B run" },
-    ],
-    stack: ["RL", "LLMs", "Docker", "OpenEnv"],
-    year: "2026",
-    track: "research",
-    repo: `${GH}/MetaOpenEnv_MutantHunter`,
-    live: "https://huggingface.co/spaces/jester1177/mutant-hunter-env",
-  },
-  {
     id: "devops-debug",
     name: "DevOps Debug Env",
     sub: "Open environment for CI/CD failure repair",
@@ -193,29 +178,6 @@ export const PROJECTS: Project[] = [
     year: "2026",
     track: "research",
     repo: `${GH}/CloudNative-Devops-Debug-OpenEnv`,
-  },
-  {
-    id: "ect-nimhans",
-    name: "NIVIQURE",
-    sub: "ECT-EEG format reverse engineering — NIMHANS",
-    mark: "crack",
-    figure: "8 channels",
-    caption: "recovered from an undocumented binary format, then screened for anomalies.",
-    problem:
-      "Clinical ECT recordings were locked in a proprietary .BIN format with no specification, so none of the data could be analysed.",
-    approach:
-      "Reverse-engineered the layout — 16-byte chunks, eight 16-bit little-endian channels — then built an anomaly suite over the recovered signal: DBSCAN, one-class SVM, LOF, a GAN, PELT change-points and wavelet LF/HF analysis.",
-    details: [
-      { label: "Format", value: "16-byte chunks" },
-      { label: "Channels", value: "8 × 16-bit LE" },
-      { label: "Detectors", value: "DBSCAN · OCSVM · LOF · GAN" },
-      { label: "Segmentation", value: "PELT change-points" },
-      { label: "Setting", value: "Clinical, NIMHANS" },
-    ],
-    stack: ["Python", "Signal processing", "Anomaly detection"],
-    year: "2025",
-    track: "research",
-    repo: `${GH}/ECT-NIMHANS`,
   },
   {
     id: "prism",
@@ -282,28 +244,6 @@ export const PROJECTS: Project[] = [
     track: "research",
     repo: `${GH}/MOML_Project`,
   },
-  {
-    id: "ml-b120",
-    name: "ML B120",
-    sub: "Tabular benchmarking with stacked ensembles",
-    mark: "stack",
-    figure: "6 families",
-    caption: "tuned and cross-validated, then stacked into one ensemble.",
-    problem:
-      "Tabular results are easy to overstate — one lucky split and a gradient-boosted model looks unbeatable.",
-    approach:
-      "Ran six model families — CatBoost, random forest, decision trees, KNN, ridge and linear — under Optuna tuning and K-fold cross-validation, tracked through a reproducible harness, then stacked them.",
-    details: [
-      { label: "Families", value: "6, plus a stacked ensemble" },
-      { label: "Tuning", value: "Optuna" },
-      { label: "Validation", value: "K-fold" },
-      { label: "Tracking", value: "Reproducible harness" },
-    ],
-    stack: ["CatBoost", "Optuna", "scikit-learn"],
-    year: "2024",
-    track: "research",
-    repo: `${GH}/ML_Project_B120`,
-  },
 
   /* ── build ─────────────────────────────────────────────── */
   {
@@ -353,52 +293,6 @@ export const PROJECTS: Project[] = [
     track: "build",
   },
   {
-    id: "desaigner",
-    name: "DesAIgner",
-    sub: "Real-time collaborative design canvas",
-    mark: "brushes",
-    figure: "2nd / 3,500+",
-    caption: "participants at MERNify, IIITB's Synergy '24 tech fest.",
-    problem:
-      "Design tools that support real collaboration are heavy. A hackathon version has to be live, multi-user and not fall over.",
-    approach:
-      "An infinite PixiJS canvas with multi-user live editing over WebSockets — shape, text and asset tools, plus AI content suggestions, on a MERN stack.",
-    details: [
-      { label: "Placing", value: "2nd of 3,500+" },
-      { label: "Canvas", value: "PixiJS, infinite" },
-      { label: "Collaboration", value: "WebSockets, live cursors" },
-      { label: "Event", value: "MERNify · Synergy '24" },
-    ],
-    stack: ["MERN", "PixiJS", "WebSockets"],
-    year: "2024",
-    track: "build",
-    repo: `${GH}/DesAIgner`,
-    award: "2nd prize",
-  },
-  {
-    id: "os-registrar",
-    name: "CLI Academia",
-    sub: "Multi-user educational management system",
-    mark: "keys",
-    figure: "100 clients",
-    caption: "concurrent connections, on a multi-threaded C server over TCP.",
-    problem:
-      "An Operating Systems project that actually exercises the subject: concurrency, synchronisation and sockets, not a toy CRUD app.",
-    approach:
-      "A multi-threaded C server with pthread orchestration, TCP socket communication and semaphore synchronisation, behind a three-tier role system with live enrolment tracking.",
-    details: [
-      { label: "Concurrency", value: "100 connections" },
-      { label: "Threading", value: "pthreads" },
-      { label: "Sync", value: "Semaphores" },
-      { label: "Transport", value: "TCP sockets" },
-      { label: "Roles", value: "Admin · student · faculty" },
-    ],
-    stack: ["C", "Operating systems", "Sockets"],
-    year: "2025",
-    track: "build",
-    repo: `${GH}/OS_Mini_Project`,
-  },
-  {
     id: "hft-sim",
     name: "HFT Simulator",
     sub: "Exchange and order-matching engine",
@@ -420,28 +314,6 @@ export const PROJECTS: Project[] = [
     year: "2024",
     track: "build",
     repo: `${GH}/HFT_and_OrderBook_Simulator`,
-  },
-  {
-    id: "dapi",
-    name: "Dapi",
-    sub: "Scenario-based language learning",
-    mark: "bridge",
-    figure: "5 games",
-    caption: "generated per scenario, with speech validation and cached audio.",
-    problem:
-      "Language apps teach the same fixed sentences to everyone. What people actually want is the language for the situation they are about to be in.",
-    approach:
-      "Generates a scenario, then lessons, then five game types from it — audio catch, mahjong, puzzle builder, target translation and word sprint — with generated speech, phonetics and speech validation.",
-    details: [
-      { label: "Games", value: "5 types, generated" },
-      { label: "Audio", value: "ElevenLabs, cached" },
-      { label: "Generation", value: "Gemini" },
-      { label: "Storage", value: "MongoDB · Cloudinary" },
-    ],
-    stack: ["Next.js", "TypeScript", "MongoDB", "Gemini"],
-    year: "2025",
-    track: "build",
-    repo: `${GH}/Dapi`,
   },
   {
     id: "mediassist",
@@ -551,7 +423,59 @@ export const PROJECTS: Project[] = [
     track: "build",
     repo: `${GH}/Dialecto`,
   },
+    {
+    id: "os-registrar",
+    name: "CLI Academia",
+    sub: "Multi-user educational management system",
+    mark: "keys",
+    figure: "100 clients",
+    caption: "concurrent connections, on a multi-threaded C server over TCP.",
+    problem:
+      "An Operating Systems project that actually exercises the subject: concurrency, synchronisation and sockets, not a toy CRUD app.",
+    approach:
+      "A multi-threaded C server with pthread orchestration, TCP socket communication and semaphore synchronisation, behind a three-tier role system with live enrolment tracking.",
+    details: [
+      { label: "Concurrency", value: "100 connections" },
+      { label: "Threading", value: "pthreads" },
+      { label: "Sync", value: "Semaphores" },
+      { label: "Transport", value: "TCP sockets" },
+      { label: "Roles", value: "Admin · student · faculty" },
+    ],
+    stack: ["C", "Operating systems", "Sockets"],
+    year: "2025",
+    track: "build",
+    repo: `${GH}/OS_Mini_Project`,
+  },
+  {
+    id: "desaigner",
+    name: "DesAIgner",
+    sub: "Real-time collaborative design canvas",
+    mark: "brushes",
+    figure: "2nd / 3,500+",
+    caption: "participants at MERNify, IIITB's Synergy '24 tech fest.",
+    problem:
+      "Design tools that support real collaboration are heavy. A hackathon version has to be live, multi-user and not fall over.",
+    approach:
+      "An infinite PixiJS canvas with multi-user live editing over WebSockets — shape, text and asset tools, plus AI content suggestions, on a MERN stack.",
+    details: [
+      { label: "Placing", value: "2nd of 3,500+" },
+      { label: "Canvas", value: "PixiJS, infinite" },
+      { label: "Collaboration", value: "WebSockets, live cursors" },
+      { label: "Event", value: "MERNify · Synergy '24" },
+    ],
+    stack: ["MERN", "PixiJS", "WebSockets"],
+    year: "2024",
+    track: "build",
+    repo: `${GH}/DesAIgner`,
+    award: "2nd prize",
+  },
 ];
+/* one face, then the other, all the way down */
+export const PROJECTS: Project[] = RAW.map((p, i) => ({
+  ...p,
+  face: i % 2 === 0 ? "plate" : "halo",
+}));
+
 
 export const RESEARCH = PROJECTS.filter((p) => p.track === "research");
 export const BUILD = PROJECTS.filter((p) => p.track === "build");
@@ -568,6 +492,15 @@ export const PROFILE = {
   statement:
     "Machine learning research, and the systems that carry it.",
   quiet: "Mostly the unglamorous half.",
+  /* The About paragraphs live here rather than inline in the page, so
+     the visible section and the machine-readable copy of the site are
+     the same words and cannot drift apart. */
+  about: [
+    "Hey again. Here\u2019s some more about me, what I\u2019ve done and what I do.",
+    "I\u2019m a curious, avid developer across several domains, working with all kinds of teams and building things that have a real use case at the end of them. I put AI and agentic systems into a lot of my own workflows and build streamlined applications around them, and my thing for hackathons and long sprints of dev has gotten me across a lot of ground \u2014 real-time and distributed systems, computer vision, recommendation, and the full-stack platforms that hold them up.",
+    "Along with dev, I\u2019ve also taken up research in domains like NLP, RecSys and CV, and I\u2019ve worked on genuinely new problems: multimodal EEG and ECG stress detection, medical image analysis and report generation, anomaly detection in hyperspectral imagery, and others in RecSys and NLP.",
+    "Jack of many trades, and happy about it. The goal is to keep this going and improving every day.",
+  ],
 };
 
 export const EDUCATION = {
@@ -577,18 +510,16 @@ export const EDUCATION = {
   cgpa: "3.51 / 4.0",
 };
 
+/* One entry, and it is written as a description rather than as talk:
+   what the work was for, what it was built out of, and what it produced.
+   The video analytics platform lives on the poster rail instead — it was
+   a project, not a post. */
 export const EXPERIENCE = [
   {
-    role: "Research — stress and recovery dynamics",
+    role: "Research Affiliate — multimodal stress detection",
     org: "Samsung Lab, IIIT Bangalore",
     span: "Jan — May 2026",
-    note: "Multi-stressor protocol, simultaneous EEG and ECG from 15 subjects. 95.6% detection accuracy with CNN-LSTM under leave-one-subject-out validation. Supervised by Dr. Sakshi Arora.",
-  },
-  {
-    role: "Signal analysis — ECT monitoring",
-    org: "NIMHANS",
-    span: "2025",
-    note: "Reverse-engineered an undocumented clinical EEG format and built an anomaly-detection suite over the recovered signal.",
+    note: "A study of how stress registers in the brain and the heart at the same time. A multi-stressor protocol recorded 8-channel EEG at 500 Hz alongside single-lead ECG from 15 subjects. Features across 4,939 windows trained SVM and CNN-LSTM classifiers, reaching 95.6% subject-independent accuracy under leave-one-subject-out validation. Supervised by Dr. Sakshi Arora.",
   },
 ];
 
@@ -623,19 +554,31 @@ export const ACHIEVEMENTS = [
 export const SKILLS = [
   {
     group: "Languages",
-    items: ["Python", "C++", "C", "Java", "JavaScript", "SQL"],
+    items: ["Python", "C++", "C", "Java", "JavaScript", "TypeScript", "SQL"],
   },
   {
-    group: "ML & signal",
-    items: ["PyTorch", "scikit-learn", "CNN-LSTM", "HRV", "YOLO", "Optuna"],
+    group: "ML/DL",
+    items: [
+      "PyTorch",
+      "TensorFlow",
+      "scikit-learn",
+      "CNN-LSTM",
+      "Transformers",
+      "YOLO",
+      "Optuna",
+    ],
   },
   {
-    group: "Backend & data",
-    items: ["FastAPI", "MERN", "MongoDB", "MySQL", "TimescaleDB"],
+    group: "Backend",
+    items: ["FastAPI", "Node.js", "Express", "MongoDB", "MySQL", "TimescaleDB"],
   },
   {
-    group: "Platform",
-    items: ["Docker", "Kubernetes", "Google Cloud", "Kafka"],
+    group: "Frontend",
+    items: ["React", "Next.js", "Tailwind", "HTML/CSS", "Streamlit"],
+  },
+  {
+    group: "Tools and Frameworks",
+    items: ["Docker", "Kubernetes", "Google Cloud", "Kafka", "Git", "LangChain"],
   },
   {
     group: "Coursework",
@@ -683,6 +626,6 @@ export const SECTIONS = [
   { id: "about", en: "About", te: "పరిచయం" },
   { id: "work", en: "Work", te: "పనులు" },
   { id: "skills", en: "Skills", te: "అస్త్రాలు" },
-  { id: "interests", en: "Off the clock", te: "అభిరుచులు" },
+  { id: "interests", en: "The M Band", te: "అభిరుచులు" },
   { id: "contact", en: "Contact", te: "ముద్ర" },
 ] as const;
