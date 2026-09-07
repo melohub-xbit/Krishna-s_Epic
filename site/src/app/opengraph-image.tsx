@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { PROJECTS } from "@/data/projects";
 
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
@@ -60,7 +61,7 @@ export default function OG() {
             Velidanda Krishna Sai
           </div>
           <div style={{ fontSize: 30, color: "rgba(244,234,218,.72)" }}>
-            22 projects · @jester
+            {PROJECTS.length} projects · @jester
           </div>
         </div>
       </div>
