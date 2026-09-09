@@ -59,8 +59,8 @@ export default function Interests() {
           </h1>
           <p className="ns-lede">
             Six stations, no adverts, and no professionalism whatsoever. The
-            work is on the front page. This is everything the front page has
-            the good sense not to mention.
+            work is on the front page. This is everything else — the things I
+            like, and the ones I keep coming back to.
           </p>
           <span className="ns-seal" aria-hidden="true">
             <span>
@@ -172,7 +172,7 @@ export default function Interests() {
                 </dl>
 
                 <div className="ns-take">
-                  <p className="lab">Hot take</p>
+                  <p className="lab">Why it stuck</p>
                   <p>{s.take}</p>
                 </div>
               </div>

@@ -96,17 +96,42 @@ export const GLYPHS: Record<string, GlyphPainter> = {
     o.stroke();
   },
 
-  Coursework: (o, w, h) => {
-    const bar = h * 0.11;
-    const rows: [number, number][] = [
-      [0.22, 0.56],
-      [0.16, 0.68],
-      [0.26, 0.48],
-    ];
-    rows.forEach(([x, ww], i) => {
-      o.fillRect(w * x, h * (0.28 + i * 0.18), w * ww, bar);
+  /** a chip: the die, and the pins coming out of both sides */
+  Systems: (o, w, h) => {
+    pen(o, w, 0.075);
+    o.strokeRect(w * 0.28, h * 0.28, w * 0.44, h * 0.44);
+    o.beginPath();
+    [0.38, 0.5, 0.62].forEach((y) => {
+      o.moveTo(w * 0.16, h * y);
+      o.lineTo(w * 0.28, h * y);
+      o.moveTo(w * 0.72, h * y);
+      o.lineTo(w * 0.84, h * y);
+    });
+    o.stroke();
+    o.beginPath();
+    o.arc(w * 0.5, h * 0.5, w * 0.07, 0, Math.PI * 2);
+    o.fill();
+  },
+
+  /** a fitted line through three points — the oldest picture of a model */
+  "ML foundations": (o, w, h) => {
+    pen(o, w, 0.07);
+    o.beginPath();
+    o.moveTo(w * 0.2, h * 0.72);
+    o.lineTo(w * 0.8, h * 0.3);
+    o.stroke();
+    const r = w * 0.062;
+    [
+      [0.3, 0.56],
+      [0.52, 0.58],
+      [0.7, 0.34],
+    ].forEach(([x, y]) => {
+      o.beginPath();
+      o.arc(w * x, h * y, r, 0, Math.PI * 2);
+      o.fill();
     });
   },
+
 
   /* ── the M band ────────────────────────────────────────────
      Four more painters, same rules — these ride at 26px next to

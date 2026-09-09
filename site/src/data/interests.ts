@@ -52,6 +52,7 @@ export type Interest = {
   groups: Group[];
   /** the joke spec sheet — "—" renders as a blank, not as an invention */
   specs: [string, string][];
+  /** the closing line — why it stuck, not an argument to be had */
   take: string;
   caller?: { who: string; q: string };
   /** cream ground instead of dusk */
@@ -66,27 +67,22 @@ export const INTERESTS: Interest[] = [
     glyph: "Movies",
     sub: "Marvel over DC, Tollywood over almost everything",
     pitch:
-      "Marvel in one hand, Tollywood in the other, and no interest whatsoever in defending either.",
+      "Marvel in one hand, Tollywood in the other, and a full theatre if I can get one.",
     groups: [
       {
-        title: "The side I picked",
+        title: "Marvel",
         picks: [
           {
             t: "Marvel",
-            w: "All of it. In a Marvel versus DC argument I do not participate, I just leave.",
-            tag: "allegiance",
+            w: "All of it, and gladly. The whole run, the crossovers, the ones I have seen too many times.",
+            tag: "the whole run",
             star: true,
-          },
-          {
-            t: "DC",
-            w: "Not for me. We can still be friends about it.",
-            tag: "declined",
           },
         ],
       },
       {
         title: "Mahesh Babu",
-        note: "The filmography I could recite from memory, unprompted, and have.",
+        note: "My favourites of his, more or less in the order I came to them.",
         chips: [
           "Murari",
           "Pokiri",
@@ -102,7 +98,7 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Seethamma Vaakitlo Sirimalle Chettu",
-            w: "An absolute character in this one. The whole film sits on it.",
+            w: "An absolute character in this one. My favourite thing he has done.",
             tag: "the performance",
             star: true,
           },
@@ -127,7 +123,7 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Salaar",
-            w: "Not a film I watch — a button I press when I need my heart rate up. Rewatched more times than is reasonable.",
+            w: "My go-to when I want the adrenaline. I have put this one on more times than I can count.",
             tag: "adrenaline",
             star: true,
           },
@@ -155,16 +151,16 @@ export const INTERESTS: Interest[] = [
       },
     ],
     specs: [
-      ["Marvel or DC", "Marvel. Next question."],
+      ["Comfort genre", "Action, and a full house"],
       ["Preferred venue", "A full Telugu theatre"],
-      ["Mahesh, Prabhas, Nani", "Do not make me rank them"],
-      ["Salaar rewatches", "Lost count, on purpose"],
+      ["Three favourites", "Mahesh, Prabhas, Nani"],
+      ["Salaar rewatches", "Lost count"],
     ],
     take:
-      "A three-hour Telugu film in a packed theatre is a live event, not a screening. Everything else is just watching something.",
+      "A three-hour Telugu film in a packed theatre is the best time I have. The whistles, the interval, all of it.",
     caller: {
       who: "Caller 01",
-      q: "“He has recited the entire Mahesh Babu filmography, unprompted, more than once.” — a friend, correctly",
+      q: "“He can name every one of them in order.” — a friend, and fair enough",
     },
   },
 
@@ -197,13 +193,13 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Ryukendo",
-            w: "The one. Nothing from that whole era comes close, and I will not be talked down from this.",
-            tag: "untouchable",
+            w: "My favourite thing from that whole era. Still is.",
+            tag: "the favourite",
             star: true,
           },
           {
             t: "Power Rangers",
-            w: "The gateway drug. Morphing sequences committed permanently to memory.",
+            w: "How it started. I still know the morphing sequences by heart.",
             tag: "the gateway",
           },
         ],
@@ -252,15 +248,15 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Attack on Titan",
-            w: "A forever spot. Nothing is taking it, and nothing has come close to trying.",
-            tag: "immovable",
+            w: "A forever spot on this list. One of my favourite things I have watched.",
+            tag: "forever",
             star: true,
           },
         ],
       },
       {
         title: "The three that stuck",
-        note: "Not the rare picks. The ones that actually did something.",
+        note: "The three I keep coming back to.",
         spotlight: true,
         picks: [
           { t: "One Piece", w: "Still going. So am I.", tag: "the long one" },
@@ -272,14 +268,14 @@ export const INTERESTS: Interest[] = [
     specs: [
       ["First ever", "Bolt, on loop"],
       ["Subs or dubs", "Subs"],
-      ["Niche credentials", "Deliberately none"],
-      ["Shows that changed something", "Three, and they are not moving"],
+      ["Picks", "Happily mainstream"],
+      ["Closest to me", "Three of them"],
     ],
     take:
-      "Yes, those three are the big ones. I love them for what they mean to me, not for how few other people have heard of them — being a niche anime fan was never the point.",
+      "Those three are the big ones, and that is fine by me. I love them for what they mean to me rather than for how rare they are.",
     caller: {
       who: "Caller 02",
-      q: "“Put Ryukendo on one more time.” — a childhood, repeatedly",
+      q: "“One more episode.” — me, at eleven, every evening",
     },
   },
 
@@ -290,7 +286,7 @@ export const INTERESTS: Interest[] = [
     glyph: "Motorhead",
     sub: "Driving it beats reading about it",
     pitch:
-      "I would rather be on the thing than reading about the thing. Cruisers, manual boxes, and the long way round.",
+      "I like being on the thing more than reading about it. Cruisers, manual boxes, and the long way round.",
     groups: [
       {
         title: "Two wheels",
@@ -303,7 +299,7 @@ export const INTERESTS: Interest[] = [
           },
           {
             t: "Long rides",
-            w: "Boys’ trips, real distance, and a standing plan to do considerably more of them.",
+            w: "Boys’ trips, real distance, and a standing plan to do a lot more of them.",
             tag: "done, and doing",
           },
         ],
@@ -314,8 +310,8 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Manual transmission",
-            w: "The GOAT choice. This is not a discussion, it is a position.",
-            tag: "non-negotiable",
+            w: "My favourite way to drive. Always will be.",
+            tag: "the favourite",
             star: true,
           },
           {
@@ -337,7 +333,7 @@ export const INTERESTS: Interest[] = [
       },
       {
         title: "Followed from a distance",
-        note: "Not a spec-sheet obsessive. These just look right.",
+        note: "The ones I like looking at.",
         chips: [
           "Porsche",
           "Mercedes-Benz",
@@ -347,24 +343,24 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "A rugged jeep",
-            w: "Over every single thing listed above. The Pajero Sport sort — old-school Indian road presence, zero subtlety.",
-            tag: "above all",
+            w: "My favourite of the lot. The Pajero Sport sort — that old-school Indian road presence.",
+            tag: "the favourite",
             star: true,
           },
         ],
       },
     ],
     specs: [
-      ["Gearbox", "Manual, obviously"],
+      ["Gearbox", "Manual"],
       ["Favourite class", "Cruiser"],
       ["Behind the wheel", "New, and enthusiastic"],
-      ["Above everything", "A rugged jeep"],
+      ["Favourite of all", "A rugged jeep"],
     ],
     take:
-      "Car people argue about numbers. I would rather have the long route, a manual box and the right song at the right moment.",
+      "My favourite part of any of it is the drive itself — the long route, a manual box and the right song at the right moment.",
     caller: {
       who: "Caller 03",
-      q: "“He took the longer road again.” — everyone in the car",
+      q: "“He took the longer road again.” — everyone in the car, and they were right",
     },
   },
 
@@ -383,7 +379,7 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "The rewatch",
-            w: "I have lost count. Not “I stopped counting” — genuinely cannot say. And I am still watching it now.",
+            w: "I have genuinely lost count, and I am still watching it now.",
             tag: "ongoing",
             star: true,
           },
@@ -407,10 +403,10 @@ export const INTERESTS: Interest[] = [
       ["Side project", "A TV that plays nothing else"],
     ],
     take:
-      "It is built out of people being wrong in ways that are recognisable rather than cruel, which is rarer than it sounds and is exactly why it survives the fourth pass.",
+      "It is built out of people being wrong in ways that are recognisable rather than cruel, and that is why it still lands on the fourth pass.",
     caller: {
       who: "Caller 04",
-      q: "“Is this the one where—” “Yes.” — every single time",
+      q: "“Is this the one where—” “Yes.” — every time",
     },
   },
 
@@ -421,7 +417,7 @@ export const INTERESTS: Interest[] = [
     glyph: "Music",
     sub: "Rock loud, Telugu classic, One Direction forever",
     pitch:
-      "Bass-boosted, one notch too loud, and largely the same handful of things for years.",
+      "Bass-boosted, a notch too loud, and largely the same handful of things for years.",
     groups: [
       {
         title: "Loud",
@@ -429,11 +425,11 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Linkin Park",
-            w: "The loud half of everything. Formative, and I am not apologising for it.",
+            w: "The loud half of everything, and the band I grew up on.",
             tag: "the loud half",
             star: true,
           },
-          { t: "Skillet", w: "Same job, different accent.", tag: "hype" },
+          { t: "Skillet", w: "Same job, same volume.", tag: "hype" },
           {
             t: "Theme songs",
             w: "Anything written to make you feel like the main character of something.",
@@ -468,10 +464,10 @@ export const INTERESTS: Interest[] = [
       ["Skip rate", "Suspiciously low"],
     ],
     take:
-      "One Direction is not a guilty pleasure. Drop the guilty and the sentence still works fine.",
+      "One Direction has been on since 8th standard and has never once come off. Easily my most-played.",
     caller: {
       who: "Caller 05",
-      q: "“He has had the same five artists on since school.” — a friend, also correctly",
+      q: "“He has had the same five artists on since school.” — a friend, and true",
     },
   },
 
@@ -482,7 +478,7 @@ export const INTERESTS: Interest[] = [
     glyph: "Meows and Bows",
     sub: "Started with a cartoon dog, never recovered",
     pitch:
-      "A film about a dog who thinks he is a superhero did this to me, and I regret none of it.",
+      "A film about a dog who thinks he is a superhero started this, and it never wore off.",
     invert: true,
     groups: [
       {
@@ -490,25 +486,25 @@ export const INTERESTS: Interest[] = [
         picks: [
           {
             t: "Dogs",
-            w: "The original cause. Bolt is entirely responsible and has never been held accountable.",
-            tag: "blame Bolt",
+            w: "Where it started. Bolt is entirely responsible.",
+            tag: "thanks, Bolt",
             star: true,
           },
           {
             t: "Cats",
-            w: "Arrived later and argued their way in, which is very much their method.",
-            tag: "earned it",
+            w: "Came later, and just as much of a favourite now.",
+            tag: "equally",
           },
         ],
       },
     ],
     specs: [
       ["Origin story", "A cartoon dog, 2008"],
-      ["Team", "Both. Do not make me choose."],
+      ["Team", "Both, equally"],
       ["Currently", "—"],
       ["Given the chance", "Immediately"],
     ],
     take:
-      "Every interest on this page can be traced back to something I watched. This one just happens to be about an animal, and it stuck harder than any of them.",
+      "Most things on this page started with something I watched. This one did too, and it turned into the softest spot I have.",
   },
 ];

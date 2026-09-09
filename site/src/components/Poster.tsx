@@ -51,10 +51,15 @@ export default function Poster({
           <PosterArt seed={seed} className="pl-cv" />
         </span>
 
+        {/* The big vermilion line says WHAT IT IS, not what it scored.
+            On a rail you read at an angle, "Computed, not read" tells a
+            stranger nothing; "EV fleet intelligence" tells them
+            everything. The number keeps its place underneath, and gets
+            to be the headline again in the opened record. */}
         <span className="pl-body">
           <span className="poster-name">{project.name}</span>
-          <span className="poster-fig">{project.figure}</span>
-          <span className="poster-for">{project.sub}</span>
+          <span className="poster-fig">{project.sub}</span>
+          <span className="poster-for">{project.figure}</span>
         </span>
 
         <span className="poster-foot">
@@ -70,7 +75,7 @@ export default function Poster({
   return (
     <span className="poster poster--halo">
       <span className="poster-hd">Wanted</span>
-      <span className="poster-for">{project.sub}</span>
+      <span className="poster-for">{project.figure}</span>
 
       <span className="poster-art">
         <PosterArt seed={seed} kind="halo" className="hl-cv" />
@@ -80,7 +85,7 @@ export default function Poster({
       </span>
 
       <span className="poster-name">{project.name}</span>
-      <span className="poster-fig">{project.figure}</span>
+      <span className="poster-fig">{project.sub}</span>
       <span className="poster-cap">{cap}</span>
 
       <span className="poster-foot">

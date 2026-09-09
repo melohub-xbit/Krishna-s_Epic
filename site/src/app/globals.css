@@ -1660,6 +1660,11 @@ button:active {
   color: var(--fg-2);
   max-width: 46ch;
 }
+.gm-list[data-many="true"] {
+  font-size: clamp(0.78rem, 1.2vw, 0.92rem);
+  gap: 0.35rem 1rem;
+  max-width: 56ch;
+}
 .gm-ticks {
   display: flex;
   gap: 6px;
@@ -1977,13 +1982,17 @@ button:active {
   letter-spacing: -0.015em;
   line-height: 1.12;
 }
+/* Was a number, is now a phrase — so it sets a size smaller, wraps to
+   two lines without touching anything, and keeps the accent that made
+   it the thing your eye lands on. */
 .poster-fig {
-  margin: 0.2rem 0 0;
+  margin: 0.24rem 0 0;
   text-align: center;
-  font-size: 1.3rem;
+  font-size: 1.06rem;
   font-weight: 600;
-  letter-spacing: -0.025em;
-  line-height: 1;
+  letter-spacing: -0.02em;
+  line-height: 1.16;
+  text-wrap: balance;
   transition: color 300ms var(--ease);
 }
 .poster-cap {
@@ -2133,7 +2142,7 @@ button:active {
     font-size: 0.8rem;
   }
   .poster-fig {
-    font-size: 1rem;
+    font-size: 0.86rem;
   }
   .poster-foot {
     font-size: 0.44rem;
@@ -4161,7 +4170,7 @@ html.door-flip .flip {
     gap: 0.3rem;
   }
   .poster--plate .poster-fig {
-    font-size: 0.98rem;
+    font-size: 0.84rem;
   }
   .pl-win {
     border-radius: 40px;

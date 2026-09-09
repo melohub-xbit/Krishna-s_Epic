@@ -1,16 +1,18 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="VKS">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="K">
   <!--
     The tab mark: the helmet from the sign-off, reduced to what sixteen
-    pixels can hold. One cream silhouette, one vermilion visor, the
-    initials knocked out of it, and the glint that makes the visor read
-    as glass rather than as a dot.
+    pixels can hold. One cream silhouette, one vermilion visor, the K
+    knocked out of it, and the glint that makes the visor read as glass
+    rather than as a dot.
 
-    The letters are drawn as paths, not set as type. A favicon renders
-    with no web fonts loaded, so a text element here would fall back to
-    whatever the OS hands it and the mark would change shape per machine.
+    The K is drawn as paths, not set as type. A favicon renders with no
+    web fonts loaded, so a text element here would fall back to whatever
+    the OS hands it and the mark would change shape per machine.
 
     Same three colours as the rest of the site: the plate, the cream and
-    the accent. apple-icon.png is this without the corner radius, because
+    the accent. The K is cream rather than ink because ink on vermilion
+    is two dark values fighting each other, and at tab size the letter
+    simply disappeared into the visor. apple-icon.png is this without the corner radius, because
     iOS applies its own mask and rounding it twice leaves a pale fringe.
 
     Note for future edits: no double hyphens anywhere in this comment.
@@ -23,12 +25,6 @@
   <rect x="49" y="14" width="10" height="22" rx="4.6" fill="#E8DCC7"/>
   <rect x="9" y="7" width="46" height="46" rx="18" fill="#E8DCC7"/>
   <circle cx="32" cy="29.5" r="15.4" fill="#C75340"/>
-  <g fill="none" stroke="#0B1220" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M21.6 24.4 24.7 34.6 27.8 24.4"/>
-    <path d="M31.2 24.2V34.6"/>
-    <path d="M31.2 29.4 35.4 24.2"/>
-    <path d="M31.2 29.4 35.9 34.6"/>
-    <path d="M43.2 25.4c0-1.8-4.4-2.1-4.4.4 0 2.5 4.6 2.6 4.6 5.4 0 2.6-4.4 2.5-4.7.5"/>
-  </g>
-  <ellipse cx="23.6" cy="20.4" rx="4.2" ry="2.4" transform="rotate(-32 23.6 20.4)" fill="#E8DCC7" opacity="0.5"/>
+  <path d="M27.2 21.4v16.2M27.2 29.5l9.3-8.1M27.2 29.5l9.8 8.1" fill="none" stroke="#F4EADA" stroke-width="4.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <ellipse cx="22.6" cy="19.4" rx="4" ry="2.2" transform="rotate(-32 22.6 19.4)" fill="#E8DCC7" opacity="0.45"/>
 </svg>

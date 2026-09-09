@@ -250,7 +250,10 @@ export default function GlyphMatrix() {
 
             <div className="gm-read">
               <h3>{g.group}</h3>
-              <ul className="gm-list">
+              {/* Coursework is twice the length of every other group, and
+                  this screen is pinned — it sets smaller rather than
+                  running off the bottom of it. */}
+              <ul className="gm-list" data-many={g.items.length > 10 ? "true" : "false"}>
                 {g.items.map((it) => (
                   <li key={it}>{it}</li>
                 ))}

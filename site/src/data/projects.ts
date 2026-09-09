@@ -59,7 +59,7 @@ const RAW: Project[] = [
   {
     id: "eeg-stress",
     name: "EEG · ECG Stress",
-    sub: "Multimodal stress and recovery — Samsung Lab, IIITB",
+    sub: "Multimodal stress detection",
     mark: "wave",
     figure: "95.6%",
     figureValue: 95.6,
@@ -81,12 +81,12 @@ const RAW: Project[] = [
     stack: ["Python", "CNN-LSTM", "HRV", "scikit-learn"],
     year: "2026",
     track: "research",
-    repo: `${GH}/ECT_EEG_Stress`,
+    repo: "https://github.com/prakrititz/ECT_EEG_Stress",
   },
   {
     id: "vehicle-detection",
     name: "Vehicle Detection",
-    sub: "ICDEC'24 detection in adverse weather",
+    sub: "Detection in adverse weather",
     mark: "scope",
     figure: "1st / 2,000",
     caption: "teams, in the ICDEC'24 Vehicle Detection in Various Weather Conditions challenge.",
@@ -110,7 +110,7 @@ const RAW: Project[] = [
   {
     id: "dalsp",
     name: "DALSP",
-    sub: "Domain-aware layer-sensitivity pruning for LLMs",
+    sub: "Domain-aware LLM pruning",
     mark: "tree",
     figure: "20%",
     figureValue: 20,
@@ -135,7 +135,7 @@ const RAW: Project[] = [
   {
     id: "racs",
     name: "RACS",
-    sub: "Risk-aware cold-start recommendation",
+    sub: "Cold-start recommendation",
     mark: "compass",
     figure: "0.68 NDCG",
     figureValue: 0.68,
@@ -160,7 +160,7 @@ const RAW: Project[] = [
   {
     id: "devops-debug",
     name: "DevOps Debug Env",
-    sub: "Open environment for CI/CD failure repair",
+    sub: "CI/CD repair environment",
     mark: "pipe",
     figure: "10 tasks",
     caption: "graded, deterministic failures across Docker, Kubernetes and GitHub Actions.",
@@ -181,30 +181,31 @@ const RAW: Project[] = [
   },
   {
     id: "prism",
-    name: "PRISM WSI",
-    sub: "Whole-slide image inference pipeline",
+    name: "Medical Report Generation",
+    sub: "Pathology report generation",
     mark: "lens",
-    figure: "3 formats",
-    caption: "of gigapixel pathology slide read, tiled and aggregated automatically.",
+    figure: "Zero-shot",
+    caption: "pathology reports written straight off the slide, with no report-level training.",
     problem:
-      "A whole-slide image is gigapixel-scale and comes in vendor formats. Getting from a slide on disk to a usable feature vector is most of the work.",
+      "A whole-slide image is gigapixel-scale and arrives in vendor formats. Everything downstream — a diagnosis, a report, a second opinion — waits on turning that slide into something a model can read.",
     approach:
-      "Virchow, a ViT tile encoder, produces tile embeddings; PRISM aggregates them into slide-level features. Automatic tiling, and multi-format output at the end.",
+      "Virchow encodes tiles, PRISM aggregates them into slide-level features, and the report is generated from those features zero-shot. Evaluated on both NLP metrics and semantic agreement, because a report that scores well on n-grams and says the wrong thing is worse than useless.",
     details: [
-      { label: "Formats", value: ".svs · .ndpi · .tiff" },
       { label: "Tile encoder", value: "Virchow (ViT)" },
       { label: "Aggregator", value: "PRISM" },
-      { label: "Scale", value: "Gigapixel slides" },
+      { label: "Also compared", value: "CONCH" },
+      { label: "Formats", value: ".svs · .ndpi · .tiff" },
+      { label: "Evaluation", value: "NLP and semantic" },
     ],
     stack: ["Python", "PyTorch", "ViT", "Digital pathology"],
     year: "2025",
     track: "research",
-    repo: `${GH}/MediReport`,
+    repo: `${GH}/Medical_Report_Gen`,
   },
   {
     id: "videoanalytics",
     name: "Video Analytics",
-    sub: "Action recognition and violence detection",
+    sub: "Action and violence recognition",
     mark: "frame",
     figure: "5 architectures",
     caption: "compared across skeleton, appearance and hybrid approaches on three datasets.",
@@ -220,12 +221,12 @@ const RAW: Project[] = [
     stack: ["PyTorch", "ViViT", "VideoMAE", "YOLOv8"],
     year: "2025",
     track: "research",
-    repo: `${GH}/VideoAnalytics`,
+    repo: "https://github.com/VKrishnaSai/VideoAnalytics",
   },
   {
     id: "moml",
     name: "MoML",
-    sub: "Multi-objective model optimisation",
+    sub: "Multi-objective optimisation",
     mark: "pareto",
     figure: "3 objectives",
     caption: "in conflict — accuracy, inference time, model size. Nothing wins all three.",
@@ -249,7 +250,7 @@ const RAW: Project[] = [
   {
     id: "matrix-of-truth",
     name: "Matrix of Truth",
-    sub: "Multimodal misinformation detection",
+    sub: "Misinformation detection",
     mark: "glass",
     figure: "2nd / 5,600+",
     caption: "global submissions at the TruthTell Hackathon, WAVES Summit 2025.",
@@ -273,7 +274,7 @@ const RAW: Project[] = [
   {
     id: "voltiq",
     name: "Voltiq",
-    sub: "Asset intelligence for electric fleets",
+    sub: "EV fleet intelligence",
     mark: "cell",
     figure: "Computed, not read",
     caption: "battery health derived from electrochemistry rather than reported by the BMS.",
@@ -291,11 +292,12 @@ const RAW: Project[] = [
     stack: ["Next.js", "FastAPI", "TimescaleDB", "PyTorch", "CrewAI"],
     year: "2026",
     track: "build",
+    repo: `${GH}/VoltIQ`,
   },
   {
     id: "hft-sim",
     name: "HFT Simulator",
-    sub: "Exchange and order-matching engine",
+    sub: "Order-matching engine",
     mark: "book",
     figure: "Price-time",
     caption: "priority, strictly enforced. No order jumps the queue.",
@@ -313,12 +315,12 @@ const RAW: Project[] = [
     stack: ["C++", "Java", "JNI"],
     year: "2024",
     track: "build",
-    repo: `${GH}/HFT_and_OrderBook_Simulator`,
+    repo: `${GH}/HFT-Simulator`,
   },
   {
     id: "mediassist",
     name: "MediAssist",
-    sub: "Clinical decision support suite",
+    sub: "Clinical decision support",
     mark: "steth",
     figure: "4 pipelines",
     caption: "heart-attack risk, pneumonia, skin disease and tuberculosis, behind one API.",
@@ -339,7 +341,7 @@ const RAW: Project[] = [
   {
     id: "relaybrain",
     name: "relayBrain",
-    sub: "One project brain, any coding agent",
+    sub: "Cross-agent project memory",
     mark: "baton",
     figure: "Files only",
     caption: "no database, no login. Switch agents without re-explaining the repo.",
@@ -360,7 +362,7 @@ const RAW: Project[] = [
   {
     id: "sellorita",
     name: "Sellorita",
-    sub: "AI marketing and creative assistant",
+    sub: "AI marketing assistant",
     mark: "horn",
     figure: "3 tools",
     caption: "ad generation, marketing strategy and campaign planning, in one place.",
@@ -382,7 +384,7 @@ const RAW: Project[] = [
   {
     id: "pluginlive",
     name: "PluginLive",
-    sub: "Communication assessment platform",
+    sub: "Communication assessment",
     mark: "mic",
     figure: "Video → report",
     caption: "interactive sessions assessed automatically and returned as detailed feedback.",
@@ -404,7 +406,7 @@ const RAW: Project[] = [
   {
     id: "dialecto",
     name: "Dialecto",
-    sub: "Pixel-art language learning",
+    sub: "Gamified language learning",
     mark: "speech",
     figure: "4 modes",
     caption: "story exercises, pronunciation checks, a memory game and progress tracking.",
@@ -426,7 +428,7 @@ const RAW: Project[] = [
     {
     id: "os-registrar",
     name: "CLI Academia",
-    sub: "Multi-user educational management system",
+    sub: "Concurrent course server",
     mark: "keys",
     figure: "100 clients",
     caption: "concurrent connections, on a multi-threaded C server over TCP.",
@@ -449,7 +451,7 @@ const RAW: Project[] = [
   {
     id: "desaigner",
     name: "DesAIgner",
-    sub: "Real-time collaborative design canvas",
+    sub: "Collaborative design canvas",
     mark: "brushes",
     figure: "2nd / 3,500+",
     caption: "participants at MERNify, IIITB's Synergy '24 tech fest.",
@@ -581,16 +583,33 @@ export const SKILLS = [
     items: ["Docker", "Kubernetes", "Google Cloud", "Kafka", "Git", "LangChain"],
   },
   {
-    group: "Coursework",
+    /* Not a transcript. Sixteen course names in a row is a marks sheet,
+       and a marks sheet is the one document a reader already assumes
+       exists — so this is the curated set, split into the two things
+       somebody might actually be hiring for. Dropped along the way:
+       object-oriented programming and software engineering, both of
+       which the Languages and Tools groups already imply. */
+    group: "Systems",
     items: [
       "Data structures & algorithms",
-      "Recommendation systems",
-      "Machine learning",
       "Operating systems",
+      "Computer architecture",
       "Computer networks",
       "Database systems",
+      "Software architecture",
+      "Software production engineering",
+      "Cloud computing",
+    ],
+  },
+  {
+    group: "ML foundations",
+    items: [
+      "Machine learning",
+      "Natural language processing",
+      "Recommendation systems",
+      "Multi-objective machine learning",
+      "Network-based computing for HPC and AI",
       "Linear algebra",
-      "Software engineering",
     ],
   },
 ];
