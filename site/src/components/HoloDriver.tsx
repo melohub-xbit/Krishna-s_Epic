@@ -6,8 +6,8 @@ import { addJob, prefersReducedMotion } from "@/lib/dots";
 /**
  * THE PROJECTOR — the About section, switching itself on.
  *
- * One number drives everything: how far through the pinned section you
- * are, shaped into assemble → hold → take apart. Every stage is a window
+ * One number drives everything: how much of the section is on screen,
+ * shaped into assemble → hold → take apart. Every stage is a window
  * on that number, so the sequence runs forwards on the way in and
  * *backwards* on the way out, with no separate exit to keep in step:
  *
@@ -18,19 +18,25 @@ import { addJob, prefersReducedMotion } from "@/lib/dots";
  *   0.24 – 0.62   the picture unfolds up out of the base
  *   0.44 – 0.82   the callouts arrive
  *
- * The whole sequence used to be spread over the first 30% of the pin's
- * travel, which is half a screen of scrolling spent looking at an empty
- * stage before anything happened. It is 17% now — the projector is
- * assembling by the time the section has settled, not long after.
- *
  * Scrolling away runs that in reverse: the picture reels back down into
  * the lens, the beam retracts, and the slab collapses to a line and then
  * to nothing — the way a CRT switches off.
  *
- * The section is pinned and three screens tall so all of that happens
- * while the projector is actually in front of you. Anchored to a
- * one-screen section instead, both ramps finished before it came into
- * view and it simply sat there fully lit.
+ * WHAT DRIVES p IS VISIBILITY, NOT SCROLL DEPTH.
+ *
+ * It used to be the pin's own progress: 0 the moment the section's top
+ * reached the top of the window, 1 a fifth of the way through. That has
+ * a hole at each end. Scrolling in, the section already fills the screen
+ * for a whole viewport before its top reaches zero — and for all of that
+ * p is 0, so you are looking at an empty stage. Leaving, the ramp
+ * finishes with a screen and a half of pinned section still to scroll,
+ * which is the same blank hold again on the way out.
+ *
+ * So it is driven by how much of the section is on screen instead: the
+ * projector assembles as the section climbs into view, holds for the
+ * whole time it owns the screen, and takes itself apart as it leaves.
+ * No dead scrolling at either end, and the timeline no longer depends
+ * on how tall the section happens to be.
  *
  * The picture is a plain image inside `#about-slot`, so transforming the
  * slot is what unfolds it out of the lens and reels it back in. It used
@@ -118,22 +124,16 @@ export default function HoloDriver() {
 
       const h = window.innerHeight;
       const r = sec.getBoundingClientRect();
-      const travel = sec.offsetHeight - h;
 
-      let p: number;
-      if (travel > h * 0.4) {
-        /* pinned: the projector holds in the middle of the screen while
-           the section's own scroll assembles it, holds, and undoes it */
-        const prog = clamp(-r.top / travel, 0, 1);
-        p =
-          prog < 0.5
-            ? smooth(clamp(prog / 0.17, 0, 1))
-            : smooth(clamp((1 - prog) / 0.24, 0, 1));
-      } else {
-        /* too short to pin — fall back to how centred the section is */
-        const c = r.top + r.height / 2;
-        p = smooth(clamp(1 - Math.abs(c - h * 0.5) / (h * 0.7), 0, 1));
-      }
+      /* How far the section has climbed into the window, and how much of
+         it is left before it is gone. Each runs over about three quarters
+         of a screen of scrolling, so assembling and collapsing are brisk
+         without being abrupt — and between them the projector simply
+         stays on. min() of the two is what holds it there. */
+      const RAMP = h * 0.72;
+      const rise = clamp((h - r.top) / RAMP, 0, 1);
+      const fall = clamp(r.bottom / RAMP, 0, 1);
+      const p = Math.min(smooth(rise), smooth(fall));
 
       const bx = stage(p, 0, 0.14);
       const by = stage(p, 0.08, 0.2);

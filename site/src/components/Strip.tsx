@@ -170,6 +170,13 @@ export default function Strip({ projects }: { projects: Project[] }) {
     let settle = 0;
 
     const onWheel = (e: WheelEvent) => {
+      /* Ctrl (or Cmd) held is a ZOOM gesture, not a scroll — every browser
+         reports it as a wheel event with ctrlKey set, including trackpad
+         pinch. Taking it moved the rail AND left the zoom half-applied,
+         because the guard below hands the event back at either end of the
+         track: some notches zoomed, some scrolled. It is the browser's. */
+      if (e.ctrlKey || e.metaKey) return;
+
       /* real horizontal intent — a trackpad swipe. The browser owns it. */
       if (e.deltaX !== 0) return;
 

@@ -291,12 +291,23 @@ section:first-of-type::before {
    competing on arrival.
    ══════════════════════════════════════════════════════════ */
 
+/* A GRID, so the name wall can never reach the copy.
+   The wall used to be an absolute layer across the whole hero and the
+   copy sat on top of it. That looks deliberate at one height and like a
+   collision at every other, because nothing tied the two together: the
+   wall centred itself in the hero while the copy grew from the bottom,
+   and on a short screen (or at 175% zoom, which is the same thing) they
+   met in the middle.
+
+   Four rows: the label, the wall, the copy, the status line. The wall
+   gets `1fr` — whatever is left after the text has taken what it needs
+   — so it shrinks instead of colliding, and there is no measurement
+   anywhere that has to guess how tall the copy is. */
 .hero {
   position: relative;
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
   padding: 7rem 0 3.4rem;
   isolation: isolate;
 }
@@ -336,16 +347,17 @@ section:first-of-type::before {
 /* ── layer 2 · the name wall ──────────────────────────────── */
 
 .hero-wall {
-  position: absolute;
-  inset: 0;
+  position: relative;
   z-index: 1;
+  min-height: 0;
   display: flex;
   flex-direction: column;
   justify-content: center;
   /* centred in a box that is short at the bottom, which lifts the whole
      block by half the padding — closes the gap under the arrow without
      transforming a layer that has four marquees running inside it */
-  padding-bottom: 20vh;
+  /* it owns its own row now, so it needs no padding to keep clear of
+     anything — it centres in whatever height it was given */
   overflow: hidden;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(to top, transparent 8%, #000 34%, #000 78%, transparent 96%);
@@ -1011,7 +1023,11 @@ button:active {
 .about-scene {
   position: relative;
   padding: 0;
-  height: 280vh;
+  /* Was 280vh. The projector now holds for as long as the section is on
+     screen rather than ramping inside it, so the extra height bought
+     nothing but scrolling past a picture that had stopped changing.
+     This is about one screen of hold either side of the read. */
+  height: 200vh;
 }
 .about-pin {
   position: sticky;
@@ -3920,13 +3936,20 @@ html.door-flip .flip {
   overflow: visible;
 }
 
-/* Over the wall, not in the flow — it has to sit against the name it is
-   pointing at, and the name is a full-bleed background layer. */
+/* IN THE FLOW, at the top of the hero column.
+   It used to be absolutely positioned at a fixed distance from the top
+   of the hero, while the name wall behind it was centred in that same
+   box. On a screen tall enough for the design those two never met; on a
+   short laptop the hero grows past 100svh, the wall recentres, and the
+   label landed straight on top of a row of the name. Two layers placed
+   by unrelated rules will always eventually collide.
+
+   `margin-bottom: auto` is what keeps it at the top: the hero is a
+   column that justifies to the end, so the auto margin eats the free
+   space and everything else stays where it was. */
 .hero-yo {
-  position: absolute;
+  position: relative;
   z-index: 3;
-  left: var(--gut);
-  top: clamp(5.4rem, 15vh, 9rem);
   font-size: clamp(1.05rem, 2.6vw, 1.5rem);
 }
 .hero-yo .doodle {
@@ -4362,5 +4385,226 @@ html.door-flip .flip {
       color-mix(in srgb, var(--bg) 44%, transparent) 78%,
       transparent 96%
     );
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SHORT SCREENS — the hero, on a laptop that is not tall
+
+   Nothing here is a new layout. The hero simply asks for more
+   height than a 13-inch laptop has once the browser chrome is
+   taken out: 7rem of top padding, a boot log holding 15.2em
+   open, the copy, and 3.4rem underneath. Past about 800px of
+   viewport that fits; under it the section overflows 100svh,
+   every centred layer recentres against a taller box, and
+   things that were never near each other end up touching.
+   Zooming out "fixed" it because zooming out is the same as
+   having more pixels of height.
+
+   So the fixed measurements come down with the viewport. The
+   boot log gives up the most, because it is the one element
+   holding space open for text that has already finished
+   typing itself.
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-height: 860px) {
+  .hero {
+    padding: 5.2rem 0 2.4rem;
+  }
+  .hero-copy {
+    gap: 1.1rem;
+  }
+  .hero-boot {
+    min-height: 11em;
+    line-height: 1.7;
+  }
+  .hero-status {
+    margin-top: 1.6rem;
+  }
+}
+
+@media (max-height: 720px) {
+  .hero {
+    padding: 4.4rem 0 1.8rem;
+  }
+  .hero-copy {
+    gap: 0.85rem;
+  }
+  .hero-boot {
+    min-height: 8.5em;
+    font-size: 0.6rem;
+    line-height: 1.6;
+  }
+  .hero-status {
+    margin-top: 1.1rem;
+  }
+  .hero-quip {
+    margin-top: 0.3rem;
+  }
+  .hero-intro {
+    margin-top: 0.5rem;
+  }
+  /* the wall is the one thing that can afford to be smaller — it is
+     texture, not content */
+  .hw {
+    font-size: clamp(1.7rem, 5.4vw, 3.4rem);
+  }
+}
+
+/* Genuinely small: the boot log stops reserving any height at all and
+   the wall gets out of the way, so the copy always fits. */
+@media (max-height: 620px) {
+  .hero {
+    padding: 3.8rem 0 1.4rem;
+  }
+  .hero-boot {
+    min-height: 0;
+  }
+  .hero-wall {
+    opacity: 0.55;
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   SHORT SCREENS — the pinned scenes
+
+   The band and the sign-off already had a compaction pass, but
+   it hung off `max-width: 760px` — so it fired for a phone and
+   never for a wide, short window. A laptop at 175% zoom is a
+   1150 x 780 viewport: too wide for the phone rules, far too
+   short for the desktop ones, and the card, the strip and the
+   footer end up in the same 200 pixels.
+
+   Height is the constraint in a pinned scene, so these key off
+   height. They are the same moves as the phone block, without
+   the left alignment — a wide screen still centres.
+   ═══════════════════════════════════════════════════════════ */
+
+@media (min-width: 761px) and (max-height: 860px) {
+  .bd-pin {
+    gap: 0.4rem;
+    padding: clamp(3.2rem, 7vh, 4.4rem) 0 0.5rem;
+  }
+  /* the set stops floating in the middle and takes the whole stage,
+     laying its own rows out from the top */
+  .bd-stage {
+    place-items: stretch;
+  }
+  .bd-set {
+    width: min(620px, 92%);
+    margin: 0 auto;
+    grid-template-rows: auto auto auto auto 1fr;
+    gap: 0.4rem;
+    align-content: start;
+  }
+  .bd-freq {
+    font-size: 1.7rem;
+  }
+  .bd-name {
+    font-size: clamp(1.6rem, 4vw, 2.4rem);
+  }
+  .bd-sub {
+    font-size: 0.86rem;
+    min-height: 1.4em;
+  }
+  .bd-scale {
+    height: 34px;
+    margin-top: 0.3rem;
+  }
+  .bd-stops {
+    margin-top: 0.5rem;
+    gap: 0.32rem;
+  }
+  .bd-stop {
+    padding: 0.32rem 0.6rem;
+  }
+  .bd-out {
+    place-content: center;
+  }
+  .fstrip {
+    height: 28px;
+    margin-top: 0;
+  }
+
+  /* the sign-off: the card was taller than the screen, so it printed
+     over the strip and the footer under it */
+  .ct-card {
+    justify-content: flex-start;
+    gap: 0.8rem;
+  }
+  .contact-sign {
+    font-size: clamp(1.4rem, 4.5vw, 2.4rem);
+  }
+  .contact-lines {
+    gap: 0.8rem;
+  }
+  .mail {
+    font-size: clamp(1.2rem, 3.4vw, 1.9rem);
+  }
+  .links {
+    gap: 1rem;
+    margin-top: 0.8rem;
+  }
+  .jester {
+    margin-top: 0.2rem;
+  }
+  .jester-why {
+    font-size: 0.9rem;
+  }
+  .contact-facts {
+    gap: 0.6rem 1.8rem;
+    margin-top: 0.3rem;
+    padding-top: 0.7rem;
+  }
+  .contact-close {
+    font-size: 0.84rem;
+  }
+  /* he was standing in the type at this height */
+  .ct-figure {
+    height: 56%;
+    right: -4vw;
+    opacity: 0.4;
+  }
+}
+
+/* shorter still — the same again, harder */
+@media (min-width: 761px) and (max-height: 720px) {
+  .bd-pin {
+    padding-top: clamp(2.8rem, 6vh, 3.6rem);
+  }
+  .bd-freq {
+    font-size: 1.45rem;
+  }
+  .bd-name {
+    font-size: clamp(1.4rem, 3.4vw, 2rem);
+  }
+  .bd-scale {
+    height: 28px;
+  }
+  .bd-stop {
+    padding: 0.26rem 0.5rem;
+  }
+  .bd-stop-name {
+    font-size: 0.68rem;
+  }
+  .mail {
+    font-size: clamp(1.05rem, 2.8vw, 1.5rem);
+  }
+  .contact-close {
+    font-size: 0.78rem;
+  }
+  .ct-figure {
+    height: 46%;
+    opacity: 0.3;
+  }
+  /* the skills disc is pinned too, and its list is the part that grows */
+  .gm-list {
+    font-size: 0.86rem;
+    gap: 0.3rem 0.9rem;
+  }
+  .gm-list[data-many="true"] {
+    font-size: 0.76rem;
   }
 }
