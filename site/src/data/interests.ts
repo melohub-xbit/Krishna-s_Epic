@@ -478,8 +478,8 @@ export const INTERESTS: Interest[] = [
   /* ── 108.0 ────────────────────────────────────────────── */
   {
     freq: "108.0",
-    name: "Mutts and Meows",
-    glyph: "Mutts and Meows",
+    name: "Meows and Bows",
+    glyph: "Meows and Bows",
     sub: "Started with a cartoon dog, never recovered",
     pitch:
       "A film about a dog who thinks he is a superhero did this to me, and I regret none of it.",

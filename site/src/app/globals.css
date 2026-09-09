@@ -2606,8 +2606,16 @@ html[data-rec-open="true"] .bar {
   /* the whole set slides away as the band runs out, so the door is
      alone on screen rather than competing with a station */
   transform: translateY(calc(var(--out, 0) * -3vh));
-  opacity: calc(1 - var(--out, 0));
+  /* The fade used to run the full length of the run-out, which left the
+     station buttons showing at 20% underneath a fully-arrived door — two
+     things in one place. Multiplied, the set is gone by the time the door
+     has finished coming up. */
+  opacity: calc(1 - min(1, var(--out, 0) * 1.9));
   pointer-events: auto;
+}
+.bd-pin[data-open="true"] .bd-set {
+  pointer-events: none;
+  visibility: hidden;
 }
 
 .bd-freq {
@@ -4166,5 +4174,184 @@ html.door-flip .flip {
 @media (max-height: 700px) and (min-width: 1000px) {
   .holo-under {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   PHONES — the two pinned scenes
+
+   Both scenes centre one block inside a screen that cannot
+   grow. On a laptop the block is shorter than the screen, so
+   centring reads as composure. On a phone it is TALLER, and
+   centring then does two things at once: it leaves a hole at
+   the top, and it pushes the overflow straight down through
+   the frequency strip. The empty top and the collisions at the
+   bottom were never two bugs.
+
+   So below 760px the pin stops centring and starts allocating:
+   the set anchors to the top of the stage and lays its own
+   rows out, the presets become a two-column grid that fills
+   what used to be the hole, and the strip keeps a reserved
+   band underneath that nothing else may enter.
+   ═══════════════════════════════════════════════════════════ */
+
+@media (max-width: 760px) {
+  .bd-pin {
+    gap: 0.5rem;
+    padding: clamp(3.4rem, 7.5vh, 4.6rem) 0 0.5rem;
+  }
+  /* stretch, not centre — the set now owns the full height of the
+     stage and distributes it, instead of floating in the middle of it */
+  .bd-stage {
+    place-items: stretch;
+  }
+  .bd-set {
+    width: 100%;
+    padding: 0 var(--gut);
+    grid-template-rows: auto auto auto auto 1fr;
+    gap: 0.45rem;
+    align-content: start;
+    justify-items: start;
+    text-align: left;
+  }
+  .bd-freq {
+    font-size: 2rem;
+  }
+  .bd-name {
+    justify-content: flex-start;
+    font-size: clamp(1.6rem, 8vw, 2.2rem);
+  }
+  .bd-sub {
+    font-size: 0.82rem;
+  }
+  .bd-sub > span {
+    place-items: center start;
+    text-align: left;
+  }
+  .bd-scale {
+    width: 100%;
+    margin-top: 0.3rem;
+  }
+  /* the presets fill the space the centring used to waste */
+  .bd-stops {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.4rem;
+    width: 100%;
+    align-content: start;
+    margin-top: 0.7rem;
+  }
+  .bd-stop {
+    justify-items: start;
+    text-align: left;
+    padding: 0.5rem 0.6rem;
+    border-radius: 10px;
+  }
+  .bd-stop-name {
+    font-size: 0.76rem;
+  }
+  /* the door sits over the middle of the stage, not over the presets */
+  .bd-out {
+    place-content: center;
+  }
+  .fstrip {
+    margin-top: 0;
+    height: 30px;
+  }
+
+  /* ── the sign-off ───────────────────────────────────────
+     Same disease, same cure: the card is taller than the
+     screen, so it was drawing over the strip and the footer
+     below it. Everything in it comes down a size and the two
+     lists go to two columns, which is most of a screen back. */
+  .ct-card {
+    justify-content: flex-start;
+    gap: 1rem;
+    padding: 0 var(--gut);
+  }
+  .contact-sign {
+    font-size: clamp(1.6rem, 7vw, 2.4rem);
+  }
+  .contact-lines {
+    gap: 0.9rem;
+  }
+  .mail {
+    font-size: clamp(1.1rem, 5.4vw, 1.5rem);
+    word-break: break-all;
+    padding-bottom: 0.4rem;
+  }
+  .links {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.5rem;
+    margin-top: 0.9rem;
+  }
+  .links a {
+    font-size: 0.62rem;
+    border: 1px solid var(--rule-2);
+    border-radius: 999px;
+    padding: 0.42rem 0.6rem;
+    text-align: center;
+  }
+  .jester-why {
+    font-size: 0.88rem;
+  }
+  .contact-facts {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.7rem;
+    margin-top: 0.4rem;
+    padding-top: 0.8rem;
+  }
+  .contact-facts dd {
+    font-size: 0.84rem;
+  }
+  .contact-close {
+    font-size: 0.82rem;
+  }
+  /* he stops standing in the type and becomes weather at the horizon */
+  .ct-figure {
+    right: -16vw;
+    bottom: 0;
+    height: 46%;
+    opacity: 0.26;
+    filter: none;
+  }
+}
+
+/* very narrow: two columns of presets stop being worth it */
+@media (max-width: 380px) {
+  .bd-stops {
+    grid-template-columns: 1fr;
+  }
+  .links,
+  .contact-facts {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── the hero, on a phone ───────────────────────────────────
+   The intro paragraph ran straight into BASED IN with nothing
+   between them, and the landscape's veil stop landed in the
+   middle of the words — a band across the text. */
+@media (max-width: 760px) {
+  .hero-intro {
+    margin-bottom: clamp(1.2rem, 3.5vh, 2rem);
+  }
+  /* More stops, further apart. The desktop veil goes from 84% to 36% of
+     the ground between 34% and 58% of the height — on a phone that is a
+     short distance and it reads as a hard band drawn across the middle
+     of the paragraph. */
+  .hero-veil {
+    background: linear-gradient(
+      to top,
+      var(--bg) 0%,
+      var(--bg) 26%,
+      color-mix(in srgb, var(--bg) 90%, transparent) 46%,
+      color-mix(in srgb, var(--bg) 72%, transparent) 62%,
+      color-mix(in srgb, var(--bg) 44%, transparent) 78%,
+      transparent 96%
+    );
   }
 }

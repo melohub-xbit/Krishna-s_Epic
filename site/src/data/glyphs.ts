@@ -199,7 +199,7 @@ export const GLYPHS: Record<string, GlyphPainter> = {
   },
 
   /** a paw — pad and three toes, which is all that survives a dot grid */
-  "Mutts and Meows": (o, w, h) => {
+  "Meows and Bows": (o, w, h) => {
     const r = w * 0.085;
     [
       [0.3, 0.4],
