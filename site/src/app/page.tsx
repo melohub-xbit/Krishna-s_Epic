@@ -78,6 +78,21 @@ export default function Home() {
                       </div>
                     </div>
 
+                    <div className="callout holo-exp">
+                      <p className="lab">Experience</p>
+                      <div className="list list--row">
+                        {EXPERIENCE.map((e) => (
+                          <div key={e.org} className="list-block">
+                            <span>
+                              {e.role}
+                              <small>{e.org}</small>
+                              <small className="list-note">{e.note}</small>
+                            </span>
+                            <span>{e.span}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
                   </div>
 
                   <div className="holo-core">
@@ -114,12 +129,10 @@ export default function Home() {
                 </div>
 
                 <div className="holo-under">
-                  {/* The paragraphs now sit UNDER the projection rather than
-                    beside it. In a side column they had a 42ch measure and
-                    had to share the height with a list; across the full
-                    width of the scene they get a proper measure and the
-                    top row is left to the two things worth reading at a
-                    glance. */}
+                  {/* The paragraphs get the whole width under the projection.
+                    Experience moved up into the left column, which both
+                    balances the top row against the tall Achievements list
+                    and hands the copy its full measure. */}
                   <div className="holo-copy">
                     <p className="big">
                       Hey again. Here&rsquo;s some more about
@@ -149,21 +162,6 @@ export default function Home() {
                     </p>
                   </div>
 
-                  <div className="callout holo-exp">
-                    <p className="lab">Experience</p>
-                    <div className="list list--row">
-                      {EXPERIENCE.map((e) => (
-                        <div key={e.org} className="list-block">
-                          <span>
-                            {e.role}
-                            <small>{e.org}</small>
-                            <small className="list-note">{e.note}</small>
-                          </span>
-                          <span>{e.span}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                 </div>
 
               </div>

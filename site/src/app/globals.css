@@ -1048,7 +1048,7 @@ button:active {
    the paragraphs live UNDER it rather than beside it, so the picture
    gives back a little of its height to pay for them. */
 .about-pin .holo-figure {
-  width: min(clamp(148px, 20.5vh, 224px), 82%);
+  width: min(clamp(176px, 27vh, 320px), 88%);
   margin-bottom: 0;
 }
 
@@ -1123,12 +1123,18 @@ button:active {
 }
 @media (min-width: 1000px) {
   .holo-grid {
-    /* the picture is the smallest thing up here now — the two lists
-       either side are what you actually read at a glance, so they get
-       the width */
-    grid-template-columns: minmax(0, 1fr) minmax(170px, 240px) minmax(0, 1.12fr);
+    grid-template-columns: minmax(0, 1fr) minmax(200px, 330px) minmax(0, 1.05fr);
     gap: clamp(1.4rem, 3vw, 2.6rem);
-    align-items: center;
+    /* Hang all three from the same top line. Centred, a short column
+       (Education alone) floated in the middle of a tall one
+       (Achievements) and left a hole above it — which is most of the
+       empty space in this scene. */
+    align-items: start;
+  }
+}
+@media (min-width: 1000px) {
+  .holo-core {
+    padding-top: clamp(0.5rem, 2vh, 1.6rem);
   }
 }
 @media (max-width: 999px) {
@@ -1278,15 +1284,12 @@ button:active {
   display: grid;
   gap: clamp(1rem, 2.4vh, 1.6rem);
 }
-@media (min-width: 1000px) {
-  .holo-under {
-    grid-template-columns: minmax(0, 1.62fr) minmax(0, 1fr);
-    align-items: start;
-    gap: clamp(1.6rem, 3.6vw, 3rem);
-  }
-}
+/* One column: Experience moved up into the left callout column, so the
+   copy has the whole width. A measure cap still applies — full width at
+   this size would be 160 characters a line, which nobody reads. */
 .holo-under .holo-copy {
-  max-width: 82ch;
+  max-width: 86ch;
+  margin: 0 auto;
 }
 /* the Experience list is a footnote at this size, not a section */
 .holo-exp {
@@ -1324,11 +1327,8 @@ button:active {
    before it runs off the bottom of a pinned screen — which is what the
    second Experience entry was doing. */
 @media (min-width: 1000px) {
-  /* Only Education and Achievements ride up here now, and neither runs
-     long, so they centre against the picture instead of hanging from
-     the top of the row. */
   .holo-grid .callouts {
-    align-self: center;
+    align-self: start;
   }
 }
 .callout > .lab {

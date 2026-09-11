@@ -529,6 +529,11 @@ export const EXPERIENCE = [
 
 export const ACHIEVEMENTS = [
   {
+    place: "Top 3",
+    what: "NCIIPC AI Grand Challenge",
+    scale: "of 100,000+ teams · cleared Stages 1 and 2, selected for incubation",
+  },
+  {
     place: "1st",
     what: "ICDEC'24 International Vehicle Detection Challenge",
     scale: "out of 2,000 teams",
